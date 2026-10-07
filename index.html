@@ -1,981 +1,510 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>File Assenze Natale</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <!-- SheetJS per la gestione import/export Excel -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <style>
-        .day-card { transition: all 0.2s ease-in-out; }
-        .day-card:hover { transform: translateY(-2px); }
-        .mandatory-day { background-color: #fef3c7; border-color: #f59e0b; color: #92400e; }
-        .recommended-day { border-color: #3b82f6; background-color: #eff6ff; }
-        .validated-day { background-color: #d1fae5; border-color: #10b981; color: #065f46; }
-        .holiday-weekend-day { background-color: #ffedd5; border-color: #f97316; color: #9a3412; }
-
-        /* Dynamic Inquadramento Themes */
-        body.theme-dipendente { background-color: #f1f5f9; }
-        body.theme-piva { background-color: #e2e8f0; }
-        body.theme-cococo { background-color: #e0e7ff; }
-
-        .header-dipendente { background-color: #991b1b; }
-        .header-piva { background-color: #334155; }
-        .header-cococo { background-color: #3730a3; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestione Pianificazione Ferie & Assenze Natalizie</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- SheetJS per esportazione Excel -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    .header-bar { background: linear-gradient(135deg, #0d3b66, #001f3f); color: white; padding: 20px 0; margin-bottom: 25px; }
+    .card { border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .day-box { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; transition: all 0.2s; }
+    .day-box.recommended { background-color: #fff3cd; border: 2px solid #ffc107; color: #856404; }
+    .day-box.selected { background-color: #198754 !important; border-color: #198754 !important; color: white !important; }
+    .day-box.disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; border: 1px solid #dee2e6; }
+    .table-responsive { font-size: 0.88rem; }
+    .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; }
+  </style>
 </head>
-<body id="bodyTag" class="bg-slate-100 min-h-screen text-slate-800 font-sans transition-colors duration-300">
+<body>
 
-    <!-- Header Navigation -->
-    <header id="mainHeader" class="header-dipendente text-white shadow-lg sticky top-0 z-50 transition-colors duration-300">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <i class="fa-solid fa-tree text-2xl text-green-400"></i>
-                <h1 class="text-xl font-bold tracking-wide">File Assenze Natale</h1>
-            </div>
-            <div id="userInfoHeader" class="hidden flex items-center space-x-4">
-                <span id="userBadge" class="bg-black/20 text-white text-xs font-semibold px-3 py-1 rounded-full border border-white/20"></span>
-                <button onclick="logout()" class="text-xs bg-white/20 hover:bg-white/30 px-3 py-1.5 rounded transition">
-                    <i class="fa-solid fa-sign-out-alt mr-1"></i> Esci
-                </button>
-            </div>
-        </div>
-    </header>
+  <!-- HEADER -->
+  <div class="header-bar text-center">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <h3 class="m-0 fw-bold">🎄 Pianificazione Assenze Natalizie</h3>
+        <small class="text-white-50">HQ Engineering & Consorzio HQ</small>
+      </div>
+      <div id="userInfo" class="d-none text-end">
+        <span id="userNameDisplay" class="fw-bold d-block"></span>
+        <button class="btn btn-sm btn-outline-light mt-1" onclick="logout()">Disconnetti</button>
+      </div>
+    </div>
+  </div>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
+  <div class="container mb-5">
+
+    <!-- SCHERMATA DI LOGIN -->
+    <div id="loginCard" class="card mx-auto" style="max-width: 420px;">
+      <div class="card-body p-4 text-center">
+        <h5 class="card-title fw-bold mb-3">Accedi alla Piattaforma</h5>
+        <p class="text-muted small">Inserisci la tua email aziendale per gestire le tue presenze/assenze.</p>
         
-        <!-- STEP 1: Login -->
-        <section id="loginSection" class="max-w-md mx-auto bg-white rounded-xl shadow-md p-6 border border-slate-200">
-            <h2 class="text-lg font-bold text-slate-800 mb-2 flex items-center">
-                <i class="fa-solid fa-user-check text-red-700 mr-2"></i> Accesso Collaboratore
-            </h2>
-            <p class="text-xs text-slate-500 mb-4">Inserisci la tua email aziendale per accedere al modulo.</p>
-            
-            <div class="mb-4">
-                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Email Aziendale</label>
-                <input type="email" id="emailInput" placeholder="nome.cognome@hqe.it" class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600 text-sm" onkeyup="onEmailChange(event)">
-            </div>
-
-            <!-- Campo Password (Visibile solo per Email Amministratore) -->
-            <div id="passwordContainer" class="hidden mb-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <label class="block text-xs font-bold text-amber-900 uppercase mb-1">🔑 Password Amministratore</label>
-                <input type="password" id="passwordInput" placeholder="Inserisci password admin" class="w-full px-3 py-2 border border-amber-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-600 text-sm bg-white" onkeyup="checkEnterKey(event)">
-            </div>
-
-            <button onclick="loginUser()" class="w-full bg-red-700 hover:bg-red-800 text-white font-semibold py-2.5 px-4 rounded-lg shadow transition text-sm">
-                Accedi al Modulo
-            </button>
-            
-            <div id="loginError" class="hidden mt-3 p-2 bg-red-50 text-red-600 text-xs rounded border border-red-200 text-center"></div>
-        </section>
-
-        <!-- STEP 2: Application Dashboard -->
-        <section id="appSection" class="hidden space-y-6">
-            
-            <!-- Admin Navigation Tabs (Visibile SOLO agli Admin) -->
-            <div id="adminTabNav" class="hidden flex border-b border-slate-200 bg-white rounded-t-xl px-4 pt-2">
-                <button onclick="switchTab('userTab')" id="btnTabUser" class="py-2.5 px-5 text-sm font-bold border-b-2 border-red-700 text-red-700">
-                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Compilazione Mie Assenze
-                </button>
-                <button onclick="switchTab('adminTab')" id="btnTabAdmin" class="py-2.5 px-5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800">
-                    <i class="fa-solid fa-user-shield mr-1.5"></i> Pannello Admin & Report
-                </button>
-            </div>
-
-            <!-- USER FORM TAB -->
-            <div id="userTabContent" class="space-y-6">
-                <!-- Info Banner Chiusura Aziendale -->
-                <div id="closureBanner" class="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-lg shadow-sm">
-                    <div class="flex items-start">
-                        <i class="fa-solid fa-triangle-exclamation text-amber-600 text-lg mr-3 mt-0.5"></i>
-                        <div class="text-sm text-amber-900">
-                            <p class="font-bold mb-1">Chiusura Aziendale Automatica</p>
-                            <p id="closureBannerText">Le giornate del <strong>24 e 31 Dicembre</strong> e del <strong>4 e 5 Gennaio</strong> sono stabilite come chiusura aziendale obbligatoria. Sono pre-selezionate nel tuo modulo.</p>
-                            <p id="recommendedDayText" class="mt-2 text-xs font-semibold text-blue-800 bg-blue-100 p-2 rounded hidden"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Banner Modifica e Validazione -->
-                <div id="validationBanner" class="p-3 rounded-xl shadow-sm border border-blue-200 bg-blue-50 text-blue-900 font-medium flex items-center space-x-2 text-xs">
-                    <i class="fa-solid fa-pen-to-square text-blue-600"></i>
-                    <span id="validationBannerText">Puoi apportare modifiche fino al 15 novembre.</span>
-                </div>
-
-                <!-- Main Calendar Form -->
-                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-slate-100 gap-2">
-                        <div>
-                            <h2 id="calendarMainTitle" class="text-xl font-bold text-slate-800">Selezione Giorni di Assenza</h2>
-                            <p class="text-xs text-slate-500">Periodo Natalizio: dal 21 Dicembre all'8 Gennaio</p>
-                        </div>
-                        <div id="userProfileSummary" class="text-right text-xs text-slate-600 bg-slate-50 px-3 py-2 rounded-lg border"></div>
-                    </div>
-
-                    <!-- Calendar Grid -->
-                    <div id="calendarGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3 mb-6"></div>
-
-                    <!-- Note Field -->
-                    <div class="mb-6">
-                        <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Note o Segnalazioni (Opzionale)</label>
-                        <textarea id="userNotes" rows="2" placeholder="Eventuali note per la direzione..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-600"></textarea>
-                    </div>
-
-                    <!-- Alert message -->
-                    <div id="formAlert" class="hidden mb-4 p-3 bg-amber-100 text-amber-800 rounded-lg text-xs font-medium border border-amber-200"></div>
-
-                    <!-- Submit Button -->
-                    <div class="flex justify-end">
-                        <button id="saveBtn" onclick="saveUserRequest()" class="bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 px-6 rounded-lg shadow transition flex items-center text-sm">
-                            <i class="fa-solid fa-floppy-disk mr-2"></i> Salva Preferenze Assenze
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ADMIN TAB (Visibile SOLO agli Admin) -->
-            <div id="adminTabContent" class="hidden space-y-6">
-                
-                <!-- SECTION 1: Anagrafica Management -->
-                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
-                            <i class="fa-solid fa-users-gear text-red-700 mr-2"></i> Gestione Anagrafica Collaboratori & Organizzazione
-                        </h3>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Caricamento Excel -->
-                        <div class="p-4 bg-slate-50 rounded-lg border border-dashed border-slate-300 flex flex-col justify-between">
-                            <div>
-                                <h4 class="text-xs font-bold text-slate-700 uppercase mb-1">📂 Carica / Aggiorna File Excel Anagrafica (.xlsx / .csv)</h4>
-                                <p class="text-[11px] text-slate-500 mb-3">Carica un file Excel con colonne: Azienda, Cognome, Nome, Email, Inquadramento, CDC - BU, CDC - TEAM, REFERENTE HQ.</p>
-                            </div>
-                            <div>
-                                <input type="file" id="excelFileInput" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleFileUpload(event)">
-                                <button onclick="document.getElementById('excelFileInput').click()" class="bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold py-2 px-4 rounded transition w-full mb-2">
-                                    Seleziona e Importa File Excel
-                                </button>
-                                <div id="uploadStatus" class="text-[11px] font-semibold text-slate-600 text-center">Nessun file caricato in questa sessione</div>
-                            </div>
-                        </div>
-
-                        <!-- Inserimento Manuale Nuova Risorsa -->
-                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                            <h4 class="text-xs font-bold text-slate-700 uppercase mb-2">➕ Aggiungi Singolo Collaboratore Manualmente</h4>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="text" id="manualCognome" placeholder="Cognome *" class="px-2 py-1.5 border rounded text-xs">
-                                <input type="text" id="manualNome" placeholder="Nome *" class="px-2 py-1.5 border rounded text-xs">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 mb-2">
-                                <input type="email" id="manualEmail" placeholder="Email aziendale *" class="px-2 py-1.5 border rounded text-xs">
-                                <input type="text" id="manualAzienda" placeholder="Azienda (es. HQE)" class="px-2 py-1.5 border rounded text-xs">
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 mb-2">
-                                <input type="text" id="manualBU" placeholder="BU" class="px-2 py-1.5 border rounded text-xs">
-                                <input type="text" id="manualTeam" placeholder="Team" class="px-2 py-1.5 border rounded text-xs">
-                                <input type="text" id="manualReferente" placeholder="Referente" class="px-2 py-1.5 border rounded text-xs">
-                            </div>
-                            <div class="grid grid-cols-2 gap-2 mb-3">
-                                <select id="manualInquadramento" class="px-2 py-1.5 border rounded text-xs bg-white">
-                                    <option value="Dipendente">Dipendente</option>
-                                    <option value="P.IVA">P.IVA</option>
-                                    <option value="CoCoCo">CoCoCo</option>
-                                </select>
-                                <input type="number" id="manualMaxDays" value="4" min="4" max="20" placeholder="Max giorni" class="px-2 py-1.5 border rounded text-xs">
-                            </div>
-                            <button onclick="addManualUser()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-1.5 px-3 rounded text-xs w-full transition">
-                                Salva Collaboratore in Anagrafica
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 2: General Admin Controls & Multi-Select Recommended Days -->
-                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center">
-                        <i class="fa-solid fa-sliders text-red-700 mr-2"></i> Impostazioni Generali & Ferie Consigliate
-                    </h3>
-                    
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-xs font-bold text-slate-700 uppercase mb-2">
-                                💡 Seleziona i Giorni di Ferie Consigliati (Visibili SOLO ai Dipendenti):
-                            </label>
-                            <div id="recommendedDaysCheckboxes" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200 text-xs"></div>
-                        </div>
-
-                        <div class="flex justify-between items-center pt-2">
-                            <span class="text-xs text-slate-500">Scarica il file master delle assenze nel formato aziendale HQE.</span>
-                            <button onclick="exportToExcelHQE()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 px-5 rounded-lg shadow transition flex items-center text-xs">
-                                <i class="fa-solid fa-file-excel mr-2"></i> Scarica Report Excel Formato HQE (.xlsx)
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SECTION 3: Admin Master Table -->
-                <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-                    <div class="flex flex-col gap-3 mb-4">
-                        <h3 class="text-lg font-bold text-slate-800">Anagrafica Risorse & Azioni Admin</h3>
-                        
-                        <!-- FILTRI A TENDINA PER BU, TEAM, REFERENTE -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 bg-slate-50 p-3 rounded-lg border border-slate-200">
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">🔍 Filtra per BU</label>
-                                <select id="filterBU" onchange="renderAdminTable()" class="w-full px-2 py-1.5 border border-slate-300 rounded text-xs bg-white focus:ring-1 focus:ring-red-600">
-                                    <option value="">-- Tutte le BU --</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">🔍 Filtra per Team</label>
-                                <select id="filterTeam" onchange="renderAdminTable()" class="w-full px-2 py-1.5 border border-slate-300 rounded text-xs bg-white focus:ring-1 focus:ring-red-600">
-                                    <option value="">-- Tutti i Team --</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">🔍 Filtra per Referente</label>
-                                <select id="filterReferente" onchange="renderAdminTable()" class="w-full px-2 py-1.5 border border-slate-300 rounded text-xs bg-white focus:ring-1 focus:ring-red-600">
-                                    <option value="">-- Tutti i Referenti --</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">🔎 Cerca Testo libero</label>
-                                <input type="text" id="adminSearch" placeholder="Nome, cognome, email..." class="w-full px-2 py-1.5 border border-slate-300 rounded text-xs bg-white focus:ring-1 focus:ring-red-600" onkeyup="renderAdminTable()">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left text-xs border-collapse">
-                            <thead>
-                                <tr class="bg-slate-100 text-slate-700 uppercase border-b">
-                                    <th class="p-2.5">Azienda</th>
-                                    <th class="p-2.5">BU</th>
-                                    <th class="p-2.5">Team</th>
-                                    <th class="p-2.5">Referente</th>
-                                    <th class="p-2.5">Cognome e Nome</th>
-                                    <th class="p-2.5">Inquadramento</th>
-                                    <th class="p-2.5">Max Giorni</th>
-                                    <th class="p-2.5">Giorni Scelti</th>
-                                    <th class="p-2.5">Stato</th>
-                                    <th class="p-2.5">Date Selezionate</th>
-                                    <th class="p-2.5 text-center">Azioni Admin</th>
-                                </tr>
-                            </thead>
-                            <tbody id="adminTableBody" class="divide-y divide-slate-100"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </section>
-
-    </main>
-
-    <!-- MODALE MODIFICA GIORNI COLLABORATORE PER ADMIN -->
-    <div id="adminEditModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-xl max-w-2xl w-full p-6 space-y-4 border border-slate-200">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                <h3 class="text-base font-bold text-slate-800">
-                    ✏️ Modifica Manuale Giorni: <span id="modalUserName" class="text-red-700"></span>
-                </h3>
-                <button onclick="closeAdminEditModal()" class="text-slate-400 hover:text-slate-600 text-lg font-bold">&times;</button>
-            </div>
-
-            <p class="text-xs text-slate-500">Seleziona o deseleziona direttamente le giornate per questa risorsa:</p>
-
-            <!-- Calendar Grid inside modal -->
-            <div id="modalCalendarGrid" class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2"></div>
-
-            <div class="mb-2">
-                <label class="block text-xs font-semibold text-slate-700 uppercase mb-1">Note (Opzionale)</label>
-                <textarea id="modalUserNotes" rows="2" class="w-full px-2.5 py-1.5 border rounded text-xs" placeholder="Note per l'amministrazione..."></textarea>
-            </div>
-
-            <div id="modalAlert" class="hidden p-2 bg-amber-100 text-amber-900 rounded text-xs font-medium"></div>
-
-            <div class="flex justify-end space-x-2 pt-2 border-t border-slate-100">
-                <button onclick="closeAdminEditModal()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold px-4 py-2 rounded text-xs">Annulla</button>
-                <button onclick="saveAdminEditModal()" class="bg-green-700 hover:bg-green-800 text-white font-bold px-4 py-2 rounded text-xs shadow">Salva Modifiche</button>
-            </div>
-        </div>
+        <form onsubmit="handleLogin(event)">
+          <div class="mb-3 text-start">
+            <label class="form-label small fw-bold">Email Aziendale</label>
+            <input type="email" id="loginEmail" class="form-control" placeholder="nome.cognome@hqe.it" required>
+          </div>
+          <div id="adminPasswordField" class="mb-3 text-start d-none">
+            <label class="form-label small fw-bold">Password Amministratore</label>
+            <input type="password" id="loginPassword" class="form-control" placeholder="Inserisci password admin">
+          </div>
+          <div id="loginError" class="alert alert-danger small d-none"></div>
+          <button type="submit" class="btn btn-primary w-100 fw-bold">Accedi</button>
+        </form>
+      </div>
     </div>
 
-    <!-- Embedded Data & API Connector Script -->
-    <script>
-        const API_BASE = ""; // Indirizzo relativo del server Flask
-        const MANDATORY_DAYS = ['2026-12-24', '2026-12-31', '2027-01-04', '2027-01-05'];
-        const ADMIN_EMAILS = [
-            'chiara.pizzorno@hqe.it',
-            'pietro.malcotti@hqe.it',
-            'gianluca.luccini@hqe.it',
-            'rebecca.antenozio@hqe.it'
-        ];
+    <!-- SEZIONE DIPENDENTE (SELEZIONE FERIE) -->
+    <div id="employeeSection" class="d-none">
+      <div class="card mb-4">
+        <div class="card-header bg-white fw-bold py-3">
+          📅 Il tuo Calendario Assenze (Max <span id="maxDaysDisplay">4</span> Giorni)
+        </div>
+        <div class="card-body">
+          <p class="small text-muted">Seleziona i giorni in cui intendi richiedere ferie/permesso. I giorni evidenziati in giallo sono quelli consigliati dall'azienda.</p>
+          
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4">
+            <!-- Giorni generati da JS -->
+          </div>
 
-        let ALL_USERS = [];
-        let requestsData = {};
-        let systemSettings = { recommendedDays: [] };
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Note o Note operative (Opzionale):</label>
+            <textarea id="employeeNotes" class="form-control" rows="2" placeholder="Eventuali comunicazioni per il tuo referente..."></textarea>
+          </div>
 
-        let currentUser = null;
-        let selectedDates = [];
-        let editingTargetEmail = null;
-        let modalSelectedDates = [];
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <span class="badge bg-secondary" id="selectedCountBadge">Giorni scelti: 0</span>
+            </div>
+            <button class="btn btn-success fw-bold px-4" onclick="saveEmployeeRequest()">💾 Salva e Invia Preferenze</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        const DATE_RANGE = [
-            { date: '2026-12-21', label: '21 Dic', dayName: 'Lun', dayFull: 'lunedì' },
-            { date: '2026-12-22', label: '22 Dic', dayName: 'Mar', dayFull: 'martedì' },
-            { date: '2026-12-23', label: '23 Dic', dayName: 'Mer', dayFull: 'mercoledì' },
-            { date: '2026-12-24', label: '24 Dic', dayName: 'Gio', dayFull: 'giovedì', closure: true },
-            { date: '2026-12-25', label: '25 Dic', dayName: 'Ven', dayFull: 'venerdì', holiday: 'Natale' },
-            { date: '2026-12-26', label: '26 Dic', dayName: 'Sab', dayFull: 'sabato', holiday: 'S. Stefano' },
-            { date: '2026-12-27', label: '27 Dic', dayName: 'Dom', dayFull: 'domenica' },
-            { date: '2026-12-28', label: '28 Dic', dayName: 'Lun', dayFull: 'lunedì' },
-            { date: '2026-12-29', label: '29 Dic', dayName: 'Mar', dayFull: 'martedì' },
-            { date: '2026-12-30', label: '30 Dic', dayName: 'Mer', dayFull: 'mercoledì' },
-            { date: '2026-12-31', label: '31 Dic', dayName: 'Gio', dayFull: 'giovedì', closure: true },
-            { date: '2027-01-01', label: '01 Gen', dayName: 'Ven', dayFull: 'venerdì', holiday: 'Capodanno' },
-            { date: '2027-01-02', label: '02 Gen', dayName: 'Sab', dayFull: 'sabato' },
-            { date: '2027-01-03', label: '03 Gen', dayName: 'Dom', dayFull: 'domenica' },
-            { date: '2027-01-04', label: '04 Gen', dayName: 'Lun', dayFull: 'lunedì', closure: true },
-            { date: '2027-01-05', label: '05 Gen', dayName: 'Mar', dayFull: 'martedì', closure: true },
-            { date: '2027-01-06', label: '06 Gen', dayName: 'Mer', dayFull: 'mercoledì', holiday: 'Epifania' },
-            { date: '2027-01-07', label: '07 Gen', dayName: 'Gio', dayFull: 'giovedì' },
-            { date: '2027-01-08', label: '08 Gen', dayName: 'Ven', dayFull: 'venerdì' }
-        ];
+    <!-- SEZIONE AMMINISTRATORE -->
+    <div id="adminSection" class="d-none">
+      
+      <!-- RIQUADRO AGGIUNTA MANUALE -->
+      <div class="card mb-4 border-start border-4 border-danger">
+        <div class="card-body">
+          <h6 class="fw-bold text-danger mb-3">➕ AGGIUNGI SINGOLO COLLABORATORE MANUALLY</h6>
+          <form onsubmit="handleAddUser(event)">
+            <div class="row g-2 mb-2">
+              <div class="col-md-3"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
+              <div class="col-md-3"><input type="text" id="addNome" class="form-control form-control-sm" placeholder="Nome *" required></div>
+              <div class="col-md-3"><input type="email" id="addEmail" class="form-control form-control-sm" placeholder="Email aziendale *" required></div>
+              <div class="col-md-3"><input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)"></div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-3"><input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU"></div>
+              <div class="col-md-3"><input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team"></div>
+              <div class="col-md-3"><input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente"></div>
+              <div class="col-md-2">
+                <select id="addInquadramento" class="form-select form-control-sm">
+                  <option value="Dipendente">Dipendente</option>
+                  <option value="PartitaIVA">PartitaIVA</option>
+                  <option value="CoCoCo">CoCoCo</option>
+                </select>
+              </div>
+              <div class="col-md-1"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="1" max="15"></div>
+            </div>
+            <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold">Salva Collaboratore in Anagrafica</button>
+          </form>
+        </div>
+      </div>
 
-        window.onload = function() {
-            loadInitialData();
+      <!-- FILTRI E TABELLA ANAGRAFICA -->
+      <div class="card mb-4">
+        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
+          <span>Anagrafica Risorse & Azioni Admin</span>
+          <button class="btn btn-sm btn-outline-success fw-bold" onclick="exportToExcel()">📊 Scarica Report Excel (.xlsx)</button>
+        </div>
+        <div class="card-body">
+          
+          <!-- FILTRI -->
+          <div class="row g-2 mb-3 p-2 bg-light rounded">
+            <div class="col-md-3">
+              <select id="filterBu" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutte le BU --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="filterTeam" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutti i Team --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <select id="filterReferente" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutti i Referenti --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <input type="text" id="filterSearch" class="form-control form-select-sm" placeholder="Cerca Nome, Cognome, Email..." oninput="applyFilters()">
+            </div>
+          </div>
+
+          <!-- TABELLA -->
+          <div class="table-responsive">
+            <table class="table table-hover table-bordered align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>AZIENDA</th>
+                  <th>BU</th>
+                  <th>TEAM</th>
+                  <th>REFERENTE</th>
+                  <th>COGNOME E NOME</th>
+                  <th>INQUADRAMENTO</th>
+                  <th>MAX GIORNI</th>
+                  <th>GIORNI SCELTI</th>
+                  <th>STATO</th>
+                  <th>AZIONI ADMIN</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Generato da JS -->
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const ALL_DATES = [
+      "2026-12-21", "2026-12-22", "2026-12-23",
+      "2026-12-28", "2026-12-29", "2026-12-30",
+      "2027-01-07", "2027-01-08"
+    ];
+
+    let currentUser = null;
+    let isAdmin = false;
+    let allUsers = [];
+    let allRequests = {};
+    let employeeSelectedDates = [];
+
+    // GESTIONE LOGIN
+    document.getElementById('loginEmail').addEventListener('input', function(e) {
+      const email = e.target.value.trim().lowerCase();
+      const adminEmails = ['chiara.pizzorno@hqe.it', 'pietro.malcotti@hqe.it', 'gianluca.luccini@hqe.it', 'rebecca.antenozio@hqe.it'];
+      const passwordField = document.getElementById('adminPasswordField');
+      if (adminEmails.includes(email)) {
+        passwordField.classList.remove('d-none');
+      } else {
+        passwordField.classList.add('d-none');
+      }
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+      const errDiv = document.getElementById('loginError');
+      errDiv.classList.add('d-none');
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Errore durante l\'accesso');
+
+        currentUser = data.user;
+        isAdmin = data.isAdmin;
+
+        document.getElementById('loginCard').classList.add('d-none');
+        document.getElementById('userInfo').classList.remove('d-none');
+        document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
+
+        if (isAdmin) {
+          document.getElementById('adminSection').classList.remove('d-none');
+          await loadAdminData();
+        } else {
+          document.getElementById('employeeSection').classList.remove('d-none');
+          document.getElementById('maxDaysDisplay').innerText = currentUser.maxDays || 4;
+          await loadEmployeeData();
+        }
+      } catch (err) {
+        errDiv.innerText = err.message;
+        errDiv.classList.remove('d-none');
+      }
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    // CARICAMENTO EDIZIONE DIPENDENTE
+    async function loadEmployeeData() {
+      const res = await fetch('/api/requests');
+      allRequests = await res.json();
+      const userReq = allRequests[currentUser.email] || {};
+      employeeSelectedDates = userReq.dates || [];
+      document.getElementById('employeeNotes').value = userReq.notes || '';
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById('calendarContainer');
+      container.innerHTML = '';
+      const recDays = currentUser.recommendedDays || ALL_DATES;
+
+      ALL_DATES.forEach(dateStr => {
+        const d = new Date(dateStr);
+        const dayLabel = `${d.getDate()} ${d.toLocaleString('it-IT', { month: 'short' })}`;
+        
+        const box = document.createElement('div');
+        box.className = 'day-box';
+        
+        if (recDays.includes(dateStr)) box.classList.add('recommended');
+        if (employeeSelectedDates.includes(dateStr)) box.classList.add('selected');
+
+        box.innerText = dayLabel;
+        box.onclick = () => toggleDateSelection(dateStr);
+        container.appendChild(box);
+      });
+
+      document.getElementById('selectedCountBadge').innerText = `Giorni scelti: ${employeeSelectedDates.length} / ${currentUser.maxDays || 4}`;
+    }
+
+    function toggleDateSelection(dateStr) {
+      const max = currentUser.maxDays || 4;
+      if (employeeSelectedDates.includes(dateStr)) {
+        employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
+      } else {
+        if (employeeSelectedDates.length >= max) {
+          alert(`Puoi selezionare al massimo ${max} giorni.`);
+          return;
+        }
+        employeeSelectedDates.push(dateStr);
+      }
+      renderCalendar();
+    }
+
+    async function saveEmployeeRequest() {
+      try {
+        const notes = document.getElementById('employeeNotes').value;
+        const res = await fetch('/api/requests', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            email: currentUser.email,
+            dates: employeeSelectedDates,
+            notes: notes,
+            isValidated: false
+          })
+        });
+        if (res.ok) alert('Preferenze salvate con successo!');
+      } catch (err) {
+        alert('Errore durante il salvataggio.');
+      }
+    }
+
+    // CARICAMENTO DASHBOARD AMMINISTRATORE
+    async function loadAdminData() {
+      const [uRes, rRes] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/requests')
+      ]);
+      allUsers = await uRes.json();
+      allRequests = await rRes.json();
+
+      populateFilterOptions();
+      renderUsersTable(allUsers);
+    }
+
+    function populateFilterOptions() {
+      const bus = [...new Set(allUsers.map(u => u.bu).filter(Boolean))].sort();
+      const teams = [...new Set(allUsers.map(u => u.team).filter(Boolean))].sort();
+      const refs = [...new Set(allUsers.map(u => u.referente).filter(Boolean))].sort();
+
+      const buSelect = document.getElementById('filterBu');
+      const teamSelect = document.getElementById('filterTeam');
+      const refSelect = document.getElementById('filterReferente');
+
+      buSelect.innerHTML = '<option value="">-- Tutte le BU --</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      teamSelect.innerHTML = '<option value="">-- Tutti i Team --</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+      refSelect.innerHTML = '<option value="">-- Tutti i Referenti --</option>' + refs.map(r => `<option value="${r}">${r}</option>`).join('');
+    }
+
+    function applyFilters() {
+      const bu = document.getElementById('filterBu').value;
+      const team = document.getElementById('filterTeam').value;
+      const ref = document.getElementById('filterReferente').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase().trim();
+
+      const filtered = allUsers.filter(u => {
+        const matchesBu = !bu || u.bu === bu;
+        const matchesTeam = !team || u.team === team;
+        const matchesRef = !ref || u.referente === ref;
+        const fullText = `${u.cognome} ${u.nome} ${u.email}`.toLowerCase();
+        const matchesSearch = !search || fullText.includes(search);
+        return matchesBu && matchesTeam && matchesRef && matchesSearch;
+      });
+
+      renderUsersTable(filtered);
+    }
+
+    function renderUsersTable(users) {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+
+      users.forEach(u => {
+        const req = allRequests[u.email] || {};
+        const datesCount = (req.dates || []).length;
+        const statusBadge = datesCount > 0 
+          ? '<span class="badge bg-success status-badge">Inserite</span>' 
+          : '<span class="badge bg-warning text-dark status-badge">Da Inserire</span>';
+
+        const tr = document.createElement('tr');
+        tr.id = `user-row-${u.email.replace(/[@.]/g, '_')}`;
+        tr.innerHTML = `
+          <td><input type="text" class="form-control form-control-sm val-azienda" value="${u.azienda || ''}" disabled></td>
+          <td><input type="text" class="form-control form-control-sm val-bu" value="${u.bu || ''}" disabled></td>
+          <td><input type="text" class="form-control form-control-sm val-team" value="${u.team || ''}" disabled></td>
+          <td><input type="text" class="form-control form-control-sm val-referente" value="${u.referente || ''}" disabled></td>
+          <td>
+            <div class="fw-bold">${u.cognome} ${u.nome}</div>
+            <small class="text-muted">${u.email}</small>
+          </td>
+          <td><input type="text" class="form-control form-control-sm val-inquadramento" value="${u.inquadramento || ''}" disabled></td>
+          <td><input type="number" class="form-control form-control-sm val-maxdays" value="${u.maxDays || 4}" style="width:65px;" disabled></td>
+          <td class="text-center fw-bold">${datesCount} / ${u.maxDays || 4}</td>
+          <td class="text-center">${statusBadge}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-outline-primary btn-edit" onclick="toggleEditUser('${u.email}')">✏️ Modifica</button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.email}')">🗑️ Elimina</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // MODIFICA ED AGGIORNAMENTO RIGA COLLABORATORE
+    async function toggleEditUser(email) {
+      const rowId = `user-row-${email.replace(/[@.]/g, '_')}`;
+      const tr = document.getElementById(rowId);
+      const inputs = tr.querySelectorAll('input');
+      const editBtn = tr.querySelector('.btn-edit');
+
+      if (inputs[0].disabled) {
+        inputs.forEach(i => i.disabled = false);
+        editBtn.innerText = '💾 Conferma';
+        editBtn.className = 'btn btn-sm btn-success btn-edit';
+      } else {
+        const uData = {
+          email: email,
+          azienda: tr.querySelector('.val-azienda').value,
+          bu: tr.querySelector('.val-bu').value,
+          team: tr.querySelector('.val-team').value,
+          referente: tr.querySelector('.val-referente').value,
+          inquadramento: tr.querySelector('.val-inquadramento').value,
+          maxDays: parseInt(tr.querySelector('.val-maxdays').value) || 4
         };
 
-        async function loadInitialData() {
-            try {
-                const resUsers = await fetch(`${API_BASE}/api/users`);
-                ALL_USERS = await resUsers.json();
+        const res = await fetch('/api/users/update', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(uData)
+        });
 
-                const resReqs = await fetch(`${API_BASE}/api/requests`);
-                requestsData = await resReqs.json();
-
-                const resSett = await fetch(`${API_BASE}/api/settings`);
-                systemSettings = await resSett.json();
-
-                renderRecommendedCheckboxes();
-                populateAdminDropdownOptions();
-            } catch (e) {
-                console.error("Errore caricamento dati API:", e);
-            }
+        if (res.ok) {
+          inputs.forEach(i => i.disabled = true);
+          editBtn.innerText = '✏️ Modifica';
+          editBtn.className = 'btn btn-sm btn-outline-primary btn-edit';
+          await loadAdminData();
+        } else {
+          alert('Errore durante l\'aggiornamento.');
         }
-
-        function applyInquadramentoTheme(inq) {
-            const body = document.getElementById('bodyTag');
-            const header = document.getElementById('mainHeader');
-            const title = document.getElementById('calendarMainTitle');
-
-            body.className = "min-h-screen text-slate-800 font-sans transition-colors duration-300 ";
-            header.className = "text-white shadow-lg sticky top-0 z-50 transition-colors duration-300 ";
-
-            const normInq = (inq || 'dipendente').toLowerCase();
-
-            if (normInq.includes('p.iva') || normInq.includes('piva')) {
-                body.classList.add('theme-piva');
-                header.classList.add('header-piva');
-                if (title) title.textContent = "Comunicazione non operatività - Periodo Natalizio";
-            } else if (normInq.includes('cococo')) {
-                body.classList.add('theme-cococo');
-                header.classList.add('header-cococo');
-                if (title) title.textContent = "Comunicazione non operatività progetti - Periodo Natalizio";
-            } else {
-                body.classList.add('theme-dipendente');
-                header.classList.add('header-dipendente');
-                if (title) title.textContent = "Comunicazione preferenza giorni Ferie - Periodo Natalizio";
-            }
-        }
-
-        function renderRecommendedCheckboxes() {
-            const container = document.getElementById('recommendedDaysCheckboxes');
-            if (!container) return;
-            container.innerHTML = '';
-
-            const currentRec = systemSettings.recommendedDays || [];
-
-            DATE_RANGE.filter(d => !d.closure && !d.holiday).forEach(item => {
-                const isChecked = currentRec.includes(item.date);
-                const label = document.createElement('label');
-                label.className = "flex items-center space-x-1.5 cursor-pointer bg-white p-1.5 rounded border border-slate-200 hover:border-blue-400";
-                label.innerHTML = `
-                    <input type="checkbox" value="${item.date}" ${isChecked ? 'checked' : ''} onchange="toggleRecommendedDay('${item.date}', this.checked)" class="rounded text-blue-600 focus:ring-blue-500">
-                    <span class="font-medium text-[11px]">${item.label}</span>
-                `;
-                container.appendChild(label);
-            });
-        }
-
-        async function toggleRecommendedDay(dateStr, isChecked) {
-            if (!systemSettings.recommendedDays) systemSettings.recommendedDays = [];
-            if (isChecked) {
-                if (!systemSettings.recommendedDays.includes(dateStr)) systemSettings.recommendedDays.push(dateStr);
-            } else {
-                systemSettings.recommendedDays = systemSettings.recommendedDays.filter(d => d !== dateStr);
-            }
-
-            await fetch(`${API_BASE}/api/settings`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(systemSettings)
-            });
-        }
-
-        function onEmailChange(event) {
-            const email = document.getElementById('emailInput').value.trim().toLowerCase();
-            const passContainer = document.getElementById('passwordContainer');
-            if (ADMIN_EMAILS.includes(email)) {
-                passContainer.classList.remove('hidden');
-            } else {
-                passContainer.classList.add('hidden');
-            }
-            if (event.key === 'Enter') {
-                loginUser();
-            }
-        }
-
-        async function loginUser() {
-            const email = document.getElementById('emailInput').value.trim().toLowerCase();
-            const password = document.getElementById('passwordInput').value.trim();
-            const errDiv = document.getElementById('loginError');
-            errDiv.classList.add('hidden');
-
-            try {
-                const response = await fetch(`${API_BASE}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    errDiv.textContent = data.error || 'Errore durante l\'accesso.';
-                    errDiv.classList.remove('hidden');
-                    return;
-                }
-
-                currentUser = data.user;
-                const isAdmin = data.isAdmin;
-
-                document.getElementById('loginSection').classList.add('hidden');
-                document.getElementById('appSection').classList.remove('hidden');
-                document.getElementById('userInfoHeader').classList.remove('hidden');
-                document.getElementById('userBadge').textContent = `${currentUser.nome} ${currentUser.cognome}`;
-                applyInquadramentoTheme(currentUser.inquadramento);
-
-                if (isAdmin) {
-                    document.getElementById('adminTabNav').classList.remove('hidden');
-                    switchTab('userTab');
-                } else {
-                    document.getElementById('adminTabNav').classList.add('hidden');
-                    document.getElementById('userTabContent').classList.remove('hidden');
-                    document.getElementById('adminTabContent').classList.add('hidden');
-                }
-
-                setupUserView();
-            } catch (e) {
-                errDiv.textContent = 'Errore di connessione al server.';
-                errDiv.classList.remove('hidden');
-            }
-        }
-
-        function logout() {
-            currentUser = null;
-            document.getElementById('appSection').classList.add('hidden');
-            document.getElementById('loginSection').classList.remove('hidden');
-            document.getElementById('userInfoHeader').classList.add('hidden');
-            document.getElementById('emailInput').value = '';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('passwordContainer').classList.add('hidden');
-            
-            applyInquadramentoTheme('dipendente');
-        }
-
-        function setupUserView() {
-            const inq = currentUser.inquadramento.toLowerCase();
-            const isDipendente = inq === 'dipendente';
-            const closureText = document.getElementById('closureBannerText');
-            
-            if (isDipendente) {
-                closureText.innerHTML = `Le giornate del <strong>24 e 31 Dicembre</strong> e del <strong>4 e 5 Gennaio</strong> sono stabilite come chiusura aziendale obbligatoria. Sono pre-selezionate nel tuo modulo e saranno scalate come <strong>FERIE</strong> dal tuo totale.`;
-                
-                const recDays = systemSettings.recommendedDays || [];
-                const recText = document.getElementById('recommendedDayText');
-                if (recDays.length > 0) {
-                    const formatted = recDays.map(d => {
-                        const item = DATE_RANGE.find(x => x.date === d);
-                        return item ? item.label : d;
-                    }).join(', ');
-                    recText.textContent = `💡 Giorni di ferie consigliati dall'azienda: ${formatted}`;
-                    recText.classList.remove('hidden');
-                } else {
-                    recText.classList.add('hidden');
-                }
-            } else {
-                closureText.innerHTML = `Le giornate del <strong>24 e 31 Dicembre</strong> e del <strong>4 e 5 Gennaio</strong> sono stabilite come chiusura aziendale obbligatoria. Sono pre-selezionate nel tuo modulo.`;
-                document.getElementById('recommendedDayText').classList.add('hidden');
-            }
-
-            document.getElementById('userProfileSummary').innerHTML = `
-                <div><strong>Azienda:</strong> ${currentUser.azienda}</div>
-                <div><strong>Utente:</strong> ${currentUser.cognome} ${currentUser.nome}</div>
-            `;
-
-            const existing = requestsData[currentUser.email];
-            const isValidated = existing && existing.isValidated;
-
-            const valBannerText = document.getElementById('validationBannerText');
-            const saveBtn = document.getElementById('saveBtn');
-            const notesArea = document.getElementById('userNotes');
-
-            if (isValidated) {
-                valBannerText.innerHTML = `Le tue preferenze per le assenze sono state <strong>VALIDATE dall'Amministrazione</strong>. I giorni non sono più modificabili.`;
-                saveBtn.disabled = true;
-                saveBtn.className = "bg-slate-300 text-slate-500 font-bold py-2.5 px-6 rounded-lg cursor-not-allowed flex items-center text-sm";
-                notesArea.disabled = true;
-            } else {
-                valBannerText.innerHTML = `Puoi apportare modifiche fino al 15 novembre.`;
-                saveBtn.disabled = false;
-                saveBtn.className = "bg-green-700 hover:bg-green-800 text-white font-bold py-2.5 px-6 rounded-lg shadow transition flex items-center text-sm";
-                notesArea.disabled = false;
-            }
-
-            if (existing) {
-                selectedDates = [...existing.dates];
-                notesArea.value = existing.notes || '';
-            } else {
-                selectedDates = [...MANDATORY_DAYS];
-                notesArea.value = '';
-            }
-
-            renderCalendar();
-        }
-
-        function renderCalendar() {
-            const grid = document.getElementById('calendarGrid');
-            grid.innerHTML = '';
-
-            const isDipendente = currentUser.inquadramento.toLowerCase() === 'dipendente';
-            const recDays = systemSettings.recommendedDays || [];
-            const existing = requestsData[currentUser.email];
-            const isValidated = existing && existing.isValidated;
-
-            DATE_RANGE.forEach(item => {
-                const isMandatory = MANDATORY_DAYS.includes(item.date);
-                const isSelected = selectedDates.includes(item.date);
-                const isRecommended = isDipendente && recDays.includes(item.date);
-                const isHolidayOrWeekend = item.holiday || item.dayFull === 'sabato' || item.dayFull === 'domenica';
-
-                const card = document.createElement('div');
-                card.className = `day-card p-3 rounded-lg border text-center relative flex flex-col justify-between ${
-                    isMandatory ? 'mandatory-day cursor-not-allowed' :
-                    isValidated && isSelected ? 'validated-day cursor-not-allowed font-bold' :
-                    isSelected ? 'bg-red-700 text-white border-red-800 cursor-pointer' :
-                    isHolidayOrWeekend ? 'holiday-weekend-day cursor-pointer' :
-                    isRecommended ? 'recommended-day cursor-pointer' : 'bg-slate-50 border-slate-200 hover:border-red-400 cursor-pointer'
-                }`;
-
-                let badgeHtml = '';
-                if (isMandatory) {
-                    badgeHtml = `<span class="text-[9px] font-bold uppercase bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded mt-1">Chiusura</span>`;
-                } else if (isValidated && isSelected) {
-                    badgeHtml = `<span class="text-[9px] font-bold uppercase bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded mt-1">Convalidato</span>`;
-                } else if (item.holiday) {
-                    badgeHtml = `<span class="text-[9px] font-bold uppercase bg-orange-200 text-orange-950 px-1.5 py-0.5 rounded mt-1">${item.holiday}</span>`;
-                } else if (isRecommended) {
-                    badgeHtml = `<span class="text-[9px] font-bold uppercase bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded mt-1">Consigliato</span>`;
-                }
-
-                card.innerHTML = `
-                    <div class="text-[10px] font-semibold uppercase opacity-75">${item.dayName}</div>
-                    <div class="text-base font-bold my-1">${item.label}</div>
-                    <div>${badgeHtml}</div>
-                `;
-
-                if (!isMandatory && !isValidated) {
-                    card.onclick = () => toggleDateSelection(item.date);
-                }
-
-                grid.appendChild(card);
-            });
-        }
-
-        function toggleDateSelection(dateStr) {
-            const existing = requestsData[currentUser.email];
-            if (existing && existing.isValidated) return;
-
-            const alertDiv = document.getElementById('formAlert');
-            alertDiv.classList.add('hidden');
-
-            const isNonDipendente = currentUser.inquadramento.toLowerCase() !== 'dipendente';
-
-            const index = selectedDates.indexOf(dateStr);
-            if (index > -1) {
-                selectedDates.splice(index, 1);
-            } else {
-                if (selectedDates.length >= currentUser.maxDays) {
-                    if (isNonDipendente) {
-                        alertDiv.textContent = 'per ogni necessità differente scrivi a risorseumane@hqe.it';
-                    } else {
-                        alertDiv.textContent = 'Hai raggiunto il limite massimo di giorni selezionabili per la tua richiesta.';
-                    }
-                    alertDiv.classList.remove('hidden');
-                    return;
-                }
-                selectedDates.push(dateStr);
-            }
-            renderCalendar();
-        }
-
-        async function saveUserRequest() {
-            const existing = requestsData[currentUser.email];
-            if (existing && existing.isValidated) {
-                alert('La tua richiesta è già stata validata e non può più essere modificata.');
-                return;
-            }
-
-            const payload = {
-                email: currentUser.email,
-                dates: selectedDates,
-                notes: document.getElementById('userNotes').value.trim(),
-                isValidated: false
-            };
-
-            const response = await fetch(`${API_BASE}/api/requests`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            if (response.ok) {
-                requestsData[currentUser.email] = payload;
-                const alertDiv = document.getElementById('formAlert');
-                alertDiv.className = "mb-4 p-3 bg-green-100 text-green-800 rounded-lg text-xs font-medium border border-green-200";
-                alertDiv.textContent = 'Preferenze salvate con successo nel database centralizzato!';
-                alertDiv.classList.remove('hidden');
-            }
-        }
-
-        function switchTab(tab) {
-            if (tab === 'userTab') {
-                document.getElementById('userTabContent').classList.remove('hidden');
-                document.getElementById('adminTabContent').classList.add('hidden');
-                document.getElementById('btnTabUser').className = "py-2.5 px-5 text-sm font-bold border-b-2 border-red-700 text-red-700";
-                document.getElementById('btnTabAdmin').className = "py-2.5 px-5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800";
-            } else {
-                document.getElementById('userTabContent').classList.add('hidden');
-                document.getElementById('adminTabContent').classList.remove('hidden');
-                document.getElementById('btnTabAdmin').className = "py-2.5 px-5 text-sm font-bold border-b-2 border-red-700 text-red-700";
-                document.getElementById('btnTabUser').className = "py-2.5 px-5 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-slate-800";
-                populateAdminDropdownOptions();
-                renderAdminTable();
-                renderRecommendedCheckboxes();
-            }
-        }
-
-        function populateAdminDropdownOptions() {
-            const buSelect = document.getElementById('filterBU');
-            const teamSelect = document.getElementById('filterTeam');
-            const refSelect = document.getElementById('filterReferente');
-
-            if (!buSelect || !teamSelect || !refSelect) return;
-
-            const currBU = buSelect.value;
-            const currTeam = teamSelect.value;
-            const currRef = refSelect.value;
-
-            const bus = new Set();
-            const teams = new Set();
-            const refs = new Set();
-
-            ALL_USERS.forEach(u => {
-                if (u.bu) bus.add(u.bu);
-                if (u.team) teams.add(u.team);
-                if (u.referente) refs.add(u.referente);
-            });
-
-            buSelect.innerHTML = '<option value="">-- Tutte le BU --</option>';
-            Array.from(bus).sort().forEach(b => {
-                buSelect.innerHTML += `<option value="${b}" ${b === currBU ? 'selected' : ''}>${b}</option>`;
-            });
-
-            teamSelect.innerHTML = '<option value="">-- Tutti i Team --</option>';
-            Array.from(teams).sort().forEach(t => {
-                teamSelect.innerHTML += `<option value="${t}" ${t === currTeam ? 'selected' : ''}>${t}</option>`;
-            });
-
-            refSelect.innerHTML = '<option value="">-- Tutti i Referenti --</option>';
-            Array.from(refs).sort().forEach(r => {
-                refSelect.innerHTML += `<option value="${r}" ${r === currRef ? 'selected' : ''}>${r}</option>`;
-            });
-        }
-
-        function renderAdminTable() {
-            const tbody = document.getElementById('adminTableBody');
-            const search = document.getElementById('adminSearch').value.toLowerCase();
-
-            const selectedBU = (document.getElementById('filterBU')?.value || '').toLowerCase();
-            const selectedTeam = (document.getElementById('filterTeam')?.value || '').toLowerCase();
-            const selectedRef = (document.getElementById('filterReferente')?.value || '').toLowerCase();
-
-            tbody.innerHTML = '';
-
-            ALL_USERS.filter(u => {
-                const matchSearch = u.cognome.toLowerCase().includes(search) || 
-                                    u.nome.toLowerCase().includes(search) || 
-                                    u.azienda.toLowerCase().includes(search) ||
-                                    (u.bu || '').toLowerCase().includes(search) ||
-                                    (u.team || '').toLowerCase().includes(search) ||
-                                    (u.referente || '').toLowerCase().includes(search);
-
-                const matchBU = !selectedBU || (u.bu || '').toLowerCase() === selectedBU;
-                const matchTeam = !selectedTeam || (u.team || '').toLowerCase() === selectedTeam;
-                const matchRef = !selectedRef || (u.referente || '').toLowerCase() === selectedRef;
-
-                return matchSearch && matchBU && matchTeam && matchRef;
-            }).forEach(u => {
-                const req = requestsData[u.email];
-                const daysCount = req ? req.dates.length : 0;
-                const isValidated = req && req.isValidated;
-
-                const statusBadge = isValidated
-                    ? `<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-semibold">Convalidato</span>`
-                    : (req ? `<span class="bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold">Inviato</span>`
-                           : `<span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-semibold">Da Inserire</span>`);
-
-                const tr = document.createElement('tr');
-                tr.className = isValidated ? "bg-emerald-50/40 hover:bg-emerald-50" : "hover:bg-slate-50";
-                tr.innerHTML = `
-                    <td class="p-2.5 font-medium">${u.azienda}</td>
-                    <td class="p-2.5">
-                        <input type="text" value="${u.bu || ''}" placeholder="BU" class="w-24 px-1.5 py-0.5 border rounded text-xs" onchange="updateAdminUserField('${u.email}', 'bu', this.value)">
-                    </td>
-                    <td class="p-2.5">
-                        <input type="text" value="${u.team || ''}" placeholder="Team" class="w-28 px-1.5 py-0.5 border rounded text-xs" onchange="updateAdminUserField('${u.email}', 'team', this.value)">
-                    </td>
-                    <td class="p-2.5">
-                        <input type="text" value="${u.referente || ''}" placeholder="Referente" class="w-24 px-1.5 py-0.5 border rounded text-xs" onchange="updateAdminUserField('${u.email}', 'referente', this.value)">
-                    </td>
-                    <td class="p-2.5 font-bold text-slate-800">${u.cognome} ${u.nome} <br><span class="text-[10px] text-slate-400 font-normal">${u.email}</span></td>
-                    <td class="p-2.5">${u.inquadramento}</td>
-                    <td class="p-2.5">
-                        <input type="number" min="4" max="20" value="${u.maxDays}" class="w-14 px-1.5 py-1 border rounded text-xs" onchange="updateUserMaxDays('${u.email}', this.value)" ${isValidated ? 'disabled' : ''}>
-                    </td>
-                    <td class="p-2.5 font-semibold">${daysCount} / ${u.maxDays}</td>
-                    <td class="p-2.5">${statusBadge}</td>
-                    <td class="p-2.5 text-slate-500 text-[11px]">${req ? req.dates.map(d=>d.replace('2026-','').replace('2027-','')).join(', ') : '-'}</td>
-                    <td class="p-2.5 text-center">
-                        <div class="flex items-center justify-center space-x-1">
-                            <button onclick="adminConfirmRequest('${u.email}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-2 py-1 rounded text-[10px] transition" title="Conferma Preferenze e invia email">
-                                <i class="fa-solid fa-check"></i> Conferma
-                            </button>
-                            <button onclick="adminOpenEditModal('${u.email}')" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-2 py-1 rounded text-[10px] transition" title="Modifica manualmente i giorni">
-                                <i class="fa-solid fa-pen"></i> Modifica
-                            </button>
-                            <button onclick="adminDeleteRequest('${u.email}')" class="bg-red-600 hover:bg-red-700 text-white font-semibold px-2 py-1 rounded text-[10px] transition" title="Cancella preferenze">
-                                <i class="fa-solid fa-xmark"></i> Cancella
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
-        async function updateAdminUserField(email, field, value) {
-            const u = ALL_USERS.find(x => x.email === email);
-            if (u) {
-                u[field] = value.trim();
-                await fetch(`${API_BASE}/api/users/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(u)
-                });
-                populateAdminDropdownOptions();
-            }
-        }
-
-        async function updateUserMaxDays(email, val) {
-            const num = parseInt(val) || 4;
-            const u = ALL_USERS.find(x => x.email === email);
-            if(u) {
-                u.maxDays = num;
-                await fetch(`${API_BASE}/api/users/update`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(u)
-                });
-            }
-        }
-
-        function adminOpenEditModal(email) {
-            editingTargetEmail = email;
-            const u = ALL_USERS.find(x => x.email === email);
-            if (!u) return;
-
-            document.getElementById('modalUserName').textContent = `${u.cognome} ${u.nome} (${u.email})`;
-            
-            const existing = requestsData[email];
-            modalSelectedDates = existing ? [...existing.dates] : [...MANDATORY_DAYS];
-            document.getElementById('modalUserNotes').value = existing ? (existing.notes || '') : '';
-            document.getElementById('modalAlert').classList.add('hidden');
-
-            renderModalCalendar(u);
-            document.getElementById('adminEditModal').classList.remove('hidden');
-        }
-
-        function closeAdminEditModal() {
-            editingTargetEmail = null;
-            modalSelectedDates = [];
-            document.getElementById('adminEditModal').classList.add('hidden');
-        }
-
-        function renderModalCalendar(u) {
-            const grid = document.getElementById('modalCalendarGrid');
-            grid.innerHTML = '';
-
-            DATE_RANGE.forEach(item => {
-                const isMandatory = MANDATORY_DAYS.includes(item.date);
-                const isSelected = modalSelectedDates.includes(item.date);
-
-                const card = document.createElement('div');
-                card.className = `p-2 rounded border text-center text-xs cursor-pointer flex flex-col justify-between ${
-                    isMandatory ? 'mandatory-day cursor-not-allowed' :
-                    isSelected ? 'bg-red-700 text-white border-red-800 font-bold' :
-                    'bg-slate-50 border-slate-200 hover:border-red-400'
-                }`;
-
-                card.innerHTML = `
-                    <div class="text-[9px] uppercase opacity-75">${item.dayName}</div>
-                    <div class="font-bold my-0.5">${item.label}</div>
-                    <div>${isMandatory ? '<span class="text-[8px] bg-amber-200 text-amber-900 px-1 rounded">Chiusura</span>' : ''}</div>
-                `;
-
-                if (!isMandatory) {
-                    card.onclick = () => {
-                        const idx = modalSelectedDates.indexOf(item.date);
-                        if (idx > -1) {
-                            modalSelectedDates.splice(idx, 1);
-                        } else {
-                            if (modalSelectedDates.length >= u.maxDays) {
-                                const modalAlert = document.getElementById('modalAlert');
-                                modalAlert.textContent = `Raggiunto limite massimo di ${u.maxDays} giorni per la risorsa.`;
-                                modalAlert.classList.remove('hidden');
-                                return;
-                            }
-                            modalSelectedDates.push(item.date);
-                        }
-                        renderModalCalendar(u);
-                    };
-                }
-
-                grid.appendChild(card);
-            });
-        }
-
-        async function saveAdminEditModal() {
-            if (!editingTargetEmail) return;
-
-            const existing = requestsData[editingTargetEmail] || { isValidated: false };
-
-            const payload = {
-                email: editingTargetEmail,
-                dates: modalSelectedDates,
-                notes: document.getElementById('modalUserNotes').value.trim(),
-                isValidated: existing.isValidated
-            };
-
-            await fetch(`${API_BASE}/api/requests`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            requestsData[editingTargetEmail] = payload;
-            closeAdminEditModal();
-            renderAdminTable();
-            alert('Giorni aggiornati con successo nel database!');
-        }
-
-        async function adminConfirmRequest(email) {
-            const targetUser = ALL_USERS.find(u => u.email === email);
-            const inq = targetUser ? targetUser.inquadramento.toLowerCase() : 'dipendente';
-
-            const payload = requestsData[email] || { dates: [...MANDATORY_DAYS], notes: '' };
-            payload.email = email;
-            payload.isValidated = true;
-
-            await fetch(`${API_BASE}/api/requests`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            requestsData[email] = payload;
-            renderAdminTable();
-
-            let subject = encodeURIComponent("Conferma assenze natalizie");
-            let bodyText = inq === 'dipendente' 
-                ? "le tue ferie natalizie sono confermate, per favore inseriscile sul portale Vela entro il 15/12/2026"
-                : "gentile collaboratore, prendiamo nota della tua non operatività per i giorni indicati, ti chiediamo gentilmente di inserirli sul portale Vela ai fini di tracciamento interno ai fini assicurativi e per gestione delle commesse a cui collabori";
-
-            window.location.href = `mailto:${email}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
-        }
-
-        function checkEnterKey(event) {
-            if (event.key === 'Enter') {
-                loginUser();
-            }
-        }
-
-        function exportToExcelHQE() {
-            const wb = XLSX.utils.book_new();
-            
-            const row1 = ["SOCIETA'", "BU", "TEAM", "COGNOME NOME"];
-            const row2 = ["", "", "", ""];
-
-            DATE_RANGE.forEach(item => {
-                row1.push(item.date);
-                row2.push(item.dayFull);
-            });
-
-            const sheetData = [row1, row2];
-
-            ALL_USERS.forEach(u => {
-                const req = requestsData[u.email];
-                const selected = req ? req.dates : [];
-                
-                const fullName = `${u.cognome} ${u.nome}`.toUpperCase();
-                const uRow = [u.azienda, u.bu || '', u.team || '', fullName];
-
-                DATE_RANGE.forEach(item => {
-                    let statusVal = "";
-                    if (item.closure) {
-                        statusVal = "off";
-                    } else if (item.holiday || item.dayFull === 'sabato' || item.dayFull === 'domenica') {
-                        statusVal = "festa";
-                    } else if (selected.includes(item.date)) {
-                        statusVal = "ferie";
-                    }
-                    uRow.push(statusVal);
-                });
-
-                sheetData.push(uRow);
-            });
-
-            const ws = XLSX.utils.aoa_to_sheet(sheetData);
-            XLSX.utils.book_append_sheet(wb, ws, "Foglio1");
-            XLSX.writeFile(wb, "HQE - Assenze natale.xlsx");
-        }
-    </script>
+      }
+    }
+
+    // AGGIUNTA NUOVO COLLABORATORE
+    async function handleAddUser(e) {
+      e.preventDefault();
+      const newUser = {
+        cognome: document.getElementById('addCognome').value,
+        nome: document.getElementById('addNome').value,
+        email: document.getElementById('addEmail').value,
+        azienda: document.getElementById('addAzienda').value,
+        bu: document.getElementById('addBu').value,
+        team: document.getElementById('addTeam').value,
+        referente: document.getElementById('addReferente').value,
+        inquadramento: document.getElementById('addInquadramento').value,
+        maxDays: parseInt(document.getElementById('addMaxDays').value) || 4
+      };
+
+      const res = await fetch('/api/users/add', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(newUser)
+      });
+
+      if (res.ok) {
+        alert('Collaboratore salvato con successo!');
+        e.target.reset();
+        await loadAdminData();
+      } else {
+        alert('Errore durante il salvataggio del nuovo collaboratore.');
+      }
+    }
+
+    // ELIMINAZIONE COLLABORATORE
+    async function deleteUser(email) {
+      if (!confirm(`Sei sicuro di voler eliminare il collaboratore ${email}?`)) return;
+
+      const res = await fetch('/api/users/delete', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email })
+      });
+
+      if (res.ok) {
+        alert('Collaboratore eliminato con successo!');
+        await loadAdminData();
+      } else {
+        alert('Errore durante l\'eliminazione.');
+      }
+    }
+
+    // ESPORTAZIONE EXCEL
+    function exportToExcel() {
+      const data = allUsers.map(u => {
+        const req = allRequests[u.email] || {};
+        return {
+          'Azienda': u.azienda || '',
+          'Cognome': u.cognome || '',
+          'Nome': u.nome || '',
+          'Email': u.email || '',
+          'BU': u.bu || '',
+          'Team': u.team || '',
+          'Referente': u.referente || '',
+          'Inquadramento': u.inquadramento || '',
+          'Max Giorni': u.maxDays || 4,
+          'Giorni Selezionati': (req.dates || []).join(', '),
+          'Note': req.notes || ''
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Assenze Natalizie");
+      XLSX.writeFile(wb, "Report_Assenze_Natalizie_HQE.xlsx");
+    }
+  </script>
 </body>
 </html>
