@@ -1,6 +1,6 @@
 import os
 import json
-from flask import Flask, request, jsonify, render_template_template, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 from supabase import create_client, Client
 
 """
