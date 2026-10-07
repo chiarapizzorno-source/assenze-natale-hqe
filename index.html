@@ -3,147 +3,354 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VACANZE DI NATALE - Pianificazione Presenze / Assenze</title>
+  <title>SANTA - HQ | Pianificazione Presenze & Assenze</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    /* SFONDO NATALIZIO FUMETTO LOGIN */
-    body.login-bg { 
-      background: #002060 url('https://img.freepik.com/free-vector/hand-drawn-christmas-pattern-background_23-2148780517.jpg') center/cover fixed no-repeat;
-      min-height: 100vh;
+    :root {
+      --santa-red-glow: linear-gradient(135deg, #e63946 0%, #b7094c 100%);
+      --santa-red-dark: #800f2f;
+      --holly-green: #2d6a4f;
+      --holly-green-light: #52b788;
+      --gold-sparkle: #ffb703;
+      --white-gloss: rgba(255, 255, 255, 0.92);
     }
 
-    /* THEME COLORI INTERFACCIA UTENTE */
-    body.theme-dipendente { background-color: #f8d7da; color: #721c24; } /* ROSSO NATALIZIO */
-    body.theme-piva { background-color: #e2f0d9; color: #155724; }       /* AZZURRO / AVIO */
-    body.theme-cococo { background-color: #e9ecef; color: #383d41; }     /* GRIGIO ELEGANTE */
-    body.theme-admin { background-color: #f8f9fa; color: #333; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      background: #001219;
+      color: #2b2d42;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-    .header-bar { background-color: #002060; color: white; padding: 15px 0; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .card { border-radius: 12px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-    
+    /* SFONDO DINAMICO CON STAZIONI RADIO E COLONNINE DI RICARICA ADDOBBATE */
+    .hero-bg-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: linear-gradient(180deg, #02010a 0%, #0d1b2a 50%, #1b263b 100%);
+    }
+
+    /* FIOCCHI DI NEVE ANIMATI */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: white;
+      font-size: 1rem;
+      opacity: 0.8;
+      user-select: none;
+      z-index: -1;
+      pointer-events: none;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+      }
+    }
+
+    /* SCENOGRAFIA VETTORIALE (COLONNINE EV & ANTENNE RADIO BASE NATALIZIE) */
+    .tech-landscape {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 280px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* HEADER LUCIDO BIANCO & ROSSO */
+    .header-bar {
+      background: rgba(183, 9, 76, 0.92);
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 16px 0;
+      margin-bottom: 25px;
+      border-bottom: 3px solid var(--gold-sparkle);
+      box-shadow: 0 4px 20px rgba(183, 9, 76, 0.4);
+    }
+
+    /* RIQUADRO LOGIN ROSSO GLOSSY */
+    .glossy-login-card {
+      background: radial-gradient(circle at top left, #ff4d6d, #b7094c);
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      border-radius: 20px;
+      box-shadow: 0 0 35px rgba(230, 57, 70, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.3);
+      color: white;
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .glossy-login-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 0 45px rgba(255, 183, 3, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.4);
+    }
+
+    .login-title {
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      color: #ffffff;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.4), 0 0 12px var(--gold-sparkle);
+    }
+
+    /* CARD INTERNE BIANCHE GLOSSY CON BORDI ROSSI/VERDI */
+    .card-glossy-light {
+      background: var(--white-gloss);
+      border-radius: 16px;
+      border: 1px solid rgba(183, 9, 76, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+      backdrop-filter: blur(8px);
+    }
+
     /* STILI CALENDARIO */
-    .day-box { 
-      width: 65px; 
-      min-height: 65px; 
-      border-radius: 8px; 
-      display: flex; 
+    .day-box {
+      width: 65px;
+      min-height: 65px;
+      border-radius: 12px;
+      display: flex;
       flex-direction: column;
-      align-items: center; 
-      justify-content: center; 
-      font-weight: bold; 
-      cursor: pointer; 
-      user-select: none; 
-      transition: all 0.2s; 
-      font-size: 0.8rem; 
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      font-size: 0.8rem;
       text-align: center;
       padding: 4px;
-      border: 1px solid #ced4da;
-      background-color: #ffffff;
-      color: #333;
+      border: 2px solid #e9ecef;
+      background: #ffffff;
+      color: #2b2d42;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
+
+    .day-box:hover:not(.closed):not(.holiday) {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    }
+
     .day-box .day-sub { font-size: 0.65rem; font-weight: normal; margin-top: 2px; }
 
-    /* GIORNI CONSIGLIATI (GIALLO) - SOLO DIPENDENTI */
-    .day-box.recommended { background-color: #fff3cd !important; border: 2px solid #ffc107 !important; color: #856404 !important; }
+    /* GIORNI CONSIGLIATI (ORO SCINTILLANTE) */
+    .day-box.recommended {
+      background: linear-gradient(135deg, #fff3cd, #ffe69c) !important;
+      border-color: #ffc107 !important;
+      color: #856404 !important;
+    }
 
-    /* GIORNI SELEZIONATI (VERDE) */
-    .day-box.selected { background-color: #198754 !important; border-color: #198754 !important; color: white !important; }
+    /* GIORNI SELEZIONATI (VERDE AGRIFOGLIO LUCIDO) */
+    .day-box.selected {
+      background: linear-gradient(135deg, #2d6a4f, #52b788) !important;
+      border-color: #2d6a4f !important;
+      color: white !important;
+      box-shadow: 0 0 12px rgba(45, 106, 79, 0.5);
+    }
 
-    /* CHIUSURA AZIENDALE (ROSSO) */
-    .day-box.closed { background-color: #dc3545 !important; border-color: #dc3545 !important; color: white !important; cursor: not-allowed; }
+    /* CHIUSURA AZIENDALE (ROSSO RUBINO) */
+    .day-box.closed {
+      background: linear-gradient(135deg, #d90429, #ef233c) !important;
+      border-color: #d90429 !important;
+      color: white !important;
+      cursor: not-allowed;
+    }
 
-    /* FESTE E WEEKEND (ARANCIONE) */
-    .day-box.holiday { background-color: #fd7e14 !important; border-color: #fd7e14 !important; color: white !important; cursor: not-allowed; }
+    /* FESTE E WEEKEND (ARANCIONE NATALIZIO) */
+    .day-box.holiday {
+      background: linear-gradient(135deg, #f77f00, #fcbf49) !important;
+      border-color: #f77f00 !important;
+      color: white !important;
+      cursor: not-allowed;
+    }
 
-    .table-responsive { font-size: 0.82rem; }
-    .badge-da-inserire { background-color: #ffeba3; color: #856404; }
-    .badge-inserito { background-color: #d1e7dd; color: #0f5132; }
-    .btn-hqe { background-color: #007a53; color: white; font-weight: bold; }
-    .btn-hqe:hover { background-color: #005a3e; color: white; }
-    .extra-small { font-size: 0.7rem; }
+    /* PULSANTI */
+    .btn-santa {
+      background: linear-gradient(135deg, #d90429 0%, #b7094c 100%);
+      color: white;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 4px 12px rgba(217, 4, 41, 0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-santa:hover {
+      background: linear-gradient(135deg, #ef233c 0%, #d90429 100%);
+      color: white;
+      box-shadow: 0 6px 16px rgba(217, 4, 41, 0.5);
+      transform: translateY(-1px);
+    }
+
+    .btn-green-holly {
+      background: linear-gradient(135deg, #2d6a4f 0%, #1b4332 100%);
+      color: white;
+      font-weight: 700;
+      border: none;
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.3);
+    }
+
+    .btn-green-holly:hover {
+      background: linear-gradient(135deg, #40916c 0%, #2d6a4f 100%);
+      color: white;
+      box-shadow: 0 6px 16px rgba(45, 106, 79, 0.5);
+    }
+
+    .badge-da-inserire { background-color: #ffe69c; color: #856404; font-weight: 600; }
+    .badge-inserito { background-color: #d8f3dc; color: #1b4332; font-weight: 600; }
+    .extra-small { font-size: 0.72rem; }
   </style>
 </head>
-<body class="login-bg">
+<body>
 
-  <!-- HEADER -->
+  <!-- SFONDO CON FIOCCHI DI NEVE -->
+  <div class="hero-bg-wrapper"></div>
+  <div id="snowflakeContainer"></div>
+
+  <!-- SCENOGRAFIA VETTORIALE (COLONNINE EV & STAZIONI RADIO BASE CON CAPPELLI DI NATALE) -->
+  <svg class="tech-landscape" viewBox="0 0 1200 250" preserveAspectRatio="none">
+    <!-- Neve sul fondo -->
+    <path d="M0,210 Q150,190 300,215 T600,200 T900,210 T1200,195 L1200,250 L0,250 Z" fill="#ffffff" opacity="0.95"/>
+    
+    <!-- COLONNINA EV 1 (Sinistra) -->
+    <g transform="translate(120, 110)">
+      <rect x="0" y="30" width="35" height="70" rx="6" fill="#2b2d42"/>
+      <rect x="5" y="40" width="25" height="20" rx="3" fill="#52b788"/>
+      <circle cx="17.5" cy="75" r="5" fill="#ffb703"/>
+      <!-- Cavo EV con Ghirlanda -->
+      <path d="M 35 60 Q 55 80 45 100" stroke="#000" stroke-width="3" fill="none"/>
+      <!-- Cappello di Babbo Natale su Colonnina -->
+      <path d="M -2 32 Q 17.5 5 37 32 Z" fill="#d90429"/>
+      <circle cx="17.5" cy="5" r="5" fill="#ffffff"/>
+      <rect x="-4" y="28" width="43" height="7" rx="3" fill="#ffffff"/>
+    </g>
+
+    <!-- STAZIONE RADIO BASE / ANTENNA TELECOM (Centro-Sinistra) -->
+    <g transform="translate(280, 40)">
+      <!-- Traliccio -->
+      <line x1="20" y1="170" x2="35" y2="20" stroke="#8d99ae" stroke-width="3"/>
+      <line x1="50" y1="170" x2="35" y2="20" stroke="#8d99ae" stroke-width="3"/>
+      <line x1="23" y1="140" x2="47" y2="140" stroke="#8d99ae" stroke-width="2"/>
+      <line x1="26" y1="100" x2="44" y2="100" stroke="#8d99ae" stroke-width="2"/>
+      <line x1="29" y1="60" x2="41" y2="60" stroke="#8d99ae" stroke-width="2"/>
+      <!-- Pannelli Radianti con Ghirlande -->
+      <rect x="12" y="30" width="6" height="25" rx="2" fill="#d8f3dc"/>
+      <rect x="52" y="30" width="6" height="25" rx="2" fill="#d8f3dc"/>
+      <!-- Cappello di Natale sulla Cima della Torre -->
+      <path d="M 23 22 Q 35 -5 47 22 Z" fill="#d90429"/>
+      <circle cx="35" cy="-5" r="5" fill="#ffffff"/>
+      <rect x="20" y="20" width="30" height="6" rx="3" fill="#ffffff"/>
+      <!-- Luci Natalizie sul traliccio -->
+      <circle cx="23" cy="140" r="3" fill="#ffb703"/>
+      <circle cx="47" cy="100" r="3" fill="#ef233c"/>
+      <circle cx="29" cy="60" r="3" fill="#52b788"/>
+    </g>
+
+    <!-- COLONNINA EV 2 (Destra) -->
+    <g transform="translate(880, 100)">
+      <rect x="0" y="30" width="40" height="80" rx="8" fill="#1d3557"/>
+      <rect x="7" y="42" width="26" height="22" rx="3" fill="#00b4d8"/>
+      <!-- Cappello di Babbo Natale -->
+      <path d="M -3 32 Q 20 2 43 32 Z" fill="#d90429"/>
+      <circle cx="20" cy="2" r="5.5" fill="#ffffff"/>
+      <rect x="-5" y="28" width="50" height="8" rx="4" fill="#ffffff"/>
+      <!-- Palline di Natale appese -->
+      <circle cx="5" cy="70" r="4" fill="#ffb703"/>
+      <circle cx="35" cy="80" r="4" fill="#d90429"/>
+    </g>
+
+    <!-- STAZIONE RADIO BASE SRB 2 (Estrema Destra) -->
+    <g transform="translate(1020, 50)">
+      <line x1="20" y1="160" x2="35" y2="30" stroke="#8d99ae" stroke-width="3"/>
+      <line x1="50" y1="160" x2="35" y2="30" stroke="#8d99ae" stroke-width="3"/>
+      <path d="M 22 32 Q 35 5 48 32 Z" fill="#d90429"/>
+      <circle cx="35" cy="5" r="5" fill="#ffffff"/>
+      <rect x="19" y="30" width="32" height="6" rx="3" fill="#ffffff"/>
+    </g>
+  </svg>
+
+  <!-- HEADER APPLICAZIONE -->
   <div class="header-bar">
     <div class="container d-flex justify-content-between align-items-center">
-      <div>
-        <h3 class="m-0 fw-bold">🎄 VACANZE DI NATALE</h3>
-        <small class="text-white-50">Pianificazione Presenze / Assenze Natalizie</small>
+      <div class="d-flex align-items-center gap-2">
+        <span class="fs-2">🎄</span>
+        <div>
+          <h3 class="m-0 fw-bold tracking-wide">SANTA - HQ</h3>
+          <small class="text-white-50">Pianificazione Presenze / Assenze Natalizie</small>
+        </div>
       </div>
       <div id="userInfo" class="d-none text-end">
         <span id="userNameDisplay" class="fw-bold me-2"></span>
-        <span id="userInquadramentoBadge" class="badge bg-light text-dark me-2 d-none"></span>
-        <button class="btn btn-sm btn-outline-light" onclick="logout()">Logout</button>
+        <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold"></span>
+        <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
 
   <div class="container mb-5">
 
-    <!-- PRIMA PAGINA DI LOGIN (VACANZE DI NATALE) -->
-    <div id="loginCard" class="card mx-auto mt-5" style="max-width: 420px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(5px);">
-      <div class="card-body p-4 text-center">
-        <div class="fs-1 mb-2">🎅 🎄 ☃️</div>
-        <h4 class="fw-bold mb-1" style="color: #002060;">VACANZE DI NATALE</h4>
-        <p class="text-muted small mb-4">Inserisci la tua email aziendale per accedere al modulo.</p>
+    <!-- RIQUADRO DI ACCESSO PRINCIPALE (SANTA - HQ) -->
+    <div id="loginCard" class="card glossy-login-card mx-auto mt-4 p-2" style="max-width: 440px;">
+      <div class="card-body text-center p-4">
+        <div class="fs-1 mb-2">🎅 ✨ ☃️</div>
+        <h3 class="login-title mb-1">SANTA - HQ</h3>
+        <p class="small text-white-75 mb-4">Inserisci la tua email aziendale per accedere al portale.</p>
         
         <form onsubmit="handleLogin(event)">
           <div class="mb-3 text-start">
-            <label class="form-label small fw-bold">Email Aziendale</label>
-            <input type="email" id="loginEmail" class="form-control form-control-sm" placeholder="nome.cognome@hqe.it" required>
+            <label class="form-label small fw-bold text-white">Email Aziendale</label>
+            <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow-sm" placeholder="nome.cognome@hqe.it" required>
           </div>
           <div id="adminPasswordField" class="mb-3 text-start d-none">
-            <label class="form-label small fw-bold">Password Amministratore</label>
-            <input type="password" id="loginPassword" class="form-control form-control-sm" placeholder="Password admin">
+            <label class="form-label small fw-bold text-white">Password Amministratore</label>
+            <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow-sm" placeholder="Password admin">
           </div>
-          <div id="loginError" class="alert alert-danger small py-2 d-none"></div>
-          <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold py-2" style="background-color: #002060;">Accedi alla Piattaforma</button>
+          <div id="loginError" class="alert alert-warning text-dark small py-2 d-none rounded-3 fw-bold"></div>
+          <button type="submit" class="btn btn-santa w-100 py-2 rounded-3 mt-2 fs-6">
+            Accedi alla Piattaforma ✨
+          </button>
         </form>
       </div>
     </div>
 
-    <!-- CALENDARIO PERSONALE -->
+    <!-- CALENDARIO PERSONALE PER UTENTI -->
     <div id="calendarSection" class="d-none mb-4">
-      <div class="card">
-        <div class="card-header bg-white fw-bold py-2 d-flex justify-content-between align-items-center">
-          <span id="calendarTitle">📅 Selezione Giornate</span>
-          <span class="badge bg-secondary" id="maxDaysInfo">Max 4 Giorni</span>
+      <div class="card card-glossy-light">
+        <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
+          <span id="calendarTitle" class="fs-5 text-danger">📅 Selezione Giornate</span>
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
-          <div id="guidanceText" class="alert alert-light border small mb-3"></div>
+          <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3"></div>
 
-          <!-- LEGENDA COLORI DINAMICA -->
-          <div id="legendContainer" class="d-flex flex-wrap gap-3 mb-3 small fw-bold">
-            <!-- Generata da JS -->
-          </div>
+          <!-- LEGENDA COLORI -->
+          <div id="legendContainer" class="d-flex flex-wrap gap-3 mb-3 small fw-bold"></div>
           
-          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-3">
-            <!-- Box generati da JS -->
-          </div>
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4 justify-content-start"></div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold small">Note operative o comunicazioni:</label>
-            <textarea id="employeeNotes" class="form-control form-control-sm" rows="2" placeholder="Inserisci eventuali note..."></textarea>
+            <label class="form-label fw-bold small text-secondary">Note operative o comunicazioni:</label>
+            <textarea id="employeeNotes" class="form-control form-control-sm rounded-3" rows="2" placeholder="Inserisci eventuali note..."></textarea>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="badge bg-secondary" id="selectedCountBadge">Giorni scelti: 0</span>
-            <button class="btn btn-success btn-sm fw-bold px-3" onclick="saveEmployeeRequest()">💾 Salva le mie Preferenze</button>
+          <div class="d-flex justify-content-between align-items-center pt-2">
+            <span class="badge bg-secondary rounded-pill px-3 py-2" id="selectedCountBadge">Giorni scelti: 0</span>
+            <button class="btn btn-green-holly rounded-3 px-4 py-2" onclick="saveEmployeeRequest()">💾 Salva Preferenze</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PANNELLO ADMIN -->
+    <!-- PANNELLO AMMINISTRATORE (ADMIN) -->
     <div id="adminSection" class="d-none">
 
       <!-- RIQUADRO AGGIUNTA MANUALE -->
-      <div class="card mb-4">
-        <div class="card-body p-3">
-          <h6 class="fw-bold text-primary mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
+      <div class="card card-glossy-light mb-4">
+        <div class="card-body p-4">
+          <h6 class="fw-bold text-danger mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
           <form onsubmit="handleAddUser(event)">
             <div class="row g-2 mb-2">
               <div class="col-md-6"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
@@ -168,15 +375,15 @@
               </div>
               <div class="col-md-6"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15"></div>
             </div>
-            <button type="submit" class="btn btn-danger w-100 fw-bold">Salva Collaboratore in Anagrafica</button>
+            <button type="submit" class="btn btn-santa w-100 py-2 rounded-3">Salva Collaboratore in Anagrafica</button>
           </form>
         </div>
       </div>
 
-      <!-- TABELLA RISORSE -->
-      <div class="card mb-4">
-        <div class="card-body p-3">
-          <h5 class="fw-bold mb-3">Anagrafica Risorse & Azioni Admin</h5>
+      <!-- TABELLA RISORSE ADMIN -->
+      <div class="card card-glossy-light mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold text-danger mb-3">Anagrafica Risorse & Azioni Admin</h5>
 
           <!-- FILTRI -->
           <div class="row g-2 mb-3">
@@ -206,8 +413,8 @@
 
           <!-- TABELLA -->
           <div class="table-responsive">
-            <table class="table table-bordered table-sm align-middle mb-3 bg-white">
-              <thead class="table-light text-uppercase" style="font-size:0.75rem;">
+            <table class="table table-hover table-bordered table-sm align-middle mb-3 bg-white rounded-3 overflow-hidden">
+              <thead class="table-danger text-uppercase" style="font-size:0.75rem;">
                 <tr>
                   <th>AZIENDA</th>
                   <th>BU</th>
@@ -228,10 +435,10 @@
             </table>
           </div>
 
-          <!-- EXCEL -->
-          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+          <!-- EXCEL EXPORT -->
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
             <span class="small text-muted">Scarica il file master delle assenze nel formato aziendale HQE.</span>
-            <button class="btn btn-hqe" onclick="exportToExcel()">📊 Scarica Report Excel Formato HQE (.xlsx)</button>
+            <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()">📊 Scarica Report Excel (.xlsx)</button>
           </div>
 
         </div>
@@ -242,6 +449,19 @@
   </div>
 
   <script>
+    // GENERAZIONE EFFETTO NEVE
+    const snowContainer = document.getElementById('snowflakeContainer');
+    for (let i = 0; i < 30; i++) {
+      const flake = document.createElement('div');
+      flake.className = 'snowflake';
+      flake.innerHTML = '❄';
+      flake.style.left = Math.random() * 100 + 'vw';
+      flake.style.animationDuration = (Math.random() * 3 + 4) + 's';
+      flake.style.animationDelay = Math.random() * 5 + 's';
+      flake.style.fontSize = (Math.random() * 10 + 10) + 'px';
+      snowContainer.appendChild(flake);
+    }
+
     // GENERAZIONE RANGE COMPLETO 21 DICEMBRE - 10 GENNAIO
     const RANGE_START = new Date("2026-12-21");
     const RANGE_END = new Date("2027-01-10");
@@ -256,13 +476,8 @@
       curr.setDate(curr.getDate() + 1);
     }
 
-    // DATE CHIUSURA AZIENDALE (ROSSO) - 4 GIORNI
     const CLOSED_DATES = ["2026-12-24", "2026-12-31", "2027-01-04", "2027-01-05"];
-
-    // FESTIVITÀ NAZIONALI INFRASETTIMANALI (ARANCIONE)
     const HOLIDAY_DATES = ["2026-12-25", "2026-12-26", "2027-01-01", "2027-01-06"];
-
-    // DATE CONSIGLIATE (GIALLO) - SOLO PER DIPENDENTI
     const DEFAULT_RECOMMENDED_DAYS = ["2026-12-28", "2026-12-29", "2026-12-30"];
 
     let currentUser = null;
@@ -301,32 +516,13 @@
         currentUser = data.user;
         isAdmin = data.isAdmin;
 
-        document.body.classList.remove('login-bg');
-
-        const inqRaw = (currentUser.inquadramento || 'Dipendente').toLowerCase();
-        if (isAdmin) {
-          document.body.className = 'theme-admin';
-        } else if (inqRaw.includes('dipendente')) {
-          document.body.className = 'theme-dipendente'; // ROSSO
-        } else if (inqRaw.includes('partitaiva') || inqRaw.includes('p.iva') || inqRaw.includes('piva')) {
-          document.body.className = 'theme-piva';       // AZZURRO
-        } else if (inqRaw.includes('cococo')) {
-          document.body.className = 'theme-cococo';     // GRIGIO
-        } else {
-          document.body.className = 'theme-admin';
-        }
-
         document.getElementById('loginCard').classList.add('d-none');
         document.getElementById('userInfo').classList.remove('d-none');
         document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
 
         const badgeEl = document.getElementById('userInquadramentoBadge');
-        if (inqRaw.includes('dipendente') || isAdmin) {
-          badgeEl.innerText = currentUser.inquadramento || 'Dipendente';
-          badgeEl.classList.remove('d-none');
-        } else {
-          badgeEl.classList.add('d-none');
-        }
+        badgeEl.innerText = currentUser.inquadramento || 'Dipendente';
+        badgeEl.classList.remove('d-none');
 
         setupInquadramentoView();
 
@@ -357,36 +553,24 @@
         maxEl.innerText = `Max ${maxDays} Giorni Totali`;
         maxEl.classList.remove('d-none');
         titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
-        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale (4 giorni) sono conteggiati come FERIE e gia' scalati dal monte giorni.</u> I giorni in rosso indicano la Chiusura Aziendale, quelli in arancione le Festività/Weekend, e quelli in giallo le giornate consigliate.";
+        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale (4 giorni) sono conteggiati come FERIE e già scalati dal monte giorni.</u>";
         
         legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale (4 gg Ferie)</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fd7e14; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ef233c; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale (4 gg Ferie)</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#f77f00; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fff3cd; border:1px solid #ffc107; display:inline-block; border-radius:3px;"></span> Consigliato</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#198754; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
-        `;
-      } else if (inq.includes('partitaiva') || inq.includes('p.iva') || inq.includes('piva')) {
-        maxEl.classList.add('d-none');
-        titleEl.innerText = "📋 Pianificazione Chiusure / Sospensione Attività";
-        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività. Le giornate in rosso indicano le Chiusure Aziendali, quelle in arancione i Weekend e le Festività.";
-        
-        legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fd7e14; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#198754; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#2d6a4f; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
         `;
       } else {
-        // CoCoCo
         maxEl.classList.add('d-none');
         titleEl.innerText = "📋 Pianificazione Presenze / Assenze";
-        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi di non essere operativo/a. Le giornate in rosso indicano le Chiusure Aziendali, quelle in arancione i Weekend e le Festività.";
+        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività.";
         
         legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fd7e14; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#198754; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ef233c; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#f77f00; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#2d6a4f; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
         `;
       }
@@ -418,7 +602,7 @@
         const d = new Date(dateStr);
         const dayNum = d.getDate();
         const monthShort = d.toLocaleString('it-IT', { month: 'short' });
-        const dayOfWeek = d.getDay(); // 0 = Domenica, 6 = Sabato
+        const dayOfWeek = d.getDay();
 
         const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
         const isClosed = CLOSED_DATES.includes(dateStr);
@@ -449,7 +633,6 @@
 
       const countBadge = document.getElementById('selectedCountBadge');
       if (isDipendente) {
-        // I 4 GIORNI DI CHIUSURA AZIENDALE SONO AUTOMATICAMENTE CONTEGGIATI NELLE FERIE
         const totalFerieCount = CLOSED_DATES.length + employeeSelectedDates.length;
         countBadge.innerText = `Giorni scelti/conteggiati: ${totalFerieCount} / ${maxDays} (4 Chiusura + ${employeeSelectedDates.length} Feriali)`;
       } else {
@@ -468,11 +651,10 @@
         if (isDipendente) {
           const currentTotalFerie = CLOSED_DATES.length + employeeSelectedDates.length;
           if (currentTotalFerie >= maxDays) {
-            alert(`Hai raggiunto il limite massimo di ${maxDays} giorni di ferie (comprensivi dei 4 giorni di chiusura aziendale).`);
+            alert(`Hai raggiunto il limite massimo di ${maxDays} giorni di ferie.`);
             return;
           }
         } else {
-          // P.IVA e CoCoCo: Se maxDays è 0 o supera il limite
           if (maxDays === 0 || employeeSelectedDates.length >= maxDays) {
             alert("Per esigenze differenti fare riferimento a risorseumane@hqe.it");
             return;
@@ -585,8 +767,8 @@
           <td>
             <div class="d-flex gap-1">
               <button class="btn btn-sm btn-success btn-confirm d-none" onclick="saveUserEdit('${u.email}')">✓ Conferma</button>
-              <button class="btn btn-sm btn-primary btn-edit" onclick="enableUserEdit('${u.email}')">✏️ Modifica</button>
-              <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.email}')">🗑️ Elimina</button>
+              <button class="btn btn-sm btn-outline-danger btn-edit" onclick="enableUserEdit('${u.email}')">✏️ Edit</button>
+              <button class="btn btn-sm btn-outline-secondary" onclick="deleteUser('${u.email}')">🗑️</button>
             </div>
           </td>
         `;
@@ -696,7 +878,7 @@
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Assenze Natalizie");
-      XLSX.writeFile(wb, "Report_Assenze_Natalizie_HQE.xlsx");
+      XLSX.writeFile(wb, "Report_Assenze_Natalizie_SANTA_HQ.xlsx");
     }
   </script>
 </body>
