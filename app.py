@@ -2636,11 +2636,11 @@ def api_login():
             if res.data:
                 u = res.data[0]
                 user = {
-                    'azienda': u.get('azienda'),
-                    'cognome': u.get('cognome'),
-                    'nome': u.get('nome'),
-                    'email': u.get('email'),
-                    'inquadramento': u.get('inquadramento'),
+                    'azienda': u.get('azienda', ''),
+                    'cognome': u.get('cognome', ''),
+                    'nome': u.get('nome', ''),
+                    'email': u.get('email', ''),
+                    'inquadramento': u.get('inquadramento', ''),
                     'maxDays': u.get('max_days', 4),
                     'bu': u.get('bu', ''),
                     'team': u.get('team', ''),
@@ -2672,43 +2672,62 @@ def api_login():
 
 @app.route('/api/users', methods=['GET'])
 def get_users():
+    users_list = []
     if supabase:
         try:
             res = supabase.table('users').select('*').execute()
             if res.data and len(res.data) > 0:
-                users = []
                 for u in res.data:
-                    users.append({
-                        'azienda': u.get('azienda'),
-                        'cognome': u.get('cognome'),
-                        'nome': u.get('nome'),
-                        'email': u.get('email'),
-                        'inquadramento': u.get('inquadramento'),
+                    users_list.append({
+                        'azienda': u.get('azienda', ''),
+                        'cognome': u.get('cognome', ''),
+                        'nome': u.get('nome', ''),
+                        'email': u.get('email', ''),
+                        'inquadramento': u.get('inquadramento', ''),
                         'maxDays': u.get('max_days', 4),
                         'bu': u.get('bu', ''),
                         'team': u.get('team', ''),
                         'referente': u.get('referente', '')
                     })
-                return jsonify(users)
         except Exception as e:
             print(f"Errore get_users Supabase: {e}")
-    
-    return jsonify(DEFAULT_USERS)
+
+    if not users_list:
+        users_list = DEFAULT_USERS
+
+    # ORDINAMENTO ALFABETICO A-Z PER COGNOME E NOME
+    users_sorted = sorted(users_list, key=lambda x: (x.get('cognome', '').lower(), x.get('nome', '').lower()))
+    return jsonify(users_sorted)
 
 @app.route('/api/users/update', methods=['POST'])
 def update_user():
-    if supabase:
-        u = request.json or {}
-        data = {
+    u = request.json or {}
+    email = u.get('email')
+    data = {
+        'azienda': u.get('azienda', ''),
+        'bu': u.get('bu', ''),
+        'team': u.get('team', ''),
+        'referente': u.get('referente', ''),
+        'inquadramento': u.get('inquadramento', ''),
+        'max_days': u.get('maxDays', 4)
+    }
+    
+    if supabase and email:
+        try:
+            supabase.table('users').update(data).eq('email', email).execute()
+        except Exception as e:
+            print(f"Errore update_user Supabase: {e}")
+
+    if email in USERS_MAP:
+        USERS_MAP[email].update({
+            'azienda': u.get('azienda', ''),
             'bu': u.get('bu', ''),
             'team': u.get('team', ''),
             'referente': u.get('referente', ''),
-            'max_days': u.get('maxDays', 4)
-        }
-        try:
-            supabase.table('users').update(data).eq('email', u.get('email')).execute()
-        except Exception as e:
-            print(f"Errore update_user: {e}")
+            'inquadramento': u.get('inquadramento', ''),
+            'maxDays': u.get('maxDays', 4)
+        })
+
     return jsonify({'status': 'ok'})
 
 @app.route('/api/requests', methods=['GET', 'POST'])
