@@ -27,6 +27,9 @@ DEFAULT_RECOMMENDED_DAYS = [
     "2026-12-28", "2026-12-29", "2026-12-30"
 ]
 
+# MEMORIA LOCALE RICHIESTE PER FALLBACK
+SAVED_REQUESTS_CACHE = {}
+
 # ANAGRAFICA COMPLETA DEI 235 DIPENDENTI
 DEFAULT_USERS = [
     {"azienda": "HQ ENGINEERING SRL", "cognome": "Abu Taleb", "nome": "Mays", "email": "mays.abutaleb@hqe.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "RADIOMOBILE", "team": "PROGETTAZIONE ESECUTIVA", "referente": "Russo"},
@@ -207,7 +210,7 @@ DEFAULT_USERS = [
     {"azienda": "QTECH SRL", "cognome": "Briguglio", "nome": "Simona", "email": "simona.briguglio@qtech.it", "inquadramento": "Dipendente", "maxDays": 4, "bu": "AMMINISTRAZIONE", "team": "AMMINISTRAZIONE", "referente": "Borghetti"},
     {"azienda": "QTECH SRL", "cognome": "Collura", "nome": "Luigi", "email": "luigi.collura@qtech.it", "inquadramento": "Dipendente", "maxDays": 4, "bu": "MILANO", "team": "MILANO", "referente": "Perfetti"},
     {"azienda": "QTECH SRL", "cognome": "Procopio", "nome": "Gerardo", "email": "gerardo.procopio@qtech.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "CONSULENZA", "team": "CONSULENZA", "referente": "Morolla"},
-    {"azienda": "HQ ENGINEERING SRL", "cognome": "Proietti", "nome": "Giulia", "email": "giulia.proietti @hqe.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "CONSULENZA", "team": "CONSULENZA", "referente": "Morolla"},
+    {"azienda": "HQ ENGINEERING SRL", "cognome": "Proietti", "nome": "Giulia", "email": "giulia.proietti@hqe.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "CONSULENZA", "team": "CONSULENZA", "referente": "Morolla"},
     {"azienda": "HQ ENGINEERING SRL", "cognome": "Prosperi", "nome": "Andrea", "email": "andrea.prosperi@hqe.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "RADIOMOBILE", "team": "PERMESSI", "referente": "Pisanu"},
     {"azienda": "HQ ENGINEERING SRL", "cognome": "Puddu", "nome": "Francesca", "email": "francesca.puddu@hqe.it", "inquadramento": "PartitaIVA(01/04/2026-31/12/2026)", "maxDays": 4, "bu": "CONSULENZA", "team": "CONSULENZA", "referente": "Morolla"},
     {"azienda": "HQ ENGINEERING SRL", "cognome": "Quadrante", "nome": "Daniela", "email": "daniela.quadrante@hqe.it", "inquadramento": "PartitaIVA", "maxDays": 4, "bu": "RADIOMOBILE", "team": "PROGETTAZIONE ESECUTIVA", "referente": "Russo"},
@@ -266,7 +269,7 @@ DEFAULT_USERS = [
     {"azienda": "QTECH SRL", "cognome": "Zavoli", "nome": "Sandro", "email": "sandro.zavoli@qtech.it", "inquadramento": "Dipendente", "maxDays": 4, "bu": "CONSULENZA", "team": "CONSULENZA", "referente": "Morolla"}
 ]
 
-USERS_MAP = {u['email']: u for u in DEFAULT_USERS}
+USERS_MAP = {u['email'].lower().strip(): u for u in DEFAULT_USERS}
 
 @app.route('/')
 def index():
@@ -296,7 +299,7 @@ def api_login():
                     'azienda': u.get('azienda', ''),
                     'cognome': u.get('cognome', ''),
                     'nome': u.get('nome', ''),
-                    'email': u.get('email', ''),
+                    'email': u.get('email', '').strip().lower(),
                     'inquadramento': u.get('inquadramento', ''),
                     'maxDays': u.get('max_days', 4),
                     'bu': u.get('bu', ''),
@@ -309,8 +312,10 @@ def api_login():
 
     if not user:
         user = USERS_MAP.get(email)
-        if user and 'recommendedDays' not in user:
-            user['recommendedDays'] = DEFAULT_RECOMMENDED_DAYS
+        if user:
+            user['email'] = user['email'].strip().lower()
+            if 'recommendedDays' not in user:
+                user['recommendedDays'] = DEFAULT_RECOMMENDED_DAYS
 
     if not user and is_admin:
         user = {
@@ -387,7 +392,7 @@ def handle_users():
                             'azienda': u.get('azienda', ''),
                             'cognome': u.get('cognome', ''),
                             'nome': u.get('nome', ''),
-                            'email': u.get('email', ''),
+                            'email': u.get('email', '').strip().lower(),
                             'inquadramento': u.get('inquadramento', ''),
                             'maxDays': u.get('max_days', 4),
                             'bu': u.get('bu', ''),
@@ -401,6 +406,7 @@ def handle_users():
         if not users_list:
             users_list = list(USERS_MAP.values())
             for u in users_list:
+                u['email'] = u['email'].strip().lower()
                 if 'recommendedDays' not in u:
                     u['recommendedDays'] = DEFAULT_RECOMMENDED_DAYS
 
@@ -425,12 +431,15 @@ def delete_user():
     if email in USERS_MAP:
         del USERS_MAP[email]
 
+    if email in SAVED_REQUESTS_CACHE:
+        del SAVED_REQUESTS_CACHE[email]
+
     return jsonify({'status': 'ok'})
 
 @app.route('/api/users/update', methods=['POST'])
 def update_user():
     u = request.json or {}
-    email = u.get('email')
+    email = u.get('email', '').strip().lower()
     
     data = {
         'azienda': u.get('azienda', ''),
@@ -467,12 +476,23 @@ def update_user():
 def handle_requests():
     if request.method == 'POST':
         data = request.json or {}
-        email = data.get('email')
+        email = data.get('email', '').strip().lower()
         dates = data.get('dates', [])
         notes = data.get('notes', '')
         is_validated = data.get('isValidated', False)
 
-        if supabase and email:
+        if not email:
+            return jsonify({'error': 'Email mancante'}), 400
+
+        # Salva sempre prima in memoria locale per garanzia immediata
+        SAVED_REQUESTS_CACHE[email] = {
+            'dates': dates,
+            'notes': notes,
+            'isValidated': is_validated
+        }
+
+        # Salva su Supabase
+        if supabase:
             row = {
                 'email': email,
                 'dates': json.dumps(dates),
@@ -484,28 +504,23 @@ def handle_requests():
             except Exception as e:
                 print(f"Errore save_request Supabase: {e}")
 
-        if email in USERS_MAP:
-            USERS_MAP[email]['requests'] = {
-                'dates': dates,
-                'notes': notes,
-                'isValidated': is_validated
-            }
-
         return jsonify({'status': 'ok'})
     else:
-        reqs = {}
+        reqs = dict(SAVED_REQUESTS_CACHE)
         if supabase:
             try:
                 res = supabase.table('requests').select('*').execute()
                 for r in res.data:
-                    dates = r.get('dates')
-                    if isinstance(dates, str):
-                        dates = json.loads(dates)
-                    reqs[r.get('email')] = {
-                        'dates': dates or [],
-                        'notes': r.get('notes', ''),
-                        'isValidated': r.get('is_validated', False)
-                    }
+                    em = r.get('email', '').strip().lower()
+                    if em:
+                        dates = r.get('dates')
+                        if isinstance(dates, str):
+                            dates = json.loads(dates)
+                        reqs[em] = {
+                            'dates': dates or [],
+                            'notes': r.get('notes', ''),
+                            'isValidated': r.get('is_validated', False)
+                        }
             except Exception as e:
                 print(f"Errore get_requests Supabase: {e}")
         return jsonify(reqs)
