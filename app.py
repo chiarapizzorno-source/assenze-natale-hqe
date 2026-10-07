@@ -23,6 +23,7 @@ ADMIN_EMAILS = [
 ]
 ADMIN_PASSWORD = 'natalesulnilo'
 
+# Date consigliate base (28, 29 e 30 Dicembre)
 DEFAULT_RECOMMENDED_DAYS = [
     "2026-12-28", "2026-12-29", "2026-12-30"
 ]
@@ -331,83 +332,86 @@ def api_login():
 
     return jsonify({'user': user, 'isAdmin': is_admin})
 
-@app.route('/api/users', methods=['GET'])
-def get_users():
-    users_list = []
-    if supabase:
-        try:
-            res = supabase.table('users').select('*').execute()
-            if res.data and len(res.data) > 0:
-                for u in res.data:
-                    rec_days = u.get('recommended_days')
-                    if isinstance(rec_days, str):
-                        rec_days = json.loads(rec_days)
-                    users_list.append({
-                        'azienda': u.get('azienda', ''),
-                        'cognome': u.get('cognome', ''),
-                        'nome': u.get('nome', ''),
-                        'email': u.get('email', ''),
-                        'inquadramento': u.get('inquadramento', ''),
-                        'maxDays': u.get('max_days', 4),
-                        'bu': u.get('bu', ''),
-                        'team': u.get('team', ''),
-                        'referente': u.get('referente', ''),
-                        'recommendedDays': rec_days if rec_days is not None else DEFAULT_RECOMMENDED_DAYS
-                    })
-        except Exception as e:
-            print(f"Errore get_users Supabase: {e}")
+# GET RICHIEDE TUTTI GLI UTENTI - POST SALVA UN NUOVO UTENTE (COMPATIBILITÀ)
+@app.route('/api/users', methods=['GET', 'POST'])
+def handle_users():
+    if request.method == 'POST':
+        u = request.json or {}
+        email = u.get('email', '').strip().lower()
+        if not email:
+            return jsonify({'error': 'Email obbligatoria.'}), 400
 
-    # Fallback se Supabase è vuoto o scollegato
-    if not users_list:
-        users_list = DEFAULT_USERS
-        for u in users_list:
-            if 'recommendedDays' not in u:
-                u['recommendedDays'] = DEFAULT_RECOMMENDED_DAYS
+        data = {
+            'email': email,
+            'nome': u.get('nome', '').strip().title(),
+            'cognome': u.get('cognome', '').strip().title(),
+            'azienda': u.get('azienda', '').strip(),
+            'inquadramento': u.get('inquadramento', '').strip(),
+            'max_days': int(u.get('maxDays', 4)),
+            'bu': u.get('bu', '').strip(),
+            'team': u.get('team', '').strip(),
+            'referente': u.get('referente', '').strip(),
+            'recommended_days': json.dumps(u.get('recommendedDays', DEFAULT_RECOMMENDED_DAYS))
+        }
 
-    users_sorted = sorted(users_list, key=lambda x: (x.get('cognome', '').lower(), x.get('nome', '').lower()))
-    return jsonify(users_sorted)
+        if supabase:
+            try:
+                supabase.table('users').upsert(data, on_conflict='email').execute()
+            except Exception as e:
+                print(f"Errore add_user Supabase: {e}")
+
+        USERS_MAP[email] = {
+            'email': email,
+            'nome': data['nome'],
+            'cognome': data['cognome'],
+            'azienda': data['azienda'],
+            'inquadramento': data['inquadramento'],
+            'maxDays': data['max_days'],
+            'bu': data['bu'],
+            'team': data['team'],
+            'referente': data['referente'],
+            'recommendedDays': u.get('recommendedDays', DEFAULT_RECOMMENDED_DAYS)
+        }
+
+        return jsonify({'status': 'ok'})
+
+    else:
+        users_list = []
+        if supabase:
+            try:
+                res = supabase.table('users').select('*').execute()
+                if res.data and len(res.data) > 0:
+                    for u in res.data:
+                        rec_days = u.get('recommended_days')
+                        if isinstance(rec_days, str):
+                            rec_days = json.loads(rec_days)
+                        users_list.append({
+                            'azienda': u.get('azienda', ''),
+                            'cognome': u.get('cognome', ''),
+                            'nome': u.get('nome', ''),
+                            'email': u.get('email', ''),
+                            'inquadramento': u.get('inquadramento', ''),
+                            'maxDays': u.get('max_days', 4),
+                            'bu': u.get('bu', ''),
+                            'team': u.get('team', ''),
+                            'referente': u.get('referente', ''),
+                            'recommendedDays': rec_days if rec_days is not None else DEFAULT_RECOMMENDED_DAYS
+                        })
+            except Exception as e:
+                print(f"Errore get_users Supabase: {e}")
+
+        if not users_list:
+            users_list = list(USERS_MAP.values())
+            for u in users_list:
+                if 'recommendedDays' not in u:
+                    u['recommendedDays'] = DEFAULT_RECOMMENDED_DAYS
+
+        users_sorted = sorted(users_list, key=lambda x: (x.get('cognome', '').lower(), x.get('nome', '').lower()))
+        return jsonify(users_sorted)
 
 @app.route('/api/users/add', methods=['POST'])
 def add_user():
-    u = request.json or {}
-    email = u.get('email', '').strip().lower()
-    if not email:
-        return jsonify({'error': 'Email obbligatoria.'}), 400
-
-    data = {
-        'email': email,
-        'nome': u.get('nome', '').strip().title(),
-        'cognome': u.get('cognome', '').strip().title(),
-        'azienda': u.get('azienda', '').strip(),
-        'inquadramento': u.get('inquadramento', '').strip(),
-        'max_days': int(u.get('maxDays', 4)),
-        'bu': u.get('bu', '').strip(),
-        'team': u.get('team', '').strip(),
-        'referente': u.get('referente', '').strip(),
-        'recommended_days': json.dumps(u.get('recommendedDays', DEFAULT_RECOMMENDED_DAYS))
-    }
-
-    if supabase:
-        try:
-            supabase.table('users').upsert(data, on_conflict='email').execute()
-        except Exception as e:
-            print(f"Errore add_user Supabase: {e}")
-
-    # Salva anche in memoria locale
-    USERS_MAP[email] = {
-        'email': email,
-        'nome': data['nome'],
-        'cognome': data['cognome'],
-        'azienda': data['azienda'],
-        'inquadramento': data['inquadramento'],
-        'maxDays': data['max_days'],
-        'bu': data['bu'],
-        'team': data['team'],
-        'referente': data['referente'],
-        'recommendedDays': u.get('recommendedDays', DEFAULT_RECOMMENDED_DAYS)
-    }
-
-    return jsonify({'status': 'ok'})
+    return handle_users()
 
 @app.route('/api/users/delete', methods=['POST'])
 def delete_user():
