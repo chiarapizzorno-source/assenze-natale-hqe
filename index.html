@@ -59,7 +59,7 @@
       </div>
       <div id="userInfo" class="d-none text-end">
         <span id="userNameDisplay" class="fw-bold me-2"></span>
-        <span id="userInquadramentoBadge" class="badge bg-info text-dark me-2"></span>
+        <span id="userInquadramentoBadge" class="badge bg-info text-dark me-2 d-none"></span>
         <button class="btn btn-sm btn-outline-light" onclick="logout()">Logout</button>
       </div>
     </div>
@@ -285,7 +285,18 @@
         document.getElementById('loginCard').classList.add('d-none');
         document.getElementById('userInfo').classList.remove('d-none');
         document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
-        document.getElementById('userInquadramentoBadge').innerText = currentUser.inquadramento || 'Dipendente';
+
+        const badgeEl = document.getElementById('userInquadramentoBadge');
+        const inqRaw = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+        const isDipendente = inqRaw.includes('dipendente') || isAdmin;
+
+        // Badge visibile solo se è un Dipendente
+        if (isDipendente) {
+          badgeEl.innerText = currentUser.inquadramento || 'Dipendente';
+          badgeEl.classList.remove('d-none');
+        } else {
+          badgeEl.classList.add('d-none');
+        }
 
         setupInquadramentoView();
 
@@ -308,17 +319,18 @@
       const textEl = document.getElementById('guidanceText');
       const maxEl = document.getElementById('maxDaysInfo');
 
-      maxEl.innerText = `Max ${currentUser.maxDays || 4} Giorni`;
+      const isDipendente = inq.includes('dipendente') || isAdmin;
 
-      if (inq.includes('partitaiva') || inq.includes('p.iva') || inq.includes('piva')) {
-        titleEl.innerText = "📋 Pianificazione Chiusure / Sospensione Attività (Partita IVA)";
-        textEl.innerHTML = "💡 <b>Nota per Partita IVA:</b> Seleziona i giorni feriali nei quali prevedi la sospensione dell'attività. Le giornate in rosso indicano le Chiusure Aziendali, quelle in arancione indicano i Weekend e le Festività.";
-      } else if (inq.includes('cococo')) {
-        titleEl.innerText = "📋 Pianificazione Presenze / Assenze (CoCoCo)";
-        textEl.innerHTML = "💡 <b>Nota per CoCoCo:</b> Seleziona le giornate feriali in cui non sarai operativo/a. I giorni in rosso e in arancione sono festività o periodi di chiusura.";
-      } else {
+      if (isDipendente) {
+        maxEl.innerText = `Max ${currentUser.maxDays || 4} Giorni`;
+        maxEl.classList.remove('d-none');
         titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
         textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale saranno conteggiati come FERIE.</u> I giorni in rosso indicano la Chiusura Aziendale, quelli in arancione le Festività e i Weekend.";
+      } else {
+        // P.IVA o CoCoCo: nascondi indicazione max giorni e dettagli del ruolo
+        maxEl.classList.add('d-none');
+        titleEl.innerText = "📋 Pianificazione Presenze / Assenze";
+        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi di non essere operativo/a. Le giornate in rosso indicano le Chiusure Aziendali, quelle in arancione i Weekend e le Festività.";
       }
     }
 
@@ -338,6 +350,9 @@
     function renderCalendar() {
       const container = document.getElementById('calendarContainer');
       container.innerHTML = '';
+
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isDipendente = inq.includes('dipendente') || isAdmin;
 
       ALL_RANGE_DATES.forEach(dateStr => {
         const d = new Date(dateStr);
@@ -369,16 +384,28 @@
         container.appendChild(box);
       });
 
-      document.getElementById('selectedCountBadge').innerText = `Giorni scelti: ${employeeSelectedDates.length} / ${currentUser.maxDays || 4}`;
+      const countBadge = document.getElementById('selectedCountBadge');
+      if (isDipendente) {
+        countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length} / ${currentUser.maxDays || 4}`;
+      } else {
+        countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length}`;
+      }
     }
 
     function toggleDateSelection(dateStr) {
       const max = currentUser.maxDays || 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isDipendente = inq.includes('dipendente') || isAdmin;
+
       if (employeeSelectedDates.includes(dateStr)) {
         employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
       } else {
         if (employeeSelectedDates.length >= max) {
-          alert(`Puoi selezionare al massimo ${max} giorni.`);
+          if (isDipendente) {
+            alert(`Puoi selezionare al massimo ${max} giorni.`);
+          } else {
+            alert("Per eventuali esigenze specifiche o variazioni, ti preghiamo di fare riferimento a risorseumane@hqe.it");
+          }
           return;
         }
         employeeSelectedDates.push(dateStr);
