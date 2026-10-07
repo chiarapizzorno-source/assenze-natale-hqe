@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SANTA - HQ | Pianificazione Presenze & Assenze</title>
+  <title>SANTA - HQ | Il Tuo Periodo di Gioia</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
@@ -13,19 +14,20 @@
       --holly-green: #00f5d4;
       --gold-sparkle: #ffee32;
       --gold-garland: #ffd700;
-      --white-gloss: rgba(255, 255, 255, 0.95);
+      --white-gloss: rgba(255, 255, 255, 0.96);
+      --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     }
 
     body {
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: var(--font-primary);
       min-height: 100vh;
-      background: #08091a;
-      color: #1a1a2e;
+      background: #060713;
+      color: #1e293b;
       overflow-x: hidden;
       position: relative;
     }
 
-    /* SFONDO DINAMICO STILE ANIME DI ALTA QUALITÀ */
+    /* SFONDO DINAMICO STILE ANIME PREMIUM */
     .hero-bg-wrapper {
       position: fixed;
       top: 0;
@@ -33,7 +35,7 @@
       width: 100%;
       height: 100%;
       z-index: -3;
-      background: radial-gradient(circle at 50% 30%, #1a1c4b 0%, #0d0e26 60%, #03030d 100%);
+      background: radial-gradient(circle at 50% 25%, #1c1e52 0%, #0c0d24 60%, #020208 100%);
     }
 
     /* FIOCCHI DI NEVE ANIMATI */
@@ -46,7 +48,7 @@
       user-select: none;
       z-index: -1;
       pointer-events: none;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.8));
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
       animation: fall linear infinite;
     }
 
@@ -56,24 +58,24 @@
       }
     }
 
-    /* BABBO NATALE ANIME GRANDE IN VOLO */
+    /* BABBO NATALE HD IN VOLO */
     .santa-flying-container {
       position: fixed;
-      top: 8%;
+      top: 6%;
       z-index: -1;
       pointer-events: none;
-      animation: santaFly 24s linear infinite;
+      animation: santaFly 26s linear infinite;
     }
 
     @keyframes santaFly {
-      0% { left: -450px; transform: translateY(0px) scale(1); }
-      25% { transform: translateY(-20px) scale(1.05); }
-      50% { transform: translateY(15px) scale(1.1); }
-      75% { transform: translateY(-15px) scale(1.05); }
+      0% { left: -520px; transform: translateY(0px) scale(1); }
+      25% { transform: translateY(-18px) scale(1.03); }
+      50% { transform: translateY(12px) scale(1.08); }
+      75% { transform: translateY(-12px) scale(1.03); }
       100% { left: 105vw; transform: translateY(0px) scale(1); }
     }
 
-    /* SCENOGRAFIA VETTORIALE (COLONNINE EV & ANTENNE SRB) */
+    /* SCENOGRAFIA VETTORIALE HD */
     .tech-landscape {
       position: fixed;
       bottom: 0;
@@ -83,49 +85,57 @@
       pointer-events: none;
     }
 
-    /* HEADER LUCIDO BIANCO & ROSSO CON BORDO VERDE BRILLANTE */
+    /* HEADER LUCIDO PREMIUM CON EFFETTO RILIEVO */
     .header-bar {
-      background: rgba(216, 0, 50, 0.92);
-      backdrop-filter: blur(14px);
+      background: linear-gradient(135deg, rgba(216, 0, 50, 0.95), rgba(167, 0, 30, 0.95));
+      backdrop-filter: blur(16px);
       color: white;
-      padding: 16px 0;
+      padding: 18px 0;
       margin-bottom: 25px;
       border-bottom: 4px solid #00f5d4;
-      box-shadow: 0 4px 25px rgba(0, 245, 212, 0.4), 0 0 15px rgba(216, 0, 50, 0.6);
+      box-shadow: 0 8px 32px rgba(0, 245, 212, 0.35), 0 0 20px rgba(216, 0, 50, 0.7);
     }
 
-    /* GHIRLANDA NATALIZIA DORATA E BRILLANTE ATTORNO AL BOX DI ACCESSO */
+    .header-subtitle {
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      color: #00f5d4;
+      text-shadow: 0 0 10px rgba(0, 245, 212, 0.8), 0 1px 2px rgba(0,0,0,0.8);
+    }
+
+    /* GHIRLANDA NATALIZIA DORATA E BRILLANTE */
     .garland-box-wrapper {
       position: relative;
-      padding: 12px;
+      padding: 14px;
       border-radius: 32px;
-      background: radial-gradient(circle, rgba(255,215,0,0.3) 0%, rgba(218,165,32,0.1) 70%, transparent 100%);
+      background: radial-gradient(circle, rgba(255,215,0,0.35) 0%, rgba(218,165,32,0.12) 70%, transparent 100%);
       border: 3px dashed #ffd700;
-      box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), inset 0 0 15px rgba(255, 215, 0, 0.4);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.5);
       animation: garlandGlow 3s ease-in-out infinite alternate;
     }
 
     @keyframes garlandGlow {
       0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3); border-color: #ffd700; }
-      100% { box-shadow: 0 0 35px rgba(255, 238, 50, 0.9), inset 0 0 20px rgba(255, 238, 50, 0.6); border-color: #fff3a0; }
+      100% { box-shadow: 0 0 40px rgba(255, 238, 50, 1), inset 0 0 25px rgba(255, 238, 50, 0.7); border-color: #fff3a0; }
     }
 
-    /* DECORAZIONI GHIRLANDA SUI ANGOLI */
     .garland-box-wrapper::before, .garland-box-wrapper::after {
       content: '🎀';
       position: absolute;
-      font-size: 1.8rem;
+      font-size: 2rem;
       z-index: 2;
     }
-    .garland-box-wrapper::before { top: -12px; left: -10px; }
-    .garland-box-wrapper::after { top: -12px; right: -10px; }
+    .garland-box-wrapper::before { top: -14px; left: -10px; }
+    .garland-box-wrapper::after { top: -14px; right: -10px; }
 
-    /* RIQUADRO LOGIN ROSSO GLOSSY */
+    /* RIQUADRO LOGIN GLOSSY 3D */
     .glossy-login-card {
-      background: radial-gradient(circle at top left, #ff1e56, #a7001e);
-      border: none;
+      background: linear-gradient(145deg, #ff1e56, #800f2f);
+      border: 1px solid rgba(255, 255, 255, 0.3);
       border-radius: 24px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 15px 35px rgba(0, 0, 0, 0.6);
       color: white;
       backdrop-filter: blur(12px);
     }
@@ -134,158 +144,172 @@
       font-weight: 900;
       letter-spacing: 2px;
       color: #ffffff;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.5), 0 0 15px var(--gold-sparkle);
+      text-shadow: 0 3px 8px rgba(0,0,0,0.6), 0 0 15px var(--gold-sparkle);
     }
 
-    /* CARD INTERNE BIANCHE GLOSSY */
+    /* CARD INTERNE GLOSSY 3D ULTRA HD */
     .card-glossy-light {
-      background: var(--white-gloss);
-      border-radius: 20px;
-      border: 2px solid rgba(216, 0, 50, 0.2);
-      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.25);
-      backdrop-filter: blur(10px);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.95));
+      border-radius: 22px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 1);
+      backdrop-filter: blur(12px);
     }
 
-    /* STILI CALENDARIO */
+    /* STILI CALENDARIO 3D CON RILIEVO */
     .day-box {
-      width: 65px;
-      min-height: 65px;
-      border-radius: 14px;
+      width: 68px;
+      min-height: 68px;
+      border-radius: 16px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
       user-select: none;
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-      font-size: 0.8rem;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 0.82rem;
       text-align: center;
-      padding: 4px;
-      border: 2px solid #e2e8f0;
-      background: #ffffff;
-      color: #1a1a2e;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.06);
+      padding: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      color: #0f172a;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 1px #ffffff;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.8);
     }
 
     .day-box:hover:not(.closed):not(.holiday) {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 10px 22px rgba(0, 245, 212, 0.4), inset 0 1px 2px #ffffff;
+      border-color: #00f5d4;
     }
 
-    .day-box .day-sub { font-size: 0.65rem; font-weight: normal; margin-top: 2px; }
+    .day-box .day-sub { font-size: 0.65rem; font-weight: 600; margin-top: 2px; }
 
     .day-box.selected {
-      background: linear-gradient(135deg, #00b894, #00cec9) !important;
-      border-color: #00b894 !important;
+      background: linear-gradient(145deg, #00b894, #009475) !important;
+      border-color: #00f5d4 !important;
       color: white !important;
-      box-shadow: 0 0 15px rgba(0, 206, 201, 0.6);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
+      box-shadow: 0 8px 20px rgba(0, 184, 148, 0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important;
     }
 
     .day-box.closed {
-      background: linear-gradient(135deg, #d80032, #ff1e56) !important;
-      border-color: #d80032 !important;
+      background: linear-gradient(145deg, #d80032, #990022) !important;
+      border-color: #ff4d6d !important;
       color: white !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.3) !important;
       cursor: not-allowed;
     }
 
     .day-box.holiday {
-      background: linear-gradient(135deg, #ff7675, #fab1a0) !important;
-      border-color: #ff7675 !important;
+      background: linear-gradient(145deg, #ff7675, #e17055) !important;
+      border-color: #fab1a0 !important;
       color: white !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
       cursor: not-allowed;
     }
 
-    /* BOX CONSIGLIO HQ */
+    /* BOX CONSIGLIO HQ IN RILIEVO LUXURY */
     .hq-recommend-box {
-      background: linear-gradient(135deg, #fff9c4 0%, #fff176 100%);
+      background: linear-gradient(145deg, #fffde7 0%, #fff59d 100%);
       border: 2px solid #fbc02d;
-      color: #795548;
+      color: #5d4037;
       font-weight: 800;
-      padding: 10px 16px;
-      border-radius: 12px;
+      padding: 10px 18px;
+      border-radius: 14px;
       display: inline-block;
-      box-shadow: 0 4px 12px rgba(251, 192, 45, 0.25);
+      box-shadow: 0 6px 16px rgba(251, 192, 45, 0.3), inset 0 1px 2px #ffffff;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.2px;
     }
 
-    /* TABELLA ADMIN MODERNA ED ELEGANTE */
+    /* TABELLA ADMIN ELEGANTE CON DESIGN 3D E CARATTERI IN RILIEVO */
     .admin-table-custom {
       border-collapse: separate;
-      border-spacing: 0 8px;
+      border-spacing: 0 10px;
       background: transparent !important;
     }
 
     .admin-table-custom thead tr {
-      background: linear-gradient(135deg, #d80032 0%, #ff1e56 100%) !important;
+      background: linear-gradient(145deg, #d80032 0%, #800f2f 100%) !important;
       color: white !important;
-      box-shadow: 0 4px 15px rgba(216, 0, 50, 0.3);
+      box-shadow: 0 6px 18px rgba(216, 0, 50, 0.35);
     }
 
     .admin-table-custom thead th {
       border: none !important;
-      padding: 12px 10px !important;
+      padding: 14px 12px !important;
       font-size: 0.78rem;
-      letter-spacing: 0.5px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
     }
 
-    .admin-table-custom thead th:first-child { border-radius: 12px 0 0 12px; }
-    .admin-table-custom thead th:last-child { border-radius: 0 12px 12px 0; }
+    .admin-table-custom thead th:first-child { border-radius: 14px 0 0 14px; }
+    .admin-table-custom thead th:last-child { border-radius: 0 14px 14px 0; }
 
     .admin-table-custom tbody tr {
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      border-radius: 12px;
-      transition: all 0.2s ease;
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+      border-radius: 14px;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
     .admin-table-custom tbody tr:hover {
-      transform: translateY(-2px) scale(1.002);
-      box-shadow: 0 8px 20px rgba(0, 245, 212, 0.25);
+      transform: translateY(-3px) scale(1.002);
+      box-shadow: 0 10px 25px rgba(0, 245, 212, 0.3), inset 0 1px 0 #ffffff;
       background: #ffffff;
     }
 
     .admin-table-custom tbody td {
       border: none !important;
-      padding: 12px 10px !important;
+      padding: 14px 12px !important;
       vertical-align: middle;
+      font-size: 0.85rem;
     }
 
-    .admin-table-custom tbody td:first-child { border-radius: 12px 0 0 12px; }
-    .admin-table-custom tbody td:last-child { border-radius: 0 12px 12px 0; }
+    .admin-table-custom tbody td:first-child { border-radius: 14px 0 0 14px; border-left: 3px solid #d80032 !important; }
+    .admin-table-custom tbody td:last-child { border-radius: 0 14px 14px 0; }
 
-    /* PULSANTI */
+    /* PULSANTI GLOSSY */
     .btn-santa {
-      background: linear-gradient(135deg, #ff1e56 0%, #d80032 100%);
+      background: linear-gradient(145deg, #ff1e56 0%, #d80032 100%);
       color: white;
-      font-weight: 700;
-      border: none;
-      box-shadow: 0 4px 15px rgba(255, 30, 86, 0.4);
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 18px rgba(255, 30, 86, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
       transition: all 0.2s;
     }
 
     .btn-santa:hover {
-      background: linear-gradient(135deg, #ff4d6d 0%, #ff1e56 100%);
+      background: linear-gradient(145deg, #ff4d6d 0%, #ff1e56 100%);
       color: white;
-      box-shadow: 0 6px 20px rgba(255, 30, 86, 0.6);
+      box-shadow: 0 8px 24px rgba(255, 30, 86, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.6);
       transform: translateY(-2px);
     }
 
     .btn-green-holly {
-      background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
+      background: linear-gradient(145deg, #00b894 0%, #009475 100%);
       color: white;
-      font-weight: 700;
-      border: none;
-      box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 18px rgba(0, 184, 148, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 
     .btn-green-holly:hover {
-      background: linear-gradient(135deg, #55efc4 0%, #00b894 100%);
+      background: linear-gradient(145deg, #55efc4 0%, #00b894 100%);
       color: white;
-      box-shadow: 0 6px 20px rgba(0, 184, 148, 0.6);
+      box-shadow: 0 8px 24px rgba(0, 184, 148, 0.65);
     }
 
-    .badge-da-inserire { background-color: #fff3cd; color: #856404; font-weight: 700; border: 1px solid #ffeba2; }
-    .badge-inserito { background-color: #d4edda; color: #155724; font-weight: 700; border: 1px solid #c3e6cb; }
+    .badge-da-inserire { background: #fff3cd; color: #856404; font-weight: 800; border: 1px solid #ffeba2; box-shadow: inset 0 1px 0 #fff; }
+    .badge-inserito { background: #d4edda; color: #155724; font-weight: 800; border: 1px solid #c3e6cb; box-shadow: inset 0 1px 0 #fff; }
     .extra-small { font-size: 0.72rem; }
   </style>
 </head>
@@ -295,66 +319,121 @@
   <div class="hero-bg-wrapper"></div>
   <div id="snowflakeContainer"></div>
 
-  <!-- BABBO NATALE GRANDE & SACCO "OLIVAMI" CAPACITÀ MAXI -->
+  <!-- BABBO NATALE HD AD ALTA DEFINIZIONE CON SACCO OLIVAMI CUCITO -->
   <div class="santa-flying-container">
-    <svg width="420" height="180" viewBox="0 0 420 180" fill="none">
-      <!-- Scia di scintille e magiche lucine -->
-      <circle cx="15" cy="90" r="3" fill="#ffee32" opacity="0.9"/>
-      <circle cx="35" cy="80" r="4" fill="#ffffff" opacity="0.9"/>
-      <circle cx="65" cy="100" r="3.5" fill="#00f5d4" opacity="0.8"/>
-      <circle cx="95" cy="85" r="4" fill="#ffee32" opacity="0.9"/>
-
-      <!-- Renne con dettagli -->
-      <g id="reindeerGroup">
-        <path d="M 350 80 Q 375 50 390 65 Q 400 80 380 95 L 355 100 Z" fill="#8d6e63"/>
-        <circle cx="395" cy="68" r="4" fill="#ff1e56"/> <!-- Naso rosso Rudolph -->
-        <path d="M 370 52 L 365 40 M 372 48 L 378 38" stroke="#5d4037" stroke-width="2.5" stroke-linecap="round"/>
-      </g>
-
-      <!-- Redini d'oro -->
-      <line x1="240" y1="100" x2="350" y2="85" stroke="#ffee32" stroke-width="2.5" stroke-dasharray="4 2"/>
-
-      <!-- SACCO DI REGALI MAXI "OLIVAMI" (Grosso e capiente dietro la slitta) -->
-      <g id="giantGiftSack">
-        <!-- Sacco marrone sagomato e morbido -->
-        <path d="M 100 60 Q 70 120 120 145 Q 185 145 170 85 Q 150 45 120 45 Z" fill="#795548" stroke="#4e342e" stroke-width="2"/>
-        <!-- Toppa e cuciture sacco -->
-        <path d="M 115 55 L 145 55 Q 155 70 135 75 Z" fill="#8d6e63"/>
-        <!-- Etichetta Olivami in evidenza dorata -->
-        <rect x="105" y="85" width="62" height="24" rx="6" fill="#ffee32" stroke="#d80032" stroke-width="2"/>
-        <text x="110" y="101" font-family="'Segoe UI', sans-serif" font-weight="900" font-size="11" fill="#d80032" letter-spacing="1">OLIVAMI</text>
-      </g>
-
-      <!-- Slitta Rossa Lucida e Imponente -->
-      <path d="M 160 120 Q 140 80 200 80 L 260 80 Q 280 120 230 130 Z" fill="url(#santaRedGrad)" stroke="#ffffff" stroke-width="1.5"/>
-      <!-- Pattino d'oro -->
-      <path d="M 145 135 L 275 135 Q 285 135 290 125" stroke="#ffee32" stroke-width="4" stroke-linecap="round" fill="none"/>
-      <line x1="180" y1="130" x2="180" y2="135" stroke="#ffee32" stroke-width="3"/>
-      <line x1="240" y1="130" x2="240" y2="135" stroke="#ffee32" stroke-width="3"/>
-
-      <!-- BABBO NATALE ANIME ROBUSTO / GROSSO -->
-      <g id="bigSanta">
-        <!-- Corpo/Giacca spessa -->
-        <path d="M 195 75 C 180 85 180 115 220 115 C 245 115 245 85 230 75 Z" fill="#d80032"/>
-        <path d="M 207 75 L 207 115" stroke="#ffffff" stroke-width="6"/> <!-- Bordo bianco abito -->
-        <!-- Cintura con fibbia d'oro -->
-        <rect x="190" y="92" width="44" height="8" fill="#212121"/>
-        <rect x="207" y="89" width="10" height="14" fill="#ffee32" stroke="#212121" stroke-width="1.5"/>
-        <!-- Testa / Barba folta -->
-        <circle cx="212" cy="58" r="14" fill="#ffcc80"/> <!-- Viso -->
-        <path d="M 196 60 Q 212 85 228 60 Q 220 88 204 85 Z" fill="#ffffff"/> <!-- Barba folta e grande -->
-        <!-- Cappello Natalizio -->
-        <path d="M 198 52 Q 212 30 234 48 Z" fill="#d80032"/>
-        <rect x="196" y="50" width="28" height="6" rx="3" fill="#ffffff"/>
-        <circle cx="235" cy="49" r="4.5" fill="#ffffff"/> <!-- Pom pon -->
-      </g>
-      
+    <svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="santaRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#ff1e56"/>
-          <stop offset="100%" stop-color="#800f2f"/>
+        <!-- Gradients -->
+        <linearGradient id="santaSuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff2e63"/>
+          <stop offset="50%" stop-color="#d80032"/>
+          <stop offset="100%" stop-color="#70001a"/>
         </linearGradient>
+
+        <linearGradient id="goldSleighGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff176"/>
+          <stop offset="50%" stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#b7950b"/>
+        </linearGradient>
+
+        <linearGradient id="sackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a0522d"/>
+          <stop offset="40%" stop-color="#8b4513"/>
+          <stop offset="100%" stop-color="#4a2306"/>
+        </linearGradient>
+
+        <linearGradient id="beardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#e2e8f0"/>
+        </linearGradient>
+
+        <filter id="dropShadow3D" x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="3" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+        </filter>
+        <filter id="goldGlow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
       </defs>
+
+      <!-- Scia di scintille luminose HD -->
+      <g filter="url(#goldGlow)">
+        <circle cx="20" cy="100" r="3" fill="#ffee32"/>
+        <circle cx="45" cy="85" r="4" fill="#ffffff"/>
+        <circle cx="75" cy="115" r="3.5" fill="#00f5d4"/>
+        <circle cx="110" cy="95" r="4.5" fill="#ffee32"/>
+      </g>
+
+      <!-- Renna Guida HD -->
+      <g id="reindeerHD" filter="url(#dropShadow3D)">
+        <path d="M 400 90 Q 430 55 450 72 Q 462 88 438 108 L 405 115 Z" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+        <circle cx="456" cy="76" r="5" fill="#ff1e56" filter="url(#goldGlow)"/> <!-- Naso Rosso -->
+        <!-- Corna HD -->
+        <path d="M 428 58 L 420 40 M 430 52 L 438 38 M 424 46 L 416 34" stroke="#4e342e" stroke-width="3" stroke-linecap="round"/>
+      </g>
+
+      <!-- Redini Lucenti -->
+      <path d="M 270 112 Q 340 100 405 95" stroke="url(#goldSleighGrad)" stroke-width="3" stroke-dasharray="6 2" filter="url(#goldGlow)"/>
+
+      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA A MANO -->
+      <g id="giantSackHD" filter="url(#dropShadow3D)">
+        <!-- Corpo del Sacco capiente e definito -->
+        <path d="M 110 65 Q 75 130 135 160 Q 210 160 190 95 Q 170 50 135 50 Z" fill="url(#sackGrad)" stroke="#2d1503" stroke-width="2.5"/>
+        <path d="M 130 50 Q 145 60 135 70 Q 120 60 130 50 Z" fill="#6d3811"/>
+        <!-- Cordone d'oro del sacco -->
+        <path d="M 120 68 Q 138 75 152 66" stroke="#ffee32" stroke-width="4" stroke-linecap="round"/>
+
+        <!-- PATCH/CUCITURA DEDICATA OLIVAMI -->
+        <!-- Sfondo pezza di stoffa cucita -->
+        <path d="M 112 92 L 180 88 Q 185 118 178 126 L 110 128 Q 106 105 112 92 Z" fill="#2d4a22" stroke="#1b3013" stroke-width="2"/>
+        <!-- Punti di cucitura tratteggiati dorati intorno alla toppa -->
+        <path d="M 114 94 L 178 90 Q 183 116 176 124 L 112 126 Q 108 107 114 94 Z" fill="none" stroke="#ffee32" stroke-width="1.8" stroke-dasharray="4 3"/>
+
+        <!-- Testo OLIVAMI perfettamente leggibile, ricamato con contorno dorato -->
+        <text x="117" y="113" font-family="'Cinzel', 'Segoe UI', serif" font-weight="900" font-size="13" fill="#ffffff" stroke="#ffd700" stroke-width="0.8" letter-spacing="2" filter="url(#goldGlow)">OLIVAMI</text>
+      </g>
+
+      <!-- Slitta 3D Lucida e Dettagliata -->
+      <g id="sleighHD" filter="url(#dropShadow3D)">
+        <path d="M 175 130 Q 155 85 225 85 L 290 85 Q 315 130 255 142 Z" fill="url(#santaSuitGrad)" stroke="#ffffff" stroke-width="2"/>
+        <path d="M 170 128 Q 230 138 295 125" fill="none" stroke="url(#goldSleighGrad)" stroke-width="4"/>
+        <!-- Pattino di scorrimento d'oro -->
+        <path d="M 155 152 L 305 152 Q 320 152 325 138" stroke="url(#goldSleighGrad)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#goldGlow)"/>
+        <line x1="195" y1="144" x2="195" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+        <line x1="270" y1="138" x2="270" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+      </g>
+
+      <!-- BABBO NATALE GROSSO & DEFINITO -->
+      <g id="bigSantaHD">
+        <!-- Corpo imponente -->
+        <path d="M 215 80 C 195 92 195 128 245 128 C 275 128 275 92 255 80 Z" fill="url(#santaSuitGrad)" stroke="#800f2f" stroke-width="1.5"/>
+        <!-- Pelliccia bianca centrale -->
+        <path d="M 232 80 L 232 128" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+        <!-- Cintura in cuoio e fibbia d'oro -->
+        <rect x="208" y="102" width="50" height="9" rx="2" fill="#111111"/>
+        <rect x="227" y="98" width="12" height="17" rx="2" fill="url(#goldSleighGrad)" stroke="#111111" stroke-width="1.5"/>
+        <!-- Braccio grosso protesi in avanti -->
+        <path d="M 248 92 Q 270 95 278 110" stroke="url(#santaSuitGrad)" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="280" cy="112" r="6" fill="#111111"/> <!-- Guanto -->
+
+        <!-- Testa & Viso HD -->
+        <circle cx="234" cy="62" r="15" fill="#ffcc80"/> <!-- Viso -->
+        <circle cx="240" cy="60" r="2" fill="#2d1503"/> <!-- Occhio -->
+        <path d="M 242 64 Q 248 66 244 68" stroke="#d80032" stroke-width="1.5" fill="none"/> <!-- Guancia -->
+        
+        <!-- Barba folta e tridimensionale -->
+        <path d="M 218 64 Q 234 94 252 64 Q 244 98 226 92 Z" fill="url(#beardGrad)" filter="url(#dropShadow3D)"/>
+        <!-- Baffi -->
+        <path d="M 234 67 Q 224 72 218 68 M 234 67 Q 244 72 250 68" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+        <!-- Cappello Natalizio Definito -->
+        <path d="M 220 54 Q 234 30 258 50 Z" fill="url(#santaSuitGrad)"/>
+        <rect x="217" y="52" width="30" height="7" rx="3.5" fill="#ffffff" filter="url(#dropShadow3D)"/>
+        <circle cx="260" cy="51" r="5" fill="#ffffff"/> <!-- Pom pon -->
+      </g>
     </svg>
   </div>
 
@@ -401,17 +480,17 @@
   <!-- HEADER APPLICAZIONE -->
   <div class="header-bar">
     <div class="container d-flex justify-content-between align-items-center">
-      <div class="d-flex align-items-center gap-2">
-        <span class="fs-2">🎄</span>
+      <div class="d-flex align-items-center gap-3">
+        <span class="fs-1">🎄</span>
         <div>
-          <h3 class="m-0 fw-bold tracking-wide">SANTA - HQ</h3>
-          <small class="text-white-50">Pianificazione Presenze / Assenze Natalizie</small>
+          <h3 class="m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h3>
+          <div class="header-subtitle">IL TUO PERIODO DI GIOIA</div>
         </div>
       </div>
       <div id="userInfo" class="d-none text-end">
-        <span id="userNameDisplay" class="fw-bold me-2"></span>
-        <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold"></span>
-        <button class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="logout()">Logout</button>
+        <span id="userNameDisplay" class="fw-bold me-2 text-white"></span>
+        <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold shadow-sm"></span>
+        <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
@@ -419,7 +498,7 @@
   <div class="container mb-5">
 
     <!-- RIQUADRO DI ACCESSO CON GHIRLANDA NATALIZIA DORATA -->
-    <div id="loginCard" class="mx-auto mt-4" style="max-width: 450px;">
+    <div id="loginCard" class="mx-auto mt-4" style="max-width: 460px;">
       <div class="garland-box-wrapper">
         <div class="card glossy-login-card p-2">
           <div class="card-body text-center p-4">
@@ -430,14 +509,14 @@
             <form onsubmit="handleLogin(event)">
               <div class="mb-3 text-start">
                 <label class="form-label small fw-bold text-white">Email Aziendale</label>
-                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow-sm" placeholder="nome.cognome@hqe.it" required>
+                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@hqe.it" required>
               </div>
               <div id="adminPasswordField" class="mb-3 text-start d-none">
                 <label class="form-label small fw-bold text-white">Password Amministratore</label>
-                <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow-sm" placeholder="Password admin">
+                <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="Password admin">
               </div>
               <div id="loginError" class="alert alert-warning text-dark small py-2 d-none rounded-3 fw-bold"></div>
-              <button type="submit" class="btn btn-santa w-100 py-2 rounded-3 mt-2 fs-6">
+              <button type="submit" class="btn btn-santa w-100 py-2.5 rounded-3 mt-2 fs-6">
                 Scegli il tuo Natale ✨
               </button>
             </form>
@@ -449,18 +528,18 @@
     <!-- CALENDARIO PERSONALE PER UTENTI -->
     <div id="calendarSection" class="d-none mb-4">
       <div class="card card-glossy-light">
-        <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
-          <span id="calendarTitle" class="fs-5 text-danger">📅 Selezione Giornate</span>
-          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6" id="maxDaysInfo">Max 4 Giorni</span>
+        <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
+          <span id="calendarTitle" class="fs-5 text-danger fw-black">📅 Selezione Giornate</span>
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
-          <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3"></div>
+          <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold"></div>
 
-          <!-- LEGENDA COLORI & BOX CONSIGLIATO HQ -->
+          <!-- LEGENDA COLORI & BOX CONSIGLIATO / VACANZE HQ -->
           <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <div id="legendContainer" class="d-flex flex-wrap gap-3 small fw-bold"></div>
-            <!-- BOX CONSIGLIATO HQ -->
-            <div class="hq-recommend-box">
+            <!-- BOX CONSIGLIO HQ DINAMICO -->
+            <div id="hqSuggestBox" class="hq-recommend-box">
               💡 HQ consiglia di scegliere i giorni 28-29-30
             </div>
           </div>
@@ -469,11 +548,11 @@
 
           <div class="mb-3">
             <label class="form-label fw-bold small text-secondary">Note operative o comunicazioni:</label>
-            <textarea id="employeeNotes" class="form-control form-control-sm rounded-3" rows="2" placeholder="Inserisci eventuali note..."></textarea>
+            <textarea id="employeeNotes" class="form-control form-control-sm rounded-3 shadow-sm" rows="2" placeholder="Inserisci eventuali note..."></textarea>
           </div>
 
-          <div class="d-flex justify-content-between align-items-center pt-2">
-            <span class="badge bg-secondary rounded-pill px-3 py-2" id="selectedCountBadge">Giorni scelti: 0</span>
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6 shadow-sm" id="selectedCountBadge">Giorni scelti: 0</span>
             <button class="btn btn-green-holly rounded-3 px-4 py-2" onclick="saveEmployeeRequest()">💾 Salva Preferenze</button>
           </div>
         </div>
@@ -486,7 +565,7 @@
       <!-- RIQUADRO AGGIUNTA MANUALE -->
       <div class="card card-glossy-light mb-4">
         <div class="card-body p-4">
-          <h6 class="fw-bold text-danger mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
+          <h6 class="fw-black text-danger mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
           <form onsubmit="handleAddUser(event)">
             <div class="row g-2 mb-2">
               <div class="col-md-6"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
@@ -516,10 +595,10 @@
         </div>
       </div>
 
-      <!-- TABELLA RISORSE ADMIN -->
+      <!-- TABELLA RISORSE ADMIN ELEGANTE E AD ALTA QUALITÀ -->
       <div class="card card-glossy-light mb-4">
         <div class="card-body p-4">
-          <h5 class="fw-bold text-danger mb-3">Anagrafica Risorse & Azioni Admin</h5>
+          <h5 class="fw-black text-danger mb-3">Anagrafica Risorse & Azioni Admin</h5>
 
           <!-- FILTRI -->
           <div class="row g-2 mb-3">
@@ -547,7 +626,7 @@
             </div>
           </div>
 
-          <!-- TABELLA -->
+          <!-- TABELLA BORDATA AD ALTA DEFINIZIONE -->
           <div class="table-responsive">
             <table class="table admin-table-custom align-middle mb-3">
               <thead>
@@ -573,7 +652,7 @@
 
           <!-- EXCEL EXPORT -->
           <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-            <span class="small text-muted">Scarica il file master delle assenze nel formato aziendale HQE.</span>
+            <span class="small text-muted fw-semibold">Scarica il file master delle presenze/assenze nel formato aziendale HQE.</span>
             <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()">📊 Scarica Report Excel (.xlsx)</button>
           </div>
 
@@ -679,33 +758,39 @@
       const textEl = document.getElementById('guidanceText');
       const maxEl = document.getElementById('maxDaysInfo');
       const legendEl = document.getElementById('legendContainer');
+      const hqBox = document.getElementById('hqSuggestBox');
 
       const isDipendente = inq.includes('dipendente') || isAdmin;
+      const isPiva = inq.includes('piva') || inq.includes('partitaiva') || inq.includes('cococo');
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       if (isDipendente) {
         maxEl.innerText = `Max ${maxDays} Giorni Totali`;
         maxEl.classList.remove('d-none');
-        titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
+        titleEl.innerText = "📅 Calendario Richiesta Ferie";
         textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale (4 giorni) sono conteggiati come FERIE e già scalati dal monte giorni.</u>";
-        
-        /* LEGENDA SENZA IL QUADRATINO GIALLO CONSIGLIATI */
+        hqBox.innerText = "💡 HQ consiglia di scegliere i giorni 28-29-30";
+
         legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#d80032; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale (4 gg Ferie)</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ff7675; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#00b894; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#d80032; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Chiusura Aziendale (4 gg Ferie)</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ff7675; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Festività / Weekend</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#00b894; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Selezionato da Te</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"></span> Selezionabile</div>
         `;
       } else {
+        // PER P.IVA / COCOCO: UTILIZZARE IL TERMINE VACANZA / VACANZE
         maxEl.classList.add('d-none');
-        titleEl.innerText = "📋 Pianificazione Presenze / Assenze";
-        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività.";
+        titleEl.innerText = "📋 Pianificazione Vacanze & Presenze";
+        textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività per le tue vacanze.";
         
+        /* TESTO SPECIFICO PER PARTITA IVA */
+        hqBox.innerText = "💡 Perché non scegliere il 28-29-30";
+
         legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#d80032; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ff7675; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#00b894; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#d80032; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Chiusura Aziendale</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ff7675; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Festività / Weekend</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#00b894; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Vacanze Selezionate</div>
+          <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"></span> Selezionabile</div>
         `;
       }
     }
@@ -751,7 +836,6 @@
           box.classList.add('holiday');
           box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Festa</div>`;
         } else {
-          /* 28, 29, 30 dicembre sono ora bianchi feriali come gli altri */
           if (employeeSelectedDates.includes(dateStr)) {
             box.classList.add('selected');
           }
@@ -765,9 +849,9 @@
       const countBadge = document.getElementById('selectedCountBadge');
       if (isDipendente) {
         const totalFerieCount = CLOSED_DATES.length + employeeSelectedDates.length;
-        countBadge.innerText = `Giorni scelti/conteggiati: ${totalFerieCount} / ${maxDays} (4 Chiusura + ${employeeSelectedDates.length} Feriali)`;
+        countBadge.innerText = `Giorni di ferie scelti: ${totalFerieCount} / ${maxDays} (4 Chiusura + ${employeeSelectedDates.length} Feriali)`;
       } else {
-        countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length}`;
+        countBadge.innerText = `Giorni di vacanza scelti: ${employeeSelectedDates.length}`;
       }
     }
 
@@ -871,8 +955,8 @@
         const maxD = (u.maxDays !== undefined) ? u.maxDays : 4;
         
         const statusBadge = datesCount > 0 
-          ? '<span class="badge badge-inserito">Confermato</span>' 
-          : '<span class="badge badge-da-inserire">Da Inserire</span>';
+          ? '<span class="badge badge-inserito rounded-pill px-2.5 py-1">Confermato</span>' 
+          : '<span class="badge badge-da-inserire rounded-pill px-2.5 py-1">Da Inserire</span>';
 
         const formattedDates = dates.map(d => {
           const parts = d.split('-');
@@ -882,24 +966,24 @@
         const tr = document.createElement('tr');
         tr.id = `user-row-${u.email.replace(/[@.]/g, '_')}`;
         tr.innerHTML = `
-          <td><span class="view-mode fw-bold">${u.azienda || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-azienda" value="${u.azienda || ''}"></td>
-          <td><span class="view-mode badge bg-light text-danger border fw-bold">${u.bu || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-bu" value="${u.bu || ''}"></td>
-          <td><span class="view-mode badge bg-light text-dark border">${u.team || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-team" value="${u.team || ''}"></td>
-          <td><span class="view-mode">${u.referente || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-referente" value="${u.referente || ''}"></td>
+          <td><span class="view-mode fw-bold text-dark">${u.azienda || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-azienda" value="${u.azienda || ''}"></td>
+          <td><span class="view-mode badge bg-light text-danger border fw-bold shadow-sm">${u.bu || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-bu" value="${u.bu || ''}"></td>
+          <td><span class="view-mode badge bg-light text-dark border shadow-sm">${u.team || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-team" value="${u.team || ''}"></td>
+          <td><span class="view-mode fw-semibold text-secondary">${u.referente || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-referente" value="${u.referente || ''}"></td>
           <td>
-            <div class="fw-bold text-dark">${u.cognome} ${u.nome}</div>
+            <div class="fw-extrabold text-dark" style="font-weight: 800;">${u.cognome} ${u.nome}</div>
             <div class="extra-small text-muted">${u.email}</div>
           </td>
-          <td><span class="view-mode badge bg-secondary">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}"></td>
-          <td><span class="view-mode fw-bold">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0"></td>
-          <td class="text-center fw-bold text-success">${datesCount} / ${maxD}</td>
+          <td><span class="view-mode badge bg-secondary shadow-sm">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}"></td>
+          <td><span class="view-mode fw-bold text-primary">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0"></td>
+          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount} / ${maxD}</td>
           <td class="text-center">${statusBadge}</td>
           <td class="small fw-semibold text-secondary">${formattedDates}</td>
           <td>
             <div class="d-flex gap-1">
-              <button class="btn btn-sm btn-success btn-confirm d-none" onclick="saveUserEdit('${u.email}')">✓ Conferma</button>
-              <button class="btn btn-sm btn-outline-danger btn-edit" onclick="enableUserEdit('${u.email}')">✏️ Edit</button>
-              <button class="btn btn-sm btn-outline-secondary" onclick="deleteUser('${u.email}')">🗑️</button>
+              <button class="btn btn-sm btn-success btn-confirm d-none shadow-sm" onclick="saveUserEdit('${u.email}')">✓</button>
+              <button class="btn btn-sm btn-outline-danger btn-edit rounded-2 fw-bold" onclick="enableUserEdit('${u.email}')">✏️</button>
+              <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="deleteUser('${u.email}')">🗑️</button>
             </div>
           </td>
         `;
@@ -1008,8 +1092,8 @@
 
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Assenze Natalizie");
-      XLSX.writeFile(wb, "Report_Assenze_Natalizie_SANTA_HQ.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Pianificazione Natalizia");
+      XLSX.writeFile(wb, "Report_Pianificazione_SANTA_HQ.xlsx");
     }
   </script>
 </body>
