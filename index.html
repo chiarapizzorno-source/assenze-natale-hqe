@@ -350,8 +350,9 @@
 </head>
 <body>
 
-  <!-- AUDIO NATALIZIO IN SOTTOFONDO -->
-  <audio id="xmasAudio" loop preload="auto">
+  <!-- AUDIO NATALIZIO CON FONTE SICURA E GARANTITA -->
+  <audio id="xmasAudio" loop preload="auto" crossorigin="anonymous">
+    <source src="https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb3c332d5.mp3?filename=jingle-bells-126565.mp3" type="audio/mpeg">
     <source src="https://assets.mixkit.co/music/preview/mixkit-jingle-bells-classic-716.mp3" type="audio/mpeg">
   </audio>
 
@@ -507,19 +508,15 @@
         <span class="fs-1">🎄</span>
         <div>
           <h3 class="m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h3>
-          <!-- SOTTOTITOLO AGGIORNATO CON PANETTONCINO VETTORIALE/EMOJI -->
           <div class="header-subtitle">
             LE VACANZE CHE VUOI TU 
             <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));">
-              <!-- Pirottino / Base Panettone -->
               <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
               <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
               <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
               <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
-              <!-- Cupola Dorata Panettone -->
               <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
               <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
-              <!-- Canditi e Uvetta -->
               <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
               <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
               <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
@@ -530,7 +527,7 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA -->
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA COMPLETAMENTE FUNZIONANTE -->
         <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
         
         <div id="userInfo" class="d-none text-end">
@@ -711,26 +708,32 @@
   </div>
 
   <script>
-    // GESTIONE RIPRODUZIONE MUSICA NATALIZIA
+    // GESTIONE ROBUSTA DEL PULSANTE MUSICA NATALIZIA
     let isPlaying = false;
     const audio = document.getElementById('xmasAudio');
-    audio.volume = 0.35; // Volume morbido di sottofondo
+    audio.volume = 0.30; // Volume calibrato
 
-    function toggleAudio() {
+    async function toggleAudio() {
       const btn = document.getElementById('musicToggleBtn');
-      if (isPlaying) {
-        audio.pause();
-        btn.innerText = '🎵 Musica: OFF';
-        btn.style.background = 'rgba(255, 255, 255, 0.15)';
-      } else {
-        audio.play().then(() => {
+      
+      if (!isPlaying) {
+        try {
+          await audio.play();
+          isPlaying = true;
           btn.innerText = '🎶 Musica: ON ✨';
           btn.style.background = 'linear-gradient(145deg, #00b894, #009475)';
-        }).catch(err => {
-          console.log("Riproduzione bloccata dal browser, avviare manualmente.", err);
-        });
+          btn.style.borderColor = '#00f5d4';
+        } catch (err) {
+          console.error("Errore durante la riproduzione audio:", err);
+          alert("Impossibile avviare l'audio. Assicurati che il tuo browser permetta la riproduzione dei suoni.");
+        }
+      } else {
+        audio.pause();
+        isPlaying = false;
+        btn.innerText = '🎵 Musica: OFF';
+        btn.style.background = 'rgba(255, 255, 255, 0.15)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.4)';
       }
-      isPlaying = !isPlaying;
     }
 
     // GENERAZIONE EFFETTO NEVE
@@ -785,11 +788,6 @@
       const password = document.getElementById('loginPassword').value.trim();
       const errDiv = document.getElementById('loginError');
       errDiv.classList.add('d-none');
-
-      // Tenta l'avvio della musica al primo click utente per bypassare i blocchi dei browser
-      if (!isPlaying) {
-        toggleAudio();
-      }
 
       try {
         const res = await fetch('/api/login', {
@@ -852,12 +850,10 @@
           <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1);"></span> Selezionabile</div>
         `;
       } else {
-        // PER P.IVA / COCOCO: UTILIZZARE IL TERMINE VACANZA / VACANZE
         maxEl.classList.add('d-none');
         titleEl.innerText = "📋 Pianificazione Vacanze & Presenze";
         textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività per le tue vacanze.";
         
-        /* TESTO SPECIFICO E REVISIONAL PER PARTITA IVA */
         hqBox.innerText = "💡 Che ne dici di scegliere il 28-29-30?";
 
         legendEl.innerHTML = `
