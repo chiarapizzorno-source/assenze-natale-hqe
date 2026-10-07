@@ -4,155 +4,156 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gestione Pianificazione Ferie & Assenze Natalizie</title>
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- SheetJS per esportazione Excel -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
-    body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .header-bar { background: linear-gradient(135deg, #0d3b66, #001f3f); color: white; padding: 20px 0; margin-bottom: 25px; }
-    .card { border-radius: 10px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-    .day-box { width: 45px; height: 45px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; transition: all 0.2s; }
+    body { background-color: #f8f9fa; font-family: 'Segoe UI', Arial, sans-serif; color: #333; }
+    .header-bar { background-color: #002060; color: white; padding: 15px 0; margin-bottom: 20px; }
+    .card { border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .day-box { width: 50px; height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; transition: all 0.2s; font-size: 0.85rem; text-align: center; }
     .day-box.recommended { background-color: #fff3cd; border: 2px solid #ffc107; color: #856404; }
     .day-box.selected { background-color: #198754 !important; border-color: #198754 !important; color: white !important; }
     .day-box.disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; border: 1px solid #dee2e6; }
-    .table-responsive { font-size: 0.88rem; }
-    .status-badge { font-size: 0.75rem; padding: 4px 8px; border-radius: 12px; }
+    .table-responsive { font-size: 0.82rem; }
+    .badge-da-inserire { background-color: #ffeba3; color: #856404; }
+    .badge-inserito { background-color: #d1e7dd; color: #0f5132; }
+    .btn-hqe { background-color: #007a53; color: white; font-weight: bold; }
+    .btn-hqe:hover { background-color: #005a3e; color: white; }
   </style>
 </head>
 <body>
 
   <!-- HEADER -->
-  <div class="header-bar text-center">
+  <div class="header-bar">
     <div class="container d-flex justify-content-between align-items-center">
       <div>
-        <h3 class="m-0 fw-bold">🎄 Pianificazione Assenze Natalizie</h3>
-        <small class="text-white-50">HQ Engineering & Consorzio HQ</small>
+        <h4 class="m-0 fw-bold">Pianificazione Ferie Natalizie</h4>
       </div>
       <div id="userInfo" class="d-none text-end">
-        <span id="userNameDisplay" class="fw-bold d-block"></span>
-        <button class="btn btn-sm btn-outline-light mt-1" onclick="logout()">Disconnetti</button>
+        <span id="userNameDisplay" class="fw-bold me-2"></span>
+        <button class="btn btn-sm btn-outline-light" onclick="logout()">Logout</button>
       </div>
     </div>
   </div>
 
   <div class="container mb-5">
 
-    <!-- SCHERMATA DI LOGIN -->
-    <div id="loginCard" class="card mx-auto" style="max-width: 420px;">
-      <div class="card-body p-4 text-center">
-        <h5 class="card-title fw-bold mb-3">Accedi alla Piattaforma</h5>
-        <p class="text-muted small">Inserisci la tua email aziendale per gestire le tue presenze/assenze.</p>
-        
+    <!-- LOGIN -->
+    <div id="loginCard" class="card mx-auto mt-4" style="max-width: 400px;">
+      <div class="card-body p-4">
+        <h5 class="card-title fw-bold text-center mb-3">Accesso Risorse</h5>
         <form onsubmit="handleLogin(event)">
-          <div class="mb-3 text-start">
+          <div class="mb-3">
             <label class="form-label small fw-bold">Email Aziendale</label>
-            <input type="email" id="loginEmail" class="form-control" placeholder="nome.cognome@hqe.it" required>
+            <input type="email" id="loginEmail" class="form-control form-control-sm" placeholder="nome.cognome@hqe.it" required>
           </div>
-          <div id="adminPasswordField" class="mb-3 text-start d-none">
+          <div id="adminPasswordField" class="mb-3 d-none">
             <label class="form-label small fw-bold">Password Amministratore</label>
-            <input type="password" id="loginPassword" class="form-control" placeholder="Inserisci password admin">
+            <input type="password" id="loginPassword" class="form-control form-control-sm" placeholder="Password admin">
           </div>
-          <div id="loginError" class="alert alert-danger small d-none"></div>
-          <button type="submit" class="btn btn-primary w-100 fw-bold">Accedi</button>
+          <div id="loginError" class="alert alert-danger small py-2 d-none"></div>
+          <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold">Accedi</button>
         </form>
       </div>
     </div>
 
-    <!-- SEZIONE DIPENDENTE (SELEZIONE FERIE) -->
-    <div id="employeeSection" class="d-none">
-      <div class="card mb-4">
-        <div class="card-header bg-white fw-bold py-3">
-          📅 Il tuo Calendario Assenze (Max <span id="maxDaysDisplay">4</span> Giorni)
+    <!-- CALENDARIO PERSONALE (VISIBILE SIA AI DIPENDENTI CHE AGLI ADMIN) -->
+    <div id="calendarSection" class="d-none mb-4">
+      <div class="card">
+        <div class="card-header bg-white fw-bold py-2">
+          📅 Selezione Giornate Ferie Personali (Max <span id="maxDaysDisplay">4</span> Giorni)
         </div>
         <div class="card-body">
-          <p class="small text-muted">Seleziona i giorni in cui intendi richiedere ferie/permesso. I giorni evidenziati in giallo sono quelli consigliati dall'azienda.</p>
+          <p class="small text-muted mb-2">Seleziona i giorni in cui intendi richiedere ferie/permesso. I giorni in giallo sono quelli consigliati.</p>
           
-          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4">
-            <!-- Giorni generati da JS -->
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-3">
+            <!-- Checkbox/Box generati da JS -->
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold small">Note o Note operative (Opzionale):</label>
-            <textarea id="employeeNotes" class="form-control" rows="2" placeholder="Eventuali comunicazioni per il tuo referente..."></textarea>
+            <label class="form-label fw-bold small">Note o Note operative:</label>
+            <textarea id="employeeNotes" class="form-control form-control-sm" rows="2" placeholder="Eventuali comunicazioni..."></textarea>
           </div>
 
           <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <span class="badge bg-secondary" id="selectedCountBadge">Giorni scelti: 0</span>
-            </div>
-            <button class="btn btn-success fw-bold px-4" onclick="saveEmployeeRequest()">💾 Salva e Invia Preferenze</button>
+            <span class="badge bg-secondary" id="selectedCountBadge">Giorni scelti: 0</span>
+            <button class="btn btn-success btn-sm fw-bold px-3" onclick="saveEmployeeRequest()">💾 Salva le mie Ferie</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- SEZIONE AMMINISTRATORE -->
+    <!-- PANNELLO ADMIN (VISIBILE SOLO SE IS_ADMIN = TRUE) -->
     <div id="adminSection" class="d-none">
-      
+
       <!-- RIQUADRO AGGIUNTA MANUALE -->
-      <div class="card mb-4 border-start border-4 border-danger">
-        <div class="card-body">
-          <h6 class="fw-bold text-danger mb-3">➕ AGGIUNGI SINGOLO COLLABORATORE MANUALLY</h6>
+      <div class="card mb-4">
+        <div class="card-body p-3">
+          <h6 class="fw-bold text-primary mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUAMENTE</h6>
           <form onsubmit="handleAddUser(event)">
             <div class="row g-2 mb-2">
-              <div class="col-md-3"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
-              <div class="col-md-3"><input type="text" id="addNome" class="form-control form-control-sm" placeholder="Nome *" required></div>
-              <div class="col-md-3"><input type="email" id="addEmail" class="form-control form-control-sm" placeholder="Email aziendale *" required></div>
-              <div class="col-md-3"><input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)"></div>
+              <div class="col-md-6"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
+              <div class="col-md-6"><input type="text" id="addNome" class="form-control form-control-sm" placeholder="Nome *" required></div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-6"><input type="email" id="addEmail" class="form-control form-control-sm" placeholder="Email aziendale *" required></div>
+              <div class="col-md-6"><input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)"></div>
             </div>
             <div class="row g-2 mb-3">
-              <div class="col-md-3"><input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU"></div>
-              <div class="col-md-3"><input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team"></div>
-              <div class="col-md-3"><input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente"></div>
-              <div class="col-md-2">
-                <select id="addInquadramento" class="form-select form-control-sm">
+              <div class="col-md-4"><input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU"></div>
+              <div class="col-md-4"><input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team"></div>
+              <div class="col-md-4"><input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente"></div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <select id="addInquadramento" class="form-select form-select-sm">
                   <option value="Dipendente">Dipendente</option>
                   <option value="PartitaIVA">PartitaIVA</option>
                   <option value="CoCoCo">CoCoCo</option>
                 </select>
               </div>
-              <div class="col-md-1"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="1" max="15"></div>
+              <div class="col-md-6"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="1" max="15"></div>
             </div>
-            <button type="submit" class="btn btn-danger btn-sm w-100 fw-bold">Salva Collaboratore in Anagrafica</button>
+            <button type="submit" class="btn btn-danger w-100 fw-bold">Salva Collaboratore in Anagrafica</button>
           </form>
         </div>
       </div>
 
-      <!-- FILTRI E TABELLA ANAGRAFICA -->
+      <!-- ANAGRAFICA RISORSE & AZIONI ADMIN -->
       <div class="card mb-4">
-        <div class="card-header bg-white fw-bold d-flex justify-content-between align-items-center py-3">
-          <span>Anagrafica Risorse & Azioni Admin</span>
-          <button class="btn btn-sm btn-outline-success fw-bold" onclick="exportToExcel()">📊 Scarica Report Excel (.xlsx)</button>
-        </div>
-        <div class="card-body">
-          
+        <div class="card-body p-3">
+          <h5 class="fw-bold mb-3">Anagrafica Risorse & Azioni Admin</h5>
+
           <!-- FILTRI -->
-          <div class="row g-2 mb-3 p-2 bg-light rounded">
+          <div class="row g-2 mb-3">
             <div class="col-md-3">
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER BU</label>
               <select id="filterBu" class="form-select form-select-sm" onchange="applyFilters()">
                 <option value="">-- Tutte le BU --</option>
               </select>
             </div>
             <div class="col-md-3">
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER TEAM</label>
               <select id="filterTeam" class="form-select form-select-sm" onchange="applyFilters()">
                 <option value="">-- Tutti i Team --</option>
               </select>
             </div>
             <div class="col-md-3">
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER REFERENTE</label>
               <select id="filterReferente" class="form-select form-select-sm" onchange="applyFilters()">
                 <option value="">-- Tutti i Referenti --</option>
               </select>
             </div>
             <div class="col-md-3">
-              <input type="text" id="filterSearch" class="form-control form-select-sm" placeholder="Cerca Nome, Cognome, Email..." oninput="applyFilters()">
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 CERCA TESTO LIBERO</label>
+              <input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Nome, cognome, email..." oninput="applyFilters()">
             </div>
           </div>
 
           <!-- TABELLA -->
           <div class="table-responsive">
-            <table class="table table-hover table-bordered align-middle mb-0">
-              <thead class="table-light">
+            <table class="table table-bordered table-sm align-middle mb-3">
+              <thead class="table-light text-uppercase" style="font-size:0.75rem;">
                 <tr>
                   <th>AZIENDA</th>
                   <th>BU</th>
@@ -163,13 +164,20 @@
                   <th>MAX GIORNI</th>
                   <th>GIORNI SCELTI</th>
                   <th>STATO</th>
-                  <th>AZIONI ADMIN</th>
+                  <th>DATE SELEZIONATE</th>
+                  <th style="min-width: 140px;">AZIONI ADMIN</th>
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <!-- Generato da JS -->
+                <!-- Righe generate da JS -->
               </tbody>
             </table>
+          </div>
+
+          <!-- SCARICA EXCEL -->
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
+            <span class="small text-muted">Scarica il file master delle assenze nel formato aziendale HQE.</span>
+            <button class="btn btn-hqe" onclick="exportToExcel()">📊 Scarica Report Excel Formato HQE (.xlsx)</button>
           </div>
 
         </div>
@@ -179,7 +187,6 @@
 
   </div>
 
-  <!-- JAVASCRIPT LOGIC -->
   <script>
     const ALL_DATES = [
       "2026-12-21", "2026-12-22", "2026-12-23",
@@ -193,9 +200,8 @@
     let allRequests = {};
     let employeeSelectedDates = [];
 
-    // GESTIONE LOGIN
     document.getElementById('loginEmail').addEventListener('input', function(e) {
-      const email = e.target.value.trim().lowerCase();
+      const email = e.target.value.trim().toLowerCase();
       const adminEmails = ['chiara.pizzorno@hqe.it', 'pietro.malcotti@hqe.it', 'gianluca.luccini@hqe.it', 'rebecca.antenozio@hqe.it'];
       const passwordField = document.getElementById('adminPasswordField');
       if (adminEmails.includes(email)) {
@@ -228,13 +234,15 @@
         document.getElementById('userInfo').classList.remove('d-none');
         document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
 
+        // Mostra il calendario sia ai dipendenti che agli Admin
+        document.getElementById('calendarSection').classList.remove('d-none');
+        document.getElementById('maxDaysDisplay').innerText = currentUser.maxDays || 4;
+        await loadEmployeeData();
+
+        // Se l'utente è un Admin, carica anche la tabella di gestione
         if (isAdmin) {
           document.getElementById('adminSection').classList.remove('d-none');
           await loadAdminData();
-        } else {
-          document.getElementById('employeeSection').classList.remove('d-none');
-          document.getElementById('maxDaysDisplay').innerText = currentUser.maxDays || 4;
-          await loadEmployeeData();
         }
       } catch (err) {
         errDiv.innerText = err.message;
@@ -246,7 +254,6 @@
       location.reload();
     }
 
-    // CARICAMENTO EDIZIONE DIPENDENTE
     async function loadEmployeeData() {
       const res = await fetch('/api/requests');
       allRequests = await res.json();
@@ -306,13 +313,15 @@
             isValidated: false
           })
         });
-        if (res.ok) alert('Preferenze salvate con successo!');
+        if (res.ok) {
+          alert('Ferie salvate con successo!');
+          if (isAdmin) await loadAdminData();
+        }
       } catch (err) {
         alert('Errore durante il salvataggio.');
       }
     }
 
-    // CARICAMENTO DASHBOARD AMMINISTRATORE
     async function loadAdminData() {
       const [uRes, rRes] = await Promise.all([
         fetch('/api/users'),
@@ -330,13 +339,9 @@
       const teams = [...new Set(allUsers.map(u => u.team).filter(Boolean))].sort();
       const refs = [...new Set(allUsers.map(u => u.referente).filter(Boolean))].sort();
 
-      const buSelect = document.getElementById('filterBu');
-      const teamSelect = document.getElementById('filterTeam');
-      const refSelect = document.getElementById('filterReferente');
-
-      buSelect.innerHTML = '<option value="">-- Tutte le BU --</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
-      teamSelect.innerHTML = '<option value="">-- Tutti i Team --</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
-      refSelect.innerHTML = '<option value="">-- Tutti i Referenti --</option>' + refs.map(r => `<option value="${r}">${r}</option>`).join('');
+      document.getElementById('filterBu').innerHTML = '<option value="">-- Tutte le BU --</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      document.getElementById('filterTeam').innerHTML = '<option value="">-- Tutti i Team --</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+      document.getElementById('filterReferente').innerHTML = '<option value="">-- Tutti i Referenti --</option>' + refs.map(r => `<option value="${r}">${r}</option>`).join('');
     }
 
     function applyFilters() {
@@ -363,29 +368,37 @@
 
       users.forEach(u => {
         const req = allRequests[u.email] || {};
-        const datesCount = (req.dates || []).length;
+        const dates = req.dates || [];
+        const datesCount = dates.length;
         const statusBadge = datesCount > 0 
-          ? '<span class="badge bg-success status-badge">Inserite</span>' 
-          : '<span class="badge bg-warning text-dark status-badge">Da Inserire</span>';
+          ? '<span class="badge badge-inserito">Confermato</span>' 
+          : '<span class="badge badge-da-inserire">Da Inserire</span>';
+
+        const formattedDates = dates.map(d => {
+          const parts = d.split('-');
+          return `${parts[2]}/${parts[1]}`;
+        }).join(', ') || '-';
 
         const tr = document.createElement('tr');
         tr.id = `user-row-${u.email.replace(/[@.]/g, '_')}`;
         tr.innerHTML = `
-          <td><input type="text" class="form-control form-control-sm val-azienda" value="${u.azienda || ''}" disabled></td>
-          <td><input type="text" class="form-control form-control-sm val-bu" value="${u.bu || ''}" disabled></td>
-          <td><input type="text" class="form-control form-control-sm val-team" value="${u.team || ''}" disabled></td>
-          <td><input type="text" class="form-control form-control-sm val-referente" value="${u.referente || ''}" disabled></td>
+          <td><span class="view-mode">${u.azienda || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-azienda" value="${u.azienda || ''}"></td>
+          <td><span class="view-mode badge bg-light text-dark border">${u.bu || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-bu" value="${u.bu || ''}"></td>
+          <td><span class="view-mode badge bg-light text-dark border">${u.team || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-team" value="${u.team || ''}"></td>
+          <td><span class="view-mode">${u.referente || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-referente" value="${u.referente || ''}"></td>
           <td>
             <div class="fw-bold">${u.cognome} ${u.nome}</div>
-            <small class="text-muted">${u.email}</small>
+            <div class="extra-small text-muted">${u.email}</div>
           </td>
-          <td><input type="text" class="form-control form-control-sm val-inquadramento" value="${u.inquadramento || ''}" disabled></td>
-          <td><input type="number" class="form-control form-control-sm val-maxdays" value="${u.maxDays || 4}" style="width:65px;" disabled></td>
+          <td><span class="view-mode">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}"></td>
+          <td><span class="view-mode">${u.maxDays || 4}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${u.maxDays || 4}" style="width:55px;"></td>
           <td class="text-center fw-bold">${datesCount} / ${u.maxDays || 4}</td>
           <td class="text-center">${statusBadge}</td>
+          <td class="small">${formattedDates}</td>
           <td>
             <div class="d-flex gap-1">
-              <button class="btn btn-sm btn-outline-primary btn-edit" onclick="toggleEditUser('${u.email}')">✏️ Modifica</button>
+              <button class="btn btn-sm btn-success btn-confirm d-none" onclick="saveUserEdit('${u.email}')">✓ Conferma</button>
+              <button class="btn btn-sm btn-primary btn-edit" onclick="enableUserEdit('${u.email}')">✏️ Modifica</button>
               <button class="btn btn-sm btn-outline-danger" onclick="deleteUser('${u.email}')">🗑️ Elimina</button>
             </div>
           </td>
@@ -394,46 +407,39 @@
       });
     }
 
-    // MODIFICA ED AGGIORNAMENTO RIGA COLLABORATORE
-    async function toggleEditUser(email) {
-      const rowId = `user-row-${email.replace(/[@.]/g, '_')}`;
-      const tr = document.getElementById(rowId);
-      const inputs = tr.querySelectorAll('input');
-      const editBtn = tr.querySelector('.btn-edit');
+    function enableUserEdit(email) {
+      const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
+      tr.querySelectorAll('.view-mode').forEach(el => el.classList.add('d-none'));
+      tr.querySelectorAll('.edit-mode').forEach(el => el.classList.remove('d-none'));
+      tr.querySelector('.btn-edit').classList.add('d-none');
+      tr.querySelector('.btn-confirm').classList.remove('d-none');
+    }
 
-      if (inputs[0].disabled) {
-        inputs.forEach(i => i.disabled = false);
-        editBtn.innerText = '💾 Conferma';
-        editBtn.className = 'btn btn-sm btn-success btn-edit';
+    async function saveUserEdit(email) {
+      const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
+      const uData = {
+        email: email,
+        azienda: tr.querySelector('.val-azienda').value,
+        bu: tr.querySelector('.val-bu').value,
+        team: tr.querySelector('.val-team').value,
+        referente: tr.querySelector('.val-referente').value,
+        inquadramento: tr.querySelector('.val-inquadramento').value,
+        maxDays: parseInt(tr.querySelector('.val-maxdays').value) || 4
+      };
+
+      const res = await fetch('/api/users/update', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(uData)
+      });
+
+      if (res.ok) {
+        await loadAdminData();
       } else {
-        const uData = {
-          email: email,
-          azienda: tr.querySelector('.val-azienda').value,
-          bu: tr.querySelector('.val-bu').value,
-          team: tr.querySelector('.val-team').value,
-          referente: tr.querySelector('.val-referente').value,
-          inquadramento: tr.querySelector('.val-inquadramento').value,
-          maxDays: parseInt(tr.querySelector('.val-maxdays').value) || 4
-        };
-
-        const res = await fetch('/api/users/update', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(uData)
-        });
-
-        if (res.ok) {
-          inputs.forEach(i => i.disabled = true);
-          editBtn.innerText = '✏️ Modifica';
-          editBtn.className = 'btn btn-sm btn-outline-primary btn-edit';
-          await loadAdminData();
-        } else {
-          alert('Errore durante l\'aggiornamento.');
-        }
+        alert('Errore nell\'aggiornamento.');
       }
     }
 
-    // AGGIUNTA NUOVO COLLABORATORE
     async function handleAddUser(e) {
       e.preventDefault();
       const newUser = {
@@ -455,17 +461,16 @@
       });
 
       if (res.ok) {
-        alert('Collaboratore salvato con successo!');
+        alert('Collaboratore aggiunto con successo!');
         e.target.reset();
         await loadAdminData();
       } else {
-        alert('Errore durante il salvataggio del nuovo collaboratore.');
+        alert('Errore durante l\'aggiunta.');
       }
     }
 
-    // ELIMINAZIONE COLLABORATORE
     async function deleteUser(email) {
-      if (!confirm(`Sei sicuro di voler eliminare il collaboratore ${email}?`)) return;
+      if (!confirm(`Confermi di voler eliminare ${email}?`)) return;
 
       const res = await fetch('/api/users/delete', {
         method: 'POST',
@@ -474,29 +479,28 @@
       });
 
       if (res.ok) {
-        alert('Collaboratore eliminato con successo!');
+        alert('Collaboratore eliminato!');
         await loadAdminData();
       } else {
         alert('Errore durante l\'eliminazione.');
       }
     }
 
-    // ESPORTAZIONE EXCEL
     function exportToExcel() {
       const data = allUsers.map(u => {
         const req = allRequests[u.email] || {};
         return {
-          'Azienda': u.azienda || '',
-          'Cognome': u.cognome || '',
-          'Nome': u.nome || '',
-          'Email': u.email || '',
+          'AZIENDA': u.azienda || '',
           'BU': u.bu || '',
-          'Team': u.team || '',
-          'Referente': u.referente || '',
-          'Inquadramento': u.inquadramento || '',
-          'Max Giorni': u.maxDays || 4,
-          'Giorni Selezionati': (req.dates || []).join(', '),
-          'Note': req.notes || ''
+          'TEAM': u.team || '',
+          'REFERENTE': u.referente || '',
+          'COGNOME E NOME': `${u.cognome} ${u.nome}`,
+          'INQUADRAMENTO': u.inquadramento || '',
+          'MAX GIORNI': u.maxDays || 4,
+          'GIORNI SCELTI': (req.dates || []).length,
+          'STATO': (req.dates || []).length > 0 ? 'Confermato' : 'Da Inserire',
+          'DATE SELEZIONATE': (req.dates || []).join(', '),
+          'NOTE': req.notes || ''
         };
       });
 
