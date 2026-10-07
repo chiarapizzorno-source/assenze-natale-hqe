@@ -23,7 +23,6 @@ ADMIN_EMAILS = [
 ]
 ADMIN_PASSWORD = 'natalesulnilo'
 
-# Date consigliate base (28, 29 e 30 Dicembre)
 DEFAULT_RECOMMENDED_DAYS = [
     "2026-12-28", "2026-12-29", "2026-12-30"
 ]
@@ -332,7 +331,6 @@ def api_login():
 
     return jsonify({'user': user, 'isAdmin': is_admin})
 
-# GET RICHIEDE TUTTI GLI UTENTI - POST SALVA UN NUOVO UTENTE (COMPATIBILITÀ)
 @app.route('/api/users', methods=['GET', 'POST'])
 def handle_users():
     if request.method == 'POST':
@@ -485,6 +483,13 @@ def handle_requests():
                 supabase.table('requests').upsert(row, on_conflict='email').execute()
             except Exception as e:
                 print(f"Errore save_request Supabase: {e}")
+
+        if email in USERS_MAP:
+            USERS_MAP[email]['requests'] = {
+                'dates': dates,
+                'notes': notes,
+                'isValidated': is_validated
+            }
 
         return jsonify({'status': 'ok'})
     else:
