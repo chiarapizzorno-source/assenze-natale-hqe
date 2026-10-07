@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SANTA - HQ | Il Tuo Periodo di Gioia</title>
+  <title>SANTA - HQ | Le Vacanze Che Vuoi Tu</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -58,21 +58,34 @@
       }
     }
 
-    /* BABBO NATALE HD IN VOLO */
+    /* BABBO NATALE HD MOLTO PIÙ DINAMICO AL CENTRO SCHERMO */
     .santa-flying-container {
       position: fixed;
-      top: 6%;
+      top: 18%; /* Posizionato visivamente verso il centro dello schermo */
       z-index: -1;
       pointer-events: none;
-      animation: santaFly 26s linear infinite;
+      animation: santaCenterDynamic 18s ease-in-out infinite alternate;
     }
 
-    @keyframes santaFly {
-      0% { left: -520px; transform: translateY(0px) scale(1); }
-      25% { transform: translateY(-18px) scale(1.03); }
-      50% { transform: translateY(12px) scale(1.08); }
-      75% { transform: translateY(-12px) scale(1.03); }
-      100% { left: 105vw; transform: translateY(0px) scale(1); }
+    @keyframes santaCenterDynamic {
+      0% { 
+        left: -480px; 
+        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
+      }
+      25% { 
+        transform: translateY(35px) rotate(2deg) scale(1.05); 
+      }
+      50% { 
+        left: 38vw; /* Arriva e danza nel centro schermo */
+        transform: translateY(-40px) rotate(-4deg) scale(1.15); 
+      }
+      75% { 
+        transform: translateY(25px) rotate(3deg) scale(1.05); 
+      }
+      100% { 
+        left: 105vw; 
+        transform: translateY(-15px) rotate(-2deg) scale(0.95); 
+      }
     }
 
     /* SCENOGRAFIA VETTORIALE HD */
@@ -98,11 +111,33 @@
 
     .header-subtitle {
       font-weight: 800;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-transform: uppercase;
       font-size: 0.85rem;
       color: #00f5d4;
       text-shadow: 0 0 10px rgba(0, 245, 212, 0.8), 0 1px 2px rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* MUSIC TOGGLE BUTTON */
+    .audio-control-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .audio-control-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
     }
 
     /* GHIRLANDA NATALIZIA DORATA E BRILLANTE */
@@ -315,15 +350,19 @@
 </head>
 <body>
 
+  <!-- AUDIO NATALIZIO IN SOTTOFONDO -->
+  <audio id="xmasAudio" loop preload="auto">
+    <source src="https://assets.mixkit.co/music/preview/mixkit-jingle-bells-classic-716.mp3" type="audio/mpeg">
+  </audio>
+
   <!-- SFONDO ANIME -->
   <div class="hero-bg-wrapper"></div>
   <div id="snowflakeContainer"></div>
 
-  <!-- BABBO NATALE HD AD ALTA DEFINIZIONE CON SACCO OLIVAMI CUCITO -->
+  <!-- BABBO NATALE HD AD ALTA DEFINIZIONE AL CENTRO SCHERMO -->
   <div class="santa-flying-container">
     <svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <!-- Gradients -->
         <linearGradient id="santaSuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#ff2e63"/>
           <stop offset="50%" stop-color="#d80032"/>
@@ -359,7 +398,7 @@
         </filter>
       </defs>
 
-      <!-- Scia di scintille luminose HD -->
+      <!-- Scintille luminose HD -->
       <g filter="url(#goldGlow)">
         <circle cx="20" cy="100" r="3" fill="#ffee32"/>
         <circle cx="45" cy="85" r="4" fill="#ffffff"/>
@@ -370,37 +409,29 @@
       <!-- Renna Guida HD -->
       <g id="reindeerHD" filter="url(#dropShadow3D)">
         <path d="M 400 90 Q 430 55 450 72 Q 462 88 438 108 L 405 115 Z" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
-        <circle cx="456" cy="76" r="5" fill="#ff1e56" filter="url(#goldGlow)"/> <!-- Naso Rosso -->
-        <!-- Corna HD -->
+        <circle cx="456" cy="76" r="5" fill="#ff1e56" filter="url(#goldGlow)"/>
         <path d="M 428 58 L 420 40 M 430 52 L 438 38 M 424 46 L 416 34" stroke="#4e342e" stroke-width="3" stroke-linecap="round"/>
       </g>
 
       <!-- Redini Lucenti -->
       <path d="M 270 112 Q 340 100 405 95" stroke="url(#goldSleighGrad)" stroke-width="3" stroke-dasharray="6 2" filter="url(#goldGlow)"/>
 
-      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA A MANO -->
+      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA -->
       <g id="giantSackHD" filter="url(#dropShadow3D)">
-        <!-- Corpo del Sacco capiente e definito -->
         <path d="M 110 65 Q 75 130 135 160 Q 210 160 190 95 Q 170 50 135 50 Z" fill="url(#sackGrad)" stroke="#2d1503" stroke-width="2.5"/>
         <path d="M 130 50 Q 145 60 135 70 Q 120 60 130 50 Z" fill="#6d3811"/>
-        <!-- Cordone d'oro del sacco -->
         <path d="M 120 68 Q 138 75 152 66" stroke="#ffee32" stroke-width="4" stroke-linecap="round"/>
 
-        <!-- PATCH/CUCITURA DEDICATA OLIVAMI -->
-        <!-- Sfondo pezza di stoffa cucita -->
+        <!-- Toppa Cucita OLIVAMI -->
         <path d="M 112 92 L 180 88 Q 185 118 178 126 L 110 128 Q 106 105 112 92 Z" fill="#2d4a22" stroke="#1b3013" stroke-width="2"/>
-        <!-- Punti di cucitura tratteggiati dorati intorno alla toppa -->
         <path d="M 114 94 L 178 90 Q 183 116 176 124 L 112 126 Q 108 107 114 94 Z" fill="none" stroke="#ffee32" stroke-width="1.8" stroke-dasharray="4 3"/>
-
-        <!-- Testo OLIVAMI perfettamente leggibile, ricamato con contorno dorato -->
         <text x="117" y="113" font-family="'Cinzel', 'Segoe UI', serif" font-weight="900" font-size="13" fill="#ffffff" stroke="#ffd700" stroke-width="0.8" letter-spacing="2" filter="url(#goldGlow)">OLIVAMI</text>
       </g>
 
-      <!-- Slitta 3D Lucida e Dettagliata -->
+      <!-- Slitta 3D Lucida -->
       <g id="sleighHD" filter="url(#dropShadow3D)">
         <path d="M 175 130 Q 155 85 225 85 L 290 85 Q 315 130 255 142 Z" fill="url(#santaSuitGrad)" stroke="#ffffff" stroke-width="2"/>
         <path d="M 170 128 Q 230 138 295 125" fill="none" stroke="url(#goldSleighGrad)" stroke-width="4"/>
-        <!-- Pattino di scorrimento d'oro -->
         <path d="M 155 152 L 305 152 Q 320 152 325 138" stroke="url(#goldSleighGrad)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#goldGlow)"/>
         <line x1="195" y1="144" x2="195" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
         <line x1="270" y1="138" x2="270" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
@@ -408,31 +439,23 @@
 
       <!-- BABBO NATALE GROSSO & DEFINITO -->
       <g id="bigSantaHD">
-        <!-- Corpo imponente -->
         <path d="M 215 80 C 195 92 195 128 245 128 C 275 128 275 92 255 80 Z" fill="url(#santaSuitGrad)" stroke="#800f2f" stroke-width="1.5"/>
-        <!-- Pelliccia bianca centrale -->
         <path d="M 232 80 L 232 128" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
-        <!-- Cintura in cuoio e fibbia d'oro -->
         <rect x="208" y="102" width="50" height="9" rx="2" fill="#111111"/>
         <rect x="227" y="98" width="12" height="17" rx="2" fill="url(#goldSleighGrad)" stroke="#111111" stroke-width="1.5"/>
-        <!-- Braccio grosso protesi in avanti -->
         <path d="M 248 92 Q 270 95 278 110" stroke="url(#santaSuitGrad)" stroke-width="12" stroke-linecap="round"/>
-        <circle cx="280" cy="112" r="6" fill="#111111"/> <!-- Guanto -->
+        <circle cx="280" cy="112" r="6" fill="#111111"/>
 
-        <!-- Testa & Viso HD -->
-        <circle cx="234" cy="62" r="15" fill="#ffcc80"/> <!-- Viso -->
-        <circle cx="240" cy="60" r="2" fill="#2d1503"/> <!-- Occhio -->
-        <path d="M 242 64 Q 248 66 244 68" stroke="#d80032" stroke-width="1.5" fill="none"/> <!-- Guancia -->
+        <circle cx="234" cy="62" r="15" fill="#ffcc80"/>
+        <circle cx="240" cy="60" r="2" fill="#2d1503"/>
+        <path d="M 242 64 Q 248 66 244 68" stroke="#d80032" stroke-width="1.5" fill="none"/>
         
-        <!-- Barba folta e tridimensionale -->
         <path d="M 218 64 Q 234 94 252 64 Q 244 98 226 92 Z" fill="url(#beardGrad)" filter="url(#dropShadow3D)"/>
-        <!-- Baffi -->
         <path d="M 234 67 Q 224 72 218 68 M 234 67 Q 244 72 250 68" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
 
-        <!-- Cappello Natalizio Definito -->
         <path d="M 220 54 Q 234 30 258 50 Z" fill="url(#santaSuitGrad)"/>
         <rect x="217" y="52" width="30" height="7" rx="3.5" fill="#ffffff" filter="url(#dropShadow3D)"/>
-        <circle cx="260" cy="51" r="5" fill="#ffffff"/> <!-- Pom pon -->
+        <circle cx="260" cy="51" r="5" fill="#ffffff"/>
       </g>
     </svg>
   </div>
@@ -484,13 +507,37 @@
         <span class="fs-1">🎄</span>
         <div>
           <h3 class="m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h3>
-          <div class="header-subtitle">IL TUO PERIODO DI GIOIA</div>
+          <!-- SOTTOTITOLO AGGIORNATO CON PANETTONCINO VETTORIALE/EMOJI -->
+          <div class="header-subtitle">
+            LE VACANZE CHE VUOI TU 
+            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));">
+              <!-- Pirottino / Base Panettone -->
+              <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
+              <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <!-- Cupola Dorata Panettone -->
+              <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
+              <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
+              <!-- Canditi e Uvetta -->
+              <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
+              <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
+              <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
+              <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
+              <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
+            </svg>
+          </div>
         </div>
       </div>
-      <div id="userInfo" class="d-none text-end">
-        <span id="userNameDisplay" class="fw-bold me-2 text-white"></span>
-        <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold shadow-sm"></span>
-        <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()">Logout</button>
+      <div class="d-flex align-items-center gap-3">
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA -->
+        <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
+        
+        <div id="userInfo" class="d-none text-end">
+          <span id="userNameDisplay" class="fw-bold me-2 text-white"></span>
+          <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold shadow-sm"></span>
+          <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()">Logout</button>
+        </div>
       </div>
     </div>
   </div>
@@ -502,7 +549,7 @@
       <div class="garland-box-wrapper">
         <div class="card glossy-login-card p-2">
           <div class="card-body text-center p-4">
-            <div class="fs-1 mb-2">🎅 ✨ ☃️</div>
+            <div class="fs-1 mb-2">🎅 ✨ 🧁</div>
             <h3 class="login-title mb-1">SANTA - HQ</h3>
             <p class="small text-white-75 mb-4">Inserisci la tua email aziendale per accedere al portale.</p>
             
@@ -664,6 +711,28 @@
   </div>
 
   <script>
+    // GESTIONE RIPRODUZIONE MUSICA NATALIZIA
+    let isPlaying = false;
+    const audio = document.getElementById('xmasAudio');
+    audio.volume = 0.35; // Volume morbido di sottofondo
+
+    function toggleAudio() {
+      const btn = document.getElementById('musicToggleBtn');
+      if (isPlaying) {
+        audio.pause();
+        btn.innerText = '🎵 Musica: OFF';
+        btn.style.background = 'rgba(255, 255, 255, 0.15)';
+      } else {
+        audio.play().then(() => {
+          btn.innerText = '🎶 Musica: ON ✨';
+          btn.style.background = 'linear-gradient(145deg, #00b894, #009475)';
+        }).catch(err => {
+          console.log("Riproduzione bloccata dal browser, avviare manualmente.", err);
+        });
+      }
+      isPlaying = !isPlaying;
+    }
+
     // GENERAZIONE EFFETTO NEVE
     const snowContainer = document.getElementById('snowflakeContainer');
     for (let i = 0; i < 35; i++) {
@@ -716,6 +785,11 @@
       const password = document.getElementById('loginPassword').value.trim();
       const errDiv = document.getElementById('loginError');
       errDiv.classList.add('d-none');
+
+      // Tenta l'avvio della musica al primo click utente per bypassare i blocchi dei browser
+      if (!isPlaying) {
+        toggleAudio();
+      }
 
       try {
         const res = await fetch('/api/login', {
@@ -783,8 +857,8 @@
         titleEl.innerText = "📋 Pianificazione Vacanze & Presenze";
         textEl.innerHTML = "💡 Seleziona le giornate feriali in cui prevedi la sospensione dell'attività per le tue vacanze.";
         
-        /* TESTO SPECIFICO PER PARTITA IVA */
-        hqBox.innerText = "💡 Perché non scegliere il 28-29-30";
+        /* TESTO SPECIFICO E REVISIONAL PER PARTITA IVA */
+        hqBox.innerText = "💡 Che ne dici di scegliere il 28-29-30?";
 
         legendEl.innerHTML = `
           <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#d80032; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Chiusura Aziendale</div>
