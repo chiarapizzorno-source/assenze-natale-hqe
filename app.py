@@ -25,10 +25,8 @@ ADMIN_PASSWORD = 'natalesulnilo'
 
 # Date consigliate base (modificabili/personalizzabili utente per utente)
 DEFAULT_RECOMMENDED_DAYS = [
-    "2026-12-21", "2026-12-22", "2026-12-23",
     "2026-12-28", "2026-12-29", "2026-12-30",
-    "2027-01-07", "2027-01-08"
-]
+    ]
 
 # ANAGRAFICA COMPLETA DEI 235 DIPENDENTI
 DEFAULT_USERS = [
