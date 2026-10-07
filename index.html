@@ -15,7 +15,7 @@
 
     /* THEME COLORI INTERFACCIA UTENTE */
     body.theme-dipendente { background-color: #f8d7da; color: #721c24; } /* ROSSO NATALIZIO */
-    body.theme-piva { background-color: #e2f0d9; color: #155724; }       /* AZZURRO / VERDE CHIARO AVIO */
+    body.theme-piva { background-color: #e2f0d9; color: #155724; }       /* AZZURRO / AVIO */
     body.theme-cococo { background-color: #e9ecef; color: #383d41; }     /* GRIGIO ELEGANTE */
     body.theme-admin { background-color: #f8f9fa; color: #333; }
 
@@ -166,7 +166,7 @@
                   <option value="CoCoCo">CoCoCo</option>
                 </select>
               </div>
-              <div class="col-md-6"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="1" max="15"></div>
+              <div class="col-md-6"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15"></div>
             </div>
             <button type="submit" class="btn btn-danger w-100 fw-bold">Salva Collaboratore in Anagrafica</button>
           </form>
@@ -256,7 +256,7 @@
       curr.setDate(curr.getDate() + 1);
     }
 
-    // DATE CHIUSURA AZIENDALE (ROSSO)
+    // DATE CHIUSURA AZIENDALE (ROSSO) - 4 GIORNI
     const CLOSED_DATES = ["2026-12-24", "2026-12-31", "2027-01-04", "2027-01-05"];
 
     // FESTIVITÀ NAZIONALI INFRASETTIMANALI (ARANCIONE)
@@ -301,17 +301,15 @@
         currentUser = data.user;
         isAdmin = data.isAdmin;
 
-        // Rimuove lo sfondo di login
         document.body.classList.remove('login-bg');
 
-        // Imposta colore di sfondo scheda in base all'inquadramento
         const inqRaw = (currentUser.inquadramento || 'Dipendente').toLowerCase();
         if (isAdmin) {
           document.body.className = 'theme-admin';
         } else if (inqRaw.includes('dipendente')) {
           document.body.className = 'theme-dipendente'; // ROSSO
         } else if (inqRaw.includes('partitaiva') || inqRaw.includes('p.iva') || inqRaw.includes('piva')) {
-          document.body.className = 'theme-piva';       // AZZURRO / AVIO
+          document.body.className = 'theme-piva';       // AZZURRO
         } else if (inqRaw.includes('cococo')) {
           document.body.className = 'theme-cococo';     // GRIGIO
         } else {
@@ -353,15 +351,16 @@
       const legendEl = document.getElementById('legendContainer');
 
       const isDipendente = inq.includes('dipendente') || isAdmin;
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       if (isDipendente) {
-        maxEl.innerText = `Max ${currentUser.maxDays || 4} Giorni`;
+        maxEl.innerText = `Max ${maxDays} Giorni Totali`;
         maxEl.classList.remove('d-none');
         titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
-        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale saranno conteggiati come FERIE.</u> I giorni in rosso indicano la Chiusura Aziendale, quelli in arancione le Festività/Weekend, e quelli in giallo le giornate consigliate.";
+        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale (4 giorni) sono conteggiati come FERIE e gia' scalati dal monte giorni.</u> I giorni in rosso indicano la Chiusura Aziendale, quelli in arancione le Festività/Weekend, e quelli in giallo le giornate consigliate.";
         
         legendEl.innerHTML = `
-          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
+          <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale (4 gg Ferie)</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fd7e14; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fff3cd; border:1px solid #ffc107; display:inline-block; border-radius:3px;"></span> Consigliato</div>
           <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#198754; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
@@ -413,6 +412,7 @@
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
       const isDipendente = inq.includes('dipendente') || isAdmin;
       const recDays = currentUser.recommendedDays || DEFAULT_RECOMMENDED_DAYS;
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       ALL_RANGE_DATES.forEach(dateStr => {
         const d = new Date(dateStr);
@@ -438,7 +438,6 @@
           if (employeeSelectedDates.includes(dateStr)) {
             box.classList.add('selected');
           } else if (isDipendente && isRecommended) {
-            // MOSTRA IL GIALLO SOLO AI DIPENDENTI
             box.classList.add('recommended');
           }
           box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Feriale</div>`;
@@ -450,27 +449,34 @@
 
       const countBadge = document.getElementById('selectedCountBadge');
       if (isDipendente) {
-        countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length} / ${currentUser.maxDays || 4}`;
+        // I 4 GIORNI DI CHIUSURA AZIENDALE SONO AUTOMATICAMENTE CONTEGGIATI NELLE FERIE
+        const totalFerieCount = CLOSED_DATES.length + employeeSelectedDates.length;
+        countBadge.innerText = `Giorni scelti/conteggiati: ${totalFerieCount} / ${maxDays} (4 Chiusura + ${employeeSelectedDates.length} Feriali)`;
       } else {
         countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length}`;
       }
     }
 
     function toggleDateSelection(dateStr) {
-      const max = currentUser.maxDays || 4;
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
       const isDipendente = inq.includes('dipendente') || isAdmin;
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       if (employeeSelectedDates.includes(dateStr)) {
         employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
       } else {
-        if (employeeSelectedDates.length >= max) {
-          if (isDipendente) {
-            alert(`Puoi selezionare al massimo ${max} giorni.`);
-          } else {
-            alert("Per eventuali esigenze specifiche o variazioni, ti preghiamo di fare riferimento a risorseumane@hqe.it");
+        if (isDipendente) {
+          const currentTotalFerie = CLOSED_DATES.length + employeeSelectedDates.length;
+          if (currentTotalFerie >= maxDays) {
+            alert(`Hai raggiunto il limite massimo di ${maxDays} giorni di ferie (comprensivi dei 4 giorni di chiusura aziendale).`);
+            return;
           }
-          return;
+        } else {
+          // P.IVA e CoCoCo: Se maxDays è 0 o supera il limite
+          if (maxDays === 0 || employeeSelectedDates.length >= maxDays) {
+            alert("Per esigenze differenti fare riferimento a risorseumane@hqe.it");
+            return;
+          }
         }
         employeeSelectedDates.push(dateStr);
       }
@@ -549,6 +555,8 @@
         const req = allRequests[u.email] || {};
         const dates = req.dates || [];
         const datesCount = dates.length;
+        const maxD = (u.maxDays !== undefined) ? u.maxDays : 4;
+        
         const statusBadge = datesCount > 0 
           ? '<span class="badge badge-inserito">Confermato</span>' 
           : '<span class="badge badge-da-inserire">Da Inserire</span>';
@@ -570,8 +578,8 @@
             <div class="extra-small text-muted">${u.email}</div>
           </td>
           <td><span class="view-mode">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}"></td>
-          <td><span class="view-mode">${u.maxDays || 4}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${u.maxDays || 4}" style="width:55px;"></td>
-          <td class="text-center fw-bold">${datesCount} / ${u.maxDays || 4}</td>
+          <td><span class="view-mode">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0"></td>
+          <td class="text-center fw-bold">${datesCount} / ${maxD}</td>
           <td class="text-center">${statusBadge}</td>
           <td class="small">${formattedDates}</td>
           <td>
@@ -596,6 +604,7 @@
 
     async function saveUserEdit(email) {
       const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
+      const valMax = tr.querySelector('.val-maxdays').value;
       const uData = {
         email: email,
         azienda: tr.querySelector('.val-azienda').value,
@@ -603,7 +612,7 @@
         team: tr.querySelector('.val-team').value,
         referente: tr.querySelector('.val-referente').value,
         inquadramento: tr.querySelector('.val-inquadramento').value,
-        maxDays: parseInt(tr.querySelector('.val-maxdays').value) || 4
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
       };
 
       const res = await fetch('/api/users/update', {
@@ -621,6 +630,7 @@
 
     async function handleAddUser(e) {
       e.preventDefault();
+      const valMax = document.getElementById('addMaxDays').value;
       const newUser = {
         cognome: document.getElementById('addCognome').value,
         nome: document.getElementById('addNome').value,
@@ -630,7 +640,7 @@
         team: document.getElementById('addTeam').value,
         referente: document.getElementById('addReferente').value,
         inquadramento: document.getElementById('addInquadramento').value,
-        maxDays: parseInt(document.getElementById('addMaxDays').value) || 4
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
       };
 
       const res = await fetch('/api/users/add', {
@@ -675,7 +685,7 @@
           'REFERENTE': u.referente || '',
           'COGNOME E NOME': `${u.cognome} ${u.nome}`,
           'INQUADRAMENTO': u.inquadramento || '',
-          'MAX GIORNI': u.maxDays || 4,
+          'MAX GIORNI': u.maxDays !== undefined ? u.maxDays : 4,
           'GIORNI SCELTI': (req.dates || []).length,
           'STATO': (req.dates || []).length > 0 ? 'Confermato' : 'Da Inserire',
           'DATE SELEZIONATE': (req.dates || []).join(', '),
