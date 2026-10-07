@@ -3,22 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestione Pianificazione Ferie & Assenze Natalizie</title>
+  <title>Pianificazione Assenze & Presenze Natalizie</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     body { background-color: #f8f9fa; font-family: 'Segoe UI', Arial, sans-serif; color: #333; }
     .header-bar { background-color: #002060; color: white; padding: 15px 0; margin-bottom: 20px; }
     .card { border-radius: 8px; border: 1px solid #e0e0e0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-    .day-box { width: 50px; height: 50px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: bold; cursor: pointer; user-select: none; transition: all 0.2s; font-size: 0.85rem; text-align: center; }
-    .day-box.recommended { background-color: #fff3cd; border: 2px solid #ffc107; color: #856404; }
+    
+    /* STILI CALENDARIO */
+    .day-box { 
+      width: 65px; 
+      min-height: 65px; 
+      border-radius: 6px; 
+      display: flex; 
+      flex-direction: column;
+      align-items: center; 
+      justify-content: center; 
+      font-weight: bold; 
+      cursor: pointer; 
+      user-select: none; 
+      transition: all 0.2s; 
+      font-size: 0.8rem; 
+      text-align: center;
+      padding: 4px;
+      border: 1px solid #ced4da;
+      background-color: #ffffff;
+    }
+    .day-box .day-sub { font-size: 0.65rem; font-weight: normal; margin-top: 2px; }
+
+    /* GIORNI SELEZIONATI DAL DIPENDENTE */
     .day-box.selected { background-color: #198754 !important; border-color: #198754 !important; color: white !important; }
-    .day-box.disabled { background-color: #e9ecef; color: #adb5bd; cursor: not-allowed; border: 1px solid #dee2e6; }
+
+    /* CHIUSURA AZIENDALE (ROSSO) */
+    .day-box.closed { background-color: #dc3545 !important; border-color: #dc3545 !important; color: white !important; cursor: not-allowed; }
+
+    /* FESTE E WEEKEND (ARANCIONE) */
+    .day-box.holiday { background-color: #fd7e14 !important; border-color: #fd7e14 !important; color: white !important; cursor: not-allowed; }
+
     .table-responsive { font-size: 0.82rem; }
     .badge-da-inserire { background-color: #ffeba3; color: #856404; }
     .badge-inserito { background-color: #d1e7dd; color: #0f5132; }
     .btn-hqe { background-color: #007a53; color: white; font-weight: bold; }
     .btn-hqe:hover { background-color: #005a3e; color: white; }
+    .extra-small { font-size: 0.7rem; }
   </style>
 </head>
 <body>
@@ -27,10 +55,11 @@
   <div class="header-bar">
     <div class="container d-flex justify-content-between align-items-center">
       <div>
-        <h4 class="m-0 fw-bold">Pianificazione Ferie Natalizie</h4>
+        <h4 class="m-0 fw-bold">Pianificazione Presenze / Assenze Natalizie</h4>
       </div>
       <div id="userInfo" class="d-none text-end">
         <span id="userNameDisplay" class="fw-bold me-2"></span>
+        <span id="userInquadramentoBadge" class="badge bg-info text-dark me-2"></span>
         <button class="btn btn-sm btn-outline-light" onclick="logout()">Logout</button>
       </div>
     </div>
@@ -57,39 +86,48 @@
       </div>
     </div>
 
-    <!-- CALENDARIO PERSONALE (VISIBILE SIA AI DIPENDENTI CHE AGLI ADMIN) -->
+    <!-- CALENDARIO PERSONALE -->
     <div id="calendarSection" class="d-none mb-4">
       <div class="card">
-        <div class="card-header bg-white fw-bold py-2">
-          📅 Selezione Giornate Ferie Personali (Max <span id="maxDaysDisplay">4</span> Giorni)
+        <div class="card-header bg-white fw-bold py-2 d-flex justify-content-between align-items-center">
+          <span id="calendarTitle">📅 Selezione Giornate Ferie Personali</span>
+          <span class="badge bg-secondary" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
-          <p class="small text-muted mb-2">Seleziona i giorni in cui intendi richiedere ferie/permesso. I giorni in giallo sono quelli consigliati.</p>
+          <div id="guidanceText" class="alert alert-light border small mb-3"></div>
+
+          <!-- LEGENDA COLORI -->
+          <div class="d-flex flex-wrap gap-3 mb-3 small fw-bold">
+            <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#dc3545; display:inline-block; border-radius:3px;"></span> Chiusura Aziendale</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#fd7e14; display:inline-block; border-radius:3px;"></span> Festività / Weekend</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#198754; display:inline-block; border-radius:3px;"></span> Selezionato da Te</div>
+            <div class="d-flex align-items-center gap-1"><span style="width:15px; height:15px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:3px;"></span> Selezionabile</div>
+          </div>
           
           <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-3">
-            <!-- Checkbox/Box generati da JS -->
+            <!-- Box generati da JS -->
           </div>
 
           <div class="mb-3">
-            <label class="form-label fw-bold small">Note o Note operative:</label>
-            <textarea id="employeeNotes" class="form-control form-control-sm" rows="2" placeholder="Eventuali comunicazioni..."></textarea>
+            <label class="form-label fw-bold small">Note operative o comunicazioni:</label>
+            <textarea id="employeeNotes" class="form-control form-control-sm" rows="2" placeholder="Inserisci eventuali note..."></textarea>
           </div>
 
           <div class="d-flex justify-content-between align-items-center">
             <span class="badge bg-secondary" id="selectedCountBadge">Giorni scelti: 0</span>
-            <button class="btn btn-success btn-sm fw-bold px-3" onclick="saveEmployeeRequest()">💾 Salva le mie Ferie</button>
+            <button class="btn btn-success btn-sm fw-bold px-3" onclick="saveEmployeeRequest()">💾 Salva le mie Preferenze</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- PANNELLO ADMIN (VISIBILE SOLO SE IS_ADMIN = TRUE) -->
+    <!-- PANNELLO ADMIN -->
     <div id="adminSection" class="d-none">
 
       <!-- RIQUADRO AGGIUNTA MANUALE -->
       <div class="card mb-4">
         <div class="card-body p-3">
-          <h6 class="fw-bold text-primary mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUAMENTE</h6>
+          <h6 class="fw-bold text-primary mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
           <form onsubmit="handleAddUser(event)">
             <div class="row g-2 mb-2">
               <div class="col-md-6"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
@@ -119,7 +157,7 @@
         </div>
       </div>
 
-      <!-- ANAGRAFICA RISORSE & AZIONI ADMIN -->
+      <!-- TABELLA RISORSE -->
       <div class="card mb-4">
         <div class="card-body p-3">
           <h5 class="fw-bold mb-3">Anagrafica Risorse & Azioni Admin</h5>
@@ -169,12 +207,12 @@
                 </tr>
               </thead>
               <tbody id="usersTableBody">
-                <!-- Righe generate da JS -->
+                <!-- Generato da JS -->
               </tbody>
             </table>
           </div>
 
-          <!-- SCARICA EXCEL -->
+          <!-- EXCEL -->
           <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top">
             <span class="small text-muted">Scarica il file master delle assenze nel formato aziendale HQE.</span>
             <button class="btn btn-hqe" onclick="exportToExcel()">📊 Scarica Report Excel Formato HQE (.xlsx)</button>
@@ -188,11 +226,25 @@
   </div>
 
   <script>
-    const ALL_DATES = [
-      "2026-12-21", "2026-12-22", "2026-12-23",
-      "2026-12-28", "2026-12-29", "2026-12-30",
-      "2027-01-07", "2027-01-08"
-    ];
+    // GENERAZIONE RANGE COMPLETO 21 DICEMBRE - 10 GENNAIO
+    const RANGE_START = new Date("2026-12-21");
+    const RANGE_END = new Date("2027-01-10");
+    const ALL_RANGE_DATES = [];
+
+    let curr = new Date(RANGE_START);
+    while (curr <= RANGE_END) {
+      const yyyy = curr.getFullYear();
+      const mm = String(curr.getMonth() + 1).padStart(2, '0');
+      const dd = String(curr.getDate()).padStart(2, '0');
+      ALL_RANGE_DATES.push(`${yyyy}-${mm}-${dd}`);
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    // DATE CHIUSURA AZIENDALE (ROSSO)
+    const CLOSED_DATES = ["2026-12-24", "2026-12-31", "2027-01-04", "2027-01-05"];
+
+    // FESTIVITÀ NAZIONALI INFRASETTIMANALI (ARANCIONE)
+    const HOLIDAY_DATES = ["2026-12-25", "2026-12-26", "2027-01-01", "2027-01-06"];
 
     let currentUser = null;
     let isAdmin = false;
@@ -233,13 +285,13 @@
         document.getElementById('loginCard').classList.add('d-none');
         document.getElementById('userInfo').classList.remove('d-none');
         document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
+        document.getElementById('userInquadramentoBadge').innerText = currentUser.inquadramento || 'Dipendente';
 
-        // Mostra il calendario sia ai dipendenti che agli Admin
+        setupInquadramentoView();
+
         document.getElementById('calendarSection').classList.remove('d-none');
-        document.getElementById('maxDaysDisplay').innerText = currentUser.maxDays || 4;
         await loadEmployeeData();
 
-        // Se l'utente è un Admin, carica anche la tabella di gestione
         if (isAdmin) {
           document.getElementById('adminSection').classList.remove('d-none');
           await loadAdminData();
@@ -247,6 +299,26 @@
       } catch (err) {
         errDiv.innerText = err.message;
         errDiv.classList.remove('d-none');
+      }
+    }
+
+    function setupInquadramentoView() {
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const titleEl = document.getElementById('calendarTitle');
+      const textEl = document.getElementById('guidanceText');
+      const maxEl = document.getElementById('maxDaysInfo');
+
+      maxEl.innerText = `Max ${currentUser.maxDays || 4} Giorni`;
+
+      if (inq.includes('partitaiva') || inq.includes('p.iva') || inq.includes('piva')) {
+        titleEl.innerText = "📋 Pianificazione Chiusure / Sospensione Attività (Partita IVA)";
+        textEl.innerHTML = "💡 <b>Nota per Partita IVA:</b> Seleziona i giorni feriali nei quali prevedi la sospensione dell'attività. Le giornate in rosso indicano le Chiusure Aziendali, quelle in arancione indicano i Weekend e le Festività.";
+      } else if (inq.includes('cococo')) {
+        titleEl.innerText = "📋 Pianificazione Presenze / Assenze (CoCoCo)";
+        textEl.innerHTML = "💡 <b>Nota per CoCoCo:</b> Seleziona le giornate feriali in cui non sarai operativo/a. I giorni in rosso e in arancione sono festività o periodi di chiusura.";
+      } else {
+        titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
+        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. I giorni in rosso sono di Chiusura Aziendale, quelli in arancione sono Festività e Weekend.";
       }
     }
 
@@ -266,20 +338,34 @@
     function renderCalendar() {
       const container = document.getElementById('calendarContainer');
       container.innerHTML = '';
-      const recDays = currentUser.recommendedDays || ALL_DATES;
 
-      ALL_DATES.forEach(dateStr => {
+      ALL_RANGE_DATES.forEach(dateStr => {
         const d = new Date(dateStr);
-        const dayLabel = `${d.getDate()} ${d.toLocaleString('it-IT', { month: 'short' })}`;
-        
+        const dayNum = d.getDate();
+        const monthShort = d.toLocaleString('it-IT', { month: 'short' });
+        const dayOfWeek = d.getDay(); // 0 = Domenica, 6 = Sabato
+
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const isClosed = CLOSED_DATES.includes(dateStr);
+        const isHoliday = HOLIDAY_DATES.includes(dateStr) || isWeekend;
+
         const box = document.createElement('div');
         box.className = 'day-box';
-        
-        if (recDays.includes(dateStr)) box.classList.add('recommended');
-        if (employeeSelectedDates.includes(dateStr)) box.classList.add('selected');
 
-        box.innerText = dayLabel;
-        box.onclick = () => toggleDateSelection(dateStr);
+        if (isClosed) {
+          box.classList.add('closed');
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Chiusura</div>`;
+        } else if (isHoliday) {
+          box.classList.add('holiday');
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Festa</div>`;
+        } else {
+          if (employeeSelectedDates.includes(dateStr)) {
+            box.classList.add('selected');
+          }
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Feriale</div>`;
+          box.onclick = () => toggleDateSelection(dateStr);
+        }
+
         container.appendChild(box);
       });
 
@@ -314,7 +400,7 @@
           })
         });
         if (res.ok) {
-          alert('Ferie salvate con successo!');
+          alert('Preferenze salvate con successo!');
           if (isAdmin) await loadAdminData();
         }
       } catch (err) {
