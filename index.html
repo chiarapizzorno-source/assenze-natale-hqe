@@ -318,7 +318,7 @@
         textEl.innerHTML = "💡 <b>Nota per CoCoCo:</b> Seleziona le giornate feriali in cui non sarai operativo/a. I giorni in rosso e in arancione sono festività o periodi di chiusura.";
       } else {
         titleEl.innerText = "📅 Calendario Richiesta Ferie (Dipendenti)";
-        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. I giorni in rosso sono di Chiusura Aziendale, quelli in arancione sono Festività e Weekend.";
+        textEl.innerHTML = "💡 <b>Nota per Dipendenti:</b> Seleziona le giornate feriali per le quali richiedi il piano ferie/permessi. <u>I giorni di chiusura aziendale saranno conteggiati come FERIE.</u> I giorni in rosso indicano la Chiusura Aziendale, quelli in arancione le Festività e i Weekend.";
       }
     }
 
@@ -401,7 +401,9 @@
         });
         if (res.ok) {
           alert('Preferenze salvate con successo!');
-          if (isAdmin) await loadAdminData();
+          if (isAdmin) {
+            await loadAdminData();
+          }
         }
       } catch (err) {
         alert('Errore durante il salvataggio.');
