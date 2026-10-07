@@ -300,7 +300,7 @@ def api_login():
                     'nome': u.get('nome', ''),
                     'email': u.get('email', '').strip().lower(),
                     'inquadramento': u.get('inquadramento', ''),
-                    'maxDays': u.get('max_days', 4),
+                    'maxDays': u.get('max_days', 4) if u.get('max_days') is not None else 4,
                     'bu': u.get('bu', ''),
                     'team': u.get('team', ''),
                     'referente': u.get('referente', ''),
@@ -343,13 +343,15 @@ def handle_users():
         if not email:
             return jsonify({'error': 'Email obbligatoria.'}), 400
 
+        max_d = 0 if str(u.get('maxDays')) == '0' else int(u.get('maxDays', 4))
+
         data = {
             'email': email,
             'nome': u.get('nome', '').strip().title(),
             'cognome': u.get('cognome', '').strip().title(),
             'azienda': u.get('azienda', '').strip(),
             'inquadramento': u.get('inquadramento', '').strip(),
-            'max_days': int(u.get('maxDays', 4)),
+            'max_days': max_d,
             'bu': u.get('bu', '').strip(),
             'team': u.get('team', '').strip(),
             'referente': u.get('referente', '').strip(),
@@ -387,13 +389,14 @@ def handle_users():
                         rec_days = u.get('recommended_days')
                         if isinstance(rec_days, str):
                             rec_days = json.loads(rec_days)
+                        m_days = 0 if u.get('max_days') == 0 else u.get('max_days', 4)
                         users_list.append({
                             'azienda': u.get('azienda', ''),
                             'cognome': u.get('cognome', ''),
                             'nome': u.get('nome', ''),
                             'email': u.get('email', '').strip().lower(),
                             'inquadramento': u.get('inquadramento', ''),
-                            'maxDays': u.get('max_days', 4),
+                            'maxDays': m_days,
                             'bu': u.get('bu', ''),
                             'team': u.get('team', ''),
                             'referente': u.get('referente', ''),
@@ -440,13 +443,15 @@ def update_user():
     u = request.json or {}
     email = u.get('email', '').strip().lower()
     
+    max_d = 0 if str(u.get('maxDays')) == '0' else int(u.get('maxDays', 4))
+
     data = {
         'azienda': u.get('azienda', ''),
         'bu': u.get('bu', ''),
         'team': u.get('team', ''),
         'referente': u.get('referente', ''),
         'inquadramento': u.get('inquadramento', ''),
-        'max_days': int(u.get('maxDays', 4))
+        'max_days': max_d
     }
 
     if 'recommendedDays' in u:
@@ -465,7 +470,7 @@ def update_user():
             'team': u.get('team', ''),
             'referente': u.get('referente', ''),
             'inquadramento': u.get('inquadramento', ''),
-            'maxDays': u.get('maxDays', 4),
+            'maxDays': max_d,
             'recommendedDays': u.get('recommendedDays', DEFAULT_RECOMMENDED_DAYS)
         })
 
