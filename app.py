@@ -27,7 +27,6 @@ DEFAULT_RECOMMENDED_DAYS = [
     "2026-12-28", "2026-12-29", "2026-12-30"
 ]
 
-# MEMORIA LOCALE RICHIESTE PER FALLBACK
 SAVED_REQUESTS_CACHE = {}
 
 # ANAGRAFICA COMPLETA DEI 235 DIPENDENTI
@@ -484,14 +483,12 @@ def handle_requests():
         if not email:
             return jsonify({'error': 'Email mancante'}), 400
 
-        # Salva sempre prima in memoria locale per garanzia immediata
         SAVED_REQUESTS_CACHE[email] = {
             'dates': dates,
             'notes': notes,
             'isValidated': is_validated
         }
 
-        # Salva su Supabase
         if supabase:
             row = {
                 'email': email,
