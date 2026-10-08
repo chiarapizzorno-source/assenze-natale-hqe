@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SANTA - HQ | Le Vacanze Che Vuoi Tu</title>
+  <title>Santa Holidays | Le Vacanze Che Vuoi Tu</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <style>
     :root {
@@ -31,6 +31,105 @@
     :focus-visible {
       outline: 3px solid var(--holly-green) !important;
       outline-offset: 2px !important;
+    }
+
+    /* SCHERMATA SPLASH / WELCOME FULL ROSSA CON BABBO NATALE GIGANTE ANIME */
+    #welcomeSplashScreen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 40%, #ff1e56 0%, #d80032 60%, #600018 100%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 10px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+
+    .welcome-title {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      color: var(--gold-garland);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 238, 50, 0.6), 0 4px 10px rgba(0,0,0,0.8);
+      margin-top: 10px;
+      text-align: center;
+      animation: goldPulse 2.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes goldPulse {
+      0% { text-shadow: 0 0 15px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 238, 50, 0.6), 0 4px 10px rgba(0,0,0,0.8); }
+      100% { text-shadow: 0 0 25px rgba(255, 238, 50, 1), 0 0 50px rgba(255, 215, 0, 0.9), 0 4px 15px rgba(0,0,0,0.9); transform: scale(1.02); }
+    }
+
+    .splash-content-container {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .giant-anime-santa {
+      max-height: 72vh;
+      width: auto;
+      filter: drop-shadow(0 15px 30px rgba(0,0,0,0.7));
+      transition: transform 0.3s ease;
+    }
+
+    #welcomeSplashScreen:hover .giant-anime-santa {
+      transform: scale(1.03);
+    }
+
+    /* FRECCA NATALIZIA "CLICCAMI" */
+    .click-me-pointer {
+      position: absolute;
+      right: 5%;
+      top: 45%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 12px 24px;
+      border-radius: 50px;
+      border: 2px solid var(--gold-garland);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.6), inset 0 0 10px rgba(255, 215, 0, 0.4);
+      animation: floatArrow 1.5s ease-in-out infinite alternate;
+    }
+
+    .click-me-text {
+      font-size: clamp(1.2rem, 3vw, 2rem);
+      font-weight: 900;
+      color: #ffffff;
+      text-shadow: 0 0 10px var(--gold-sparkle), 0 2px 4px rgba(0,0,0,0.8);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .click-me-arrow {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--gold-garland);
+      animation: arrowBounce 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes floatArrow {
+      0% { transform: translateY(0px); }
+      100% { transform: translateY(-15px); }
+    }
+
+    @keyframes arrowBounce {
+      0% { transform: translateX(0px); }
+      100% { transform: translateX(12px); }
     }
 
     /* SFONDO DINAMICO STILE ANIME PREMIUM */
@@ -64,7 +163,7 @@
       }
     }
 
-    /* BABBO NATALE HD MOLTO PIÙ DINAMICO AL CENTRO SCHERMO */
+    /* BABBO NATALE FLYING CONTESTO */
     .santa-flying-container {
       position: fixed;
       top: 18%;
@@ -74,27 +173,13 @@
     }
 
     @keyframes santaCenterDynamic {
-      0% { 
-        left: -480px; 
-        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
-      }
-      25% { 
-        transform: translateY(35px) rotate(2deg) scale(1.05); 
-      }
-      50% { 
-        left: 38vw; 
-        transform: translateY(-40px) rotate(-4deg) scale(1.15); 
-      }
-      75% { 
-        transform: translateY(25px) rotate(3deg) scale(1.05); 
-      }
-      100% { 
-        left: 105vw; 
-        transform: translateY(-15px) rotate(-2deg) scale(0.95); 
-      }
+      0% { left: -480px; transform: translateY(-20px) rotate(-3deg) scale(0.95); }
+      25% { transform: translateY(35px) rotate(2deg) scale(1.05); }
+      50% { left: 38vw; transform: translateY(-40px) rotate(-4deg) scale(1.15); }
+      75% { transform: translateY(25px) rotate(3deg) scale(1.05); }
+      100% { left: 105vw; transform: translateY(-15px) rotate(-2deg) scale(0.95); }
     }
 
-    /* SCENOGRAFIA VETTORIALE HD */
     .tech-landscape {
       position: fixed;
       bottom: 0;
@@ -127,7 +212,6 @@
       gap: 6px;
     }
 
-    /* MUSIC TOGGLE BUTTON */
     .audio-control-btn {
       background: rgba(255, 255, 255, 0.15);
       border: 1px solid rgba(255, 255, 255, 0.4);
@@ -146,7 +230,6 @@
       transform: scale(1.05);
     }
 
-    /* GHIRLANDA NATALIZIA DORATA E BRILLANTE */
     .garland-box-wrapper {
       position: relative;
       padding: 14px;
@@ -171,7 +254,6 @@
     .garland-box-wrapper::before { top: -14px; left: -10px; }
     .garland-box-wrapper::after { top: -14px; right: -10px; }
 
-    /* RIQUADRO LOGIN GLOSSY 3D */
     .glossy-login-card {
       background: linear-gradient(145deg, #ff1e56, #800f2f);
       border: 1px solid rgba(255, 255, 255, 0.3);
@@ -188,7 +270,6 @@
       text-shadow: 0 3px 8px rgba(0,0,0,0.6), 0 0 15px var(--gold-sparkle);
     }
 
-    /* CARD INTERNE GLOSSY 3D ULTRA HD */
     .card-glossy-light {
       background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.95));
       border-radius: 22px;
@@ -197,7 +278,6 @@
       backdrop-filter: blur(12px);
     }
 
-    /* STILI CALENDARIO 3D CON RILIEVO */
     .day-box {
       width: 68px;
       min-height: 68px;
@@ -254,7 +334,6 @@
       cursor: not-allowed;
     }
 
-    /* BOX CONSIGLIO HQ IN RILIEVO LUXURY */
     .hq-recommend-box {
       background: linear-gradient(145deg, #fffde7 0%, #fff59d 100%);
       border: 2px solid #fbc02d;
@@ -268,7 +347,6 @@
       letter-spacing: 0.2px;
     }
 
-    /* TABELLA ADMIN ELEGANTE CON DESIGN 3D E CARATTERI IN RILIEVO */
     .admin-table-custom {
       border-collapse: separate;
       border-spacing: 0 10px;
@@ -317,7 +395,6 @@
     .admin-table-custom tbody td:first-child { border-radius: 14px 0 0 14px; border-left: 3px solid #d80032 !important; }
     .admin-table-custom tbody td:last-child { border-radius: 0 14px 14px 0; }
 
-    /* PULSANTI GLOSSY */
     .btn-santa {
       background: linear-gradient(145deg, #ff1e56 0%, #d80032 100%);
       color: white;
@@ -356,6 +433,87 @@
   </style>
 </head>
 <body>
+
+  <!-- PRIMISSIMA SCHERMATA: SPLASH SCREEN ROSSA CON BUON NATALE IN ORO E BABBO NATALE ANIME GIGANTE -->
+  <div id="welcomeSplashScreen" onclick="dismissWelcomeScreen()" role="button" tabindex="0" aria-label="Clicca per entrare in Santa Holidays">
+    <h1 class="welcome-title">Buon Natale</h1>
+    
+    <div class="splash-content-container">
+      <!-- SVG BABBO NATALE ANIME GIGANTE HD -->
+      <svg class="giant-anime-santa" viewBox="0 0 500 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="santaSuitGradAnime" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff2e63"/>
+            <stop offset="50%" stop-color="#d80032"/>
+            <stop offset="100%" stop-color="#70001a"/>
+          </linearGradient>
+          <linearGradient id="goldAccents" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ffee32"/>
+            <stop offset="100%" stop-color="#ffd700"/>
+          </linearGradient>
+          <filter id="glowAnime">
+            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        <!-- Sacco dei regali anime -->
+        <path d="M 100 220 C 30 280 40 500 130 580 C 220 620 300 580 280 450 Z" fill="#795548" stroke="#3e2723" stroke-width="6"/>
+        <path d="M 120 220 Q 140 250 170 230" stroke="url(#goldAccents)" stroke-width="8" stroke-linecap="round"/>
+
+        <!-- Mantello/Abito di Babbo Natale -->
+        <path d="M 160 250 C 120 350 110 520 180 620 L 340 620 C 410 520 400 350 360 250 Z" fill="url(#santaSuitGradAnime)"/>
+        
+        <!-- Bordo Bianco della giacca Anime -->
+        <path d="M 180 620 Q 260 635 340 620 L 330 570 Q 260 585 190 570 Z" fill="#ffffff" filter="url(#glowAnime)"/>
+        <path d="M 240 250 L 240 580" stroke="#ffffff" stroke-width="28" stroke-linecap="round" filter="url(#glowAnime)"/>
+
+        <!-- Cintura con fibbia dorata -->
+        <rect x="180" y="420" width="160" height="36" rx="6" fill="#111111"/>
+        <rect x="235" y="410" width="50" height="56" rx="8" fill="url(#goldAccents)" stroke="#111111" stroke-width="4"/>
+
+        <!-- Braccia e Guanti Anime -->
+        <path d="M 160 270 Q 90 320 80 410 Q 110 430 130 380 Q 150 330 180 290 Z" fill="url(#santaSuitGradAnime)"/>
+        <circle cx="85" cy="415" r="22" fill="#111111"/> <!-- Guanto SX -->
+        
+        <path d="M 360 270 Q 420 320 440 370 Q 420 410 380 380 Q 360 330 340 290 Z" fill="url(#santaSuitGradAnime)"/>
+        <circle cx="430" cy="380" r="22" fill="#111111"/> <!-- Guanto DX -->
+
+        <!-- VISO ANIME -->
+        <circle cx="260" cy="200" r="65" fill="#ffcc80"/>
+        
+        <!-- Occhi Espressivi Anime -->
+        <ellipse cx="238" cy="195" rx="8" ry="12" fill="#1e293b"/>
+        <ellipse cx="282" cy="195" rx="8" ry="12" fill="#1e293b"/>
+        <circle cx="236" cy="191" r="3" fill="#ffffff"/>
+        <circle cx="280" cy="191" r="3" fill="#ffffff"/>
+        <path d="M 230 178 Q 240 172 250 178" stroke="#5d4037" stroke-width="4" stroke-linecap="round"/>
+        <path d="M 270 178 Q 280 172 290 178" stroke="#5d4037" stroke-width="4" stroke-linecap="round"/>
+        
+        <!-- Guance Rosse Anime -->
+        <ellipse cx="225" cy="210" rx="10" ry="6" fill="#ff5252" opacity="0.6"/>
+        <ellipse cx="295" cy="210" rx="10" ry="6" fill="#ff5252" opacity="0.6"/>
+
+        <!-- Barba Soffice & Baffi Anime -->
+        <path d="M 190 200 C 180 320 340 320 330 200 C 360 270 340 350 260 360 C 180 350 160 270 190 200 Z" fill="#ffffff" filter="url(#glowAnime)"/>
+        <path d="M 260 215 Q 230 230 205 215 Q 235 245 260 225 Q 285 245 315 215 Q 290 230 260 215 Z" fill="#f8fafc"/>
+
+        <!-- Cappello Natalizio Anime -->
+        <path d="M 195 170 Q 260 100 340 160 Q 380 230 410 260 Q 370 260 330 200 Q 260 150 195 170 Z" fill="url(#santaSuitGradAnime)"/>
+        <path d="M 190 170 Q 260 150 330 170 Q 335 190 260 185 Q 185 190 190 170 Z" fill="#ffffff" filter="url(#glowAnime)"/>
+        <circle cx="415" cy="265" r="18" fill="#ffffff" filter="url(#glowAnime)"/>
+      </svg>
+
+      <!-- FRECCIA CON SCRITTA "CLICCAMI" -->
+      <div class="click-me-pointer">
+        <span class="click-me-text">Cliccami</span>
+        <span class="click-me-arrow">➔</span>
+      </div>
+    </div>
+  </div>
 
   <!-- SFONDO ANIME -->
   <div class="hero-bg-wrapper" aria-hidden="true"></div>
@@ -418,16 +576,11 @@
       <!-- Redini Lucenti -->
       <path d="M 270 112 Q 340 100 405 95" stroke="url(#goldSleighGrad)" stroke-width="3" stroke-dasharray="6 2" filter="url(#goldGlow)"/>
 
-      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA -->
+      <!-- SACCO DI REGALI GROSSO -->
       <g id="giantSackHD" filter="url(#dropShadow3D)">
         <path d="M 110 65 Q 75 130 135 160 Q 210 160 190 95 Q 170 50 135 50 Z" fill="url(#sackGrad)" stroke="#2d1503" stroke-width="2.5"/>
         <path d="M 130 50 Q 145 60 135 70 Q 120 60 130 50 Z" fill="#6d3811"/>
         <path d="M 120 68 Q 138 75 152 66" stroke="#ffee32" stroke-width="4" stroke-linecap="round"/>
-
-        <!-- Toppa Cucita OLIVAMI -->
-        <path d="M 112 92 L 180 88 Q 185 118 178 126 L 110 128 Q 106 105 112 92 Z" fill="#2d4a22" stroke="#1b3013" stroke-width="2"/>
-        <path d="M 114 94 L 178 90 Q 183 116 176 124 L 112 126 Q 108 107 114 94 Z" fill="none" stroke="#ffee32" stroke-width="1.8" stroke-dasharray="4 3"/>
-        <text x="117" y="113" font-family="'Cinzel', 'Segoe UI', serif" font-weight="900" font-size="13" fill="#ffffff" stroke="#ffd700" stroke-width="0.8" letter-spacing="2" filter="url(#goldGlow)">OLIVAMI</text>
       </g>
 
       <!-- Slitta 3D Lucida -->
@@ -508,7 +661,7 @@
       <div class="d-flex align-items-center gap-3">
         <span class="fs-1" aria-hidden="true">🎄</span>
         <div>
-          <h1 class="h3 m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h1>
+          <h1 class="h3 m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">Santa Holidays</h1>
           <div class="header-subtitle">
             LE VACANZE CHE VUOI TU 
             <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
@@ -528,7 +681,7 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIVA -->
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA -->
         <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()" aria-label="Attiva o disattiva musica di sottofondo">🎵 Musica: OFF</button>
         
         <div id="userInfo" class="d-none text-end">
@@ -548,15 +701,19 @@
         <div class="card glossy-login-card p-2">
           <div class="card-body text-center p-4">
             <div class="fs-1 mb-2" aria-hidden="true">🎅 ✨ 🧁</div>
-            <h2 class="login-title h3 mb-1">SANTA - HQ</h2>
+            <h2 class="login-title h3 mb-1">Santa Holidays</h2>
             <p class="small text-white-75 mb-4">Inserisci la tua email aziendale per accedere al portale.</p>
             
             <form id="loginForm" class="needs-validation" novalidate onsubmit="handleLogin(event)">
               <div class="mb-3 text-start">
                 <label for="loginEmail" class="form-label small fw-bold text-white">Email Aziendale</label>
-                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@hqe.it" required aria-required="true">
-                <div class="invalid-feedback text-warning fw-bold small mt-1">Inserisci un'email aziendale valida (es. nome@hqe.it)</div>
+                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@azienda.it" required aria-required="true">
+                <div class="invalid-feedback text-warning fw-bold small mt-1">Inserisci un'email aziendale valida</div>
               </div>
+              
+              <!-- FRASE AGGIUNTA SOTTO IL BOX EMAIL -->
+              <p class="fst-italic small text-white-75 mb-3" style="font-size: 0.85rem;">"Anche i nostri fornitori vanno in vacanza"</p>
+
               <div id="adminPasswordField" class="mb-3 text-start d-none">
                 <label for="loginPassword" class="form-label small fw-bold text-white">Password Amministratore</label>
                 <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="Password admin">
@@ -583,16 +740,16 @@
         <div class="card-body">
           <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold" role="region" aria-live="polite"></div>
 
-          <!-- LEGENDA COLORI & BOX CONSIGLIO / VACANZE HQ -->
+          <!-- LEGENDA COLORI & BOX CONSIGLIO SANTA HOLIDAYS -->
           <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <div id="legendContainer" class="d-flex flex-wrap gap-3 small fw-bold"></div>
-            <!-- BOX CONSIGLIO HQ DINAMICO -->
+            <!-- BOX CONSIGLIO DINAMICO -->
             <div id="hqSuggestBox" class="hq-recommend-box" role="note">
-              💡 HQ consiglia di scegliere i giorni 28-29-30
+              💡 Consiglio Santa Holidays: scegli i giorni 28-29-30
             </div>
           </div>
           
-          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4 justify-content-start" role="group" aria-label="Calendario selezione ferie"></div>
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4 justify-content-start" role="group" aria-label="Calendario selezione ferie o vacanze"></div>
 
           <div class="mb-3">
             <label for="employeeNotes" class="form-label fw-bold small text-secondary">Note operative o comunicazioni:</label>
@@ -638,7 +795,7 @@
               </div>
               <div class="col-md-6">
                 <label for="addAzienda" class="form-label extra-small fw-bold text-muted m-0">AZIENDA</label>
-                <input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)">
+                <input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda">
               </div>
             </div>
             <div class="row g-2 mb-3">
@@ -677,7 +834,7 @@
         </div>
       </div>
 
-      <!-- TABELLA RISORSE ADMIN ELEGANTE E AD ALTA QUALITÀ -->
+      <!-- TABELLA RISORSE ADMIN -->
       <div class="card card-glossy-light mb-4">
         <div class="card-body p-4">
           <h2 class="h5 fw-black text-danger mb-3">Anagrafica Risorse & Azioni Admin</h2>
@@ -708,7 +865,7 @@
             </div>
           </div>
 
-          <!-- TABELLA BORDATA AD ALTA DEFINIZIONE -->
+          <!-- TABELLA BORDATA -->
           <div class="table-responsive">
             <table class="table admin-table-custom align-middle mb-3" aria-label="Anagrafica Collaboratori">
               <thead>
@@ -734,8 +891,8 @@
 
           <!-- EXCEL EXPORT -->
           <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-            <span class="small text-muted fw-semibold">Scarica il file master delle presenze/assenze nel formato aziendale HQE.</span>
-            <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()" aria-label="Scarica il report Excel con la pianificazione ferie">📊 Scarica Report Excel (.xlsx)</button>
+            <span class="small text-muted fw-semibold">Scarica il file master delle presenze/assenze di Santa Holidays.</span>
+            <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()" aria-label="Scarica il report Excel con la pianificazione ferie e vacanze">📊 Scarica Report Excel (.xlsx)</button>
           </div>
 
         </div>
@@ -746,6 +903,16 @@
   </main>
 
   <script>
+    // AZIONE CHIUSURA SCHERMATA BENEVENUTO (SPLASH SCREEN)
+    function dismissWelcomeScreen() {
+      const splash = document.getElementById('welcomeSplashScreen');
+      splash.style.opacity = '0';
+      splash.style.visibility = 'hidden';
+      setTimeout(() => {
+        splash.style.display = 'none';
+      }, 600);
+    }
+
     // HELPER PER LOADING NEI PULSANTI
     function setButtonLoading(btn, isLoading) {
       if (!btn) return;
@@ -761,12 +928,11 @@
       }
     }
 
-    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API
+    // GENERATORE AUDIO NATALIZIO NATIVO
     let audioCtx = null;
     let isPlaying = false;
     let audioInterval = null;
 
-    // Note musicali per Jingle Bells
     const jingleBellsNotes = [
       { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
       { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
@@ -829,7 +995,7 @@
       }
     }
 
-    // GENERAZIONE EFFETTO NEVE
+    // GENERAZIONE NEVE
     const snowContainer = document.getElementById('snowflakeContainer');
     for (let i = 0; i < 35; i++) {
       const flake = document.createElement('div');
@@ -864,7 +1030,7 @@
     let allRequests = {};
     let employeeSelectedDates = [];
 
-    // ELENCO EMAIL ADMIN AUTORIZZATE (INCLUSA REBECCA ANTENOZIO)
+    // ELENCO EMAIL ADMIN AUTORIZZATE
     const ADMIN_EMAILS = [
       'chiara.pizzorno@hqe.it', 
       'pietro.malcotti@hqe.it', 
@@ -956,17 +1122,18 @@
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
       const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
 
-      titleEl.innerText = "📅 Calendario Selezione Giornate";
+      titleEl.innerText = "📅 Selezione Giornate";
 
+      // SEPARAZIONE TERMINI: FERIE (Dipendenti) vs VACANZE (P.IVA e CoCoCo)
       if (isFreelance) {
         maxEl.classList.add('d-none');
-        textEl.innerHTML = "💡 Dicci quali giorni hai intenzione di andare in vacanza";
-        hqBox.innerText = "💡 Che ne dici di scegliere i giorni 28-29-30?";
+        textEl.innerHTML = "💡 Indicaci in quali giorni hai intenzione di andare in vacanza";
+        hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       } else {
         maxEl.innerText = `Max ${maxDays} Giorni Totali`;
         maxEl.classList.remove('d-none');
         textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
-        hqBox.innerText = "💡 HQ consiglia di scegliere i giorni 28-29-30";
+        hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       }
 
       legendEl.innerHTML = `
@@ -1011,8 +1178,6 @@
 
         const box = document.createElement('div');
         box.className = 'day-box';
-        
-        // ACCESSIBILITÀ TASTIERA & SCREEN READER
         box.setAttribute('role', 'button');
 
         if (isClosed) {
@@ -1327,7 +1492,7 @@
       const ws = XLSX.utils.json_to_sheet(data);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Pianificazione Natalizia");
-      XLSX.writeFile(wb, "Report_Pianificazione_SANTA_HQ.xlsx");
+      XLSX.writeFile(wb, "Report_Pianificazione_Santa_Holidays.xlsx");
     }
   </script>
 </body>
