@@ -1,553 +1,1334 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SANTA Holidays | Le Vacanze Che Vuoi Tu</title>
-    <!-- Bootstrap 5 CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <!-- XLSX Library -->
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SANTA - HQ | Le Vacanze Che Vuoi Tu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --santa-red-glow: linear-gradient(135deg, #ff0f7b 0%, #d80032 100%);
+      --santa-red-dark: #800f2f;
+      --holly-green: #00f5d4;
+      --gold-sparkle: #ffee32;
+      --gold-garland: #ffd700;
+      --white-gloss: rgba(255, 255, 255, 0.96);
+      --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    }
 
-    <style>
-        :root {
-            --primary-red: #c0392b;
-            --accent-gold: #f1c40f;
-            --dark-bg: #0f172a;
-            --card-bg: rgba(30, 41, 59, 0.85);
-        }
+    body {
+      font-family: var(--font-primary);
+      min-height: 100vh;
+      background: #060713;
+      color: #1e293b;
+      overflow-x: hidden;
+      position: relative;
+    }
 
-        body {
-            background-color: var(--dark-bg);
-            color: #f8fafc;
-            font-family: 'Poppins', sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
+    /* ACCESSIBILITÀ: FOCUS VISIBILE DEDICATO */
+    :focus-visible {
+      outline: 3px solid var(--holly-green) !important;
+      outline-offset: 2px !important;
+    }
 
-        /* --- STILE SCHERMATA INIZIALE (Babbo Natale Anime) --- */
-        #welcome-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: radial-gradient(circle, #e74c3c 0%, #900c3f 100%);
-            z-index: 9999;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 20px;
-            box-sizing: border-box;
-            transition: opacity 0.5s ease, visibility 0.5s ease;
-        }
+    /* SFONDO DINAMICO STILE ANIME PREMIUM */
+    .hero-bg-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+      background: radial-gradient(circle at 50% 25%, #1c1e52 0%, #0c0d24 60%, #020208 100%);
+    }
 
-        .welcome-title {
-            font-family: 'Mountains of Christmas', cursive;
-            font-size: 5rem;
-            color: var(--accent-gold);
-            text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(241, 196, 15, 0.6);
-            margin-top: 10px;
-            text-align: center;
-        }
+    /* FIOCCHI DI NEVE ANIMATI */
+    .snowflake {
+      position: fixed;
+      top: -10px;
+      color: #ffffff;
+      font-size: 1.2rem;
+      opacity: 0.9;
+      user-select: none;
+      z-index: -1;
+      pointer-events: none;
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+      animation: fall linear infinite;
+    }
 
-        .welcome-content {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            width: 100%;
-            max-width: 1200px;
-            position: relative;
-        }
+    @keyframes fall {
+      to {
+        transform: translateY(105vh) rotate(360deg);
+      }
+    }
 
-        .santa-anime-img {
-            max-height: 70vh;
-            max-width: 70vw;
-            object-fit: contain;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
-        }
+    /* BABBO NATALE HD MOLTO PIÙ DINAMICO AL CENTRO SCHERMO */
+    .santa-flying-container {
+      position: fixed;
+      top: 18%;
+      z-index: -1;
+      pointer-events: none;
+      animation: santaCenterDynamic 18s ease-in-out infinite alternate;
+    }
 
-        .click-me-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            cursor: pointer;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px 25px;
-            border-radius: 50px;
-            border: 2px solid var(--accent-gold);
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            margin-left: 20px;
-        }
+    @keyframes santaCenterDynamic {
+      0% { 
+        left: -480px; 
+        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
+      }
+      25% { 
+        transform: translateY(35px) rotate(2deg) scale(1.05); 
+      }
+      50% { 
+        left: 38vw; 
+        transform: translateY(-40px) rotate(-4deg) scale(1.15); 
+      }
+      75% { 
+        transform: translateY(25px) rotate(3deg) scale(1.05); 
+      }
+      100% { 
+        left: 105vw; 
+        transform: translateY(-15px) rotate(-2deg) scale(0.95); 
+      }
+    }
 
-        .click-me-container:hover {
-            transform: scale(1.08);
-            box-shadow: 0 0 25px rgba(241, 196, 15, 0.8);
-        }
+    /* SCENOGRAFIA VETTORIALE HD */
+    .tech-landscape {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 310px;
+      z-index: -2;
+      pointer-events: none;
+    }
 
-        .click-me-text {
-            font-size: 2rem;
-            font-weight: 700;
-            color: #ffffff;
-            font-family: 'Mountains of Christmas', cursive;
-        }
+    /* HEADER LUCIDO PREMIUM CON EFFETTO RILIEVO */
+    .header-bar {
+      background: linear-gradient(135deg, rgba(216, 0, 50, 0.95), rgba(167, 0, 30, 0.95));
+      backdrop-filter: blur(16px);
+      color: white;
+      padding: 18px 0;
+      margin-bottom: 25px;
+      border-bottom: 4px solid #00f5d4;
+      box-shadow: 0 8px 32px rgba(0, 245, 212, 0.35), 0 0 20px rgba(216, 0, 50, 0.7);
+    }
 
-        .click-me-arrow {
-            font-size: 2.5rem;
-            color: var(--accent-gold);
-            animation: bounceLeft 1.2s infinite alternate;
-        }
+    .header-subtitle {
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      color: #00f5d4;
+      text-shadow: 0 0 10px rgba(0, 245, 212, 0.8), 0 1px 2px rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-        @keyframes bounceLeft {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(15px); }
-        }
+    /* MUSIC TOGGLE BUTTON */
+    .audio-control-btn {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      border-radius: 50px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
 
-        /* --- STILI GENERALI E SFONDO --- */
-        #snow-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
+    .audio-control-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
 
-        .main-container {
-            position: relative;
-            z-index: 2;
-            padding-bottom: 50px;
-        }
+    /* GHIRLANDA NATALIZIA DORATA E BRILLANTE */
+    .garland-box-wrapper {
+      position: relative;
+      padding: 14px;
+      border-radius: 32px;
+      background: radial-gradient(circle, rgba(255,215,0,0.35) 0%, rgba(218,165,32,0.12) 70%, transparent 100%);
+      border: 3px dashed #ffd700;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.5);
+      animation: garlandGlow 3s ease-in-out infinite alternate;
+    }
 
-        .festive-header {
-            text-align: center;
-            margin-top: 20px;
-            margin-bottom: 30px;
-        }
+    @keyframes garlandGlow {
+      0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3); border-color: #ffd700; }
+      100% { box-shadow: 0 0 40px rgba(255, 238, 50, 1), inset 0 0 25px rgba(255, 238, 50, 0.7); border-color: #fff3a0; }
+    }
 
-        .festive-title {
-            font-family: 'Mountains of Christmas', cursive;
-            font-size: 3.5rem;
-            color: var(--accent-gold);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.7);
-        }
+    .garland-box-wrapper::before, .garland-box-wrapper::after {
+      content: '🎀';
+      position: absolute;
+      font-size: 2rem;
+      z-index: 2;
+    }
+    .garland-box-wrapper::before { top: -14px; left: -10px; }
+    .garland-box-wrapper::after { top: -14px; right: -10px; }
 
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 25px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
+    /* RIQUADRO LOGIN GLOSSY 3D */
+    .glossy-login-card {
+      background: linear-gradient(145deg, #ff1e56, #800f2f);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 24px;
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 15px 35px rgba(0, 0, 0, 0.6);
+      color: white;
+      backdrop-filter: blur(12px);
+    }
 
-        .btn-festive {
-            background-color: var(--primary-red);
-            color: white;
-            border: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
+    .login-title {
+      font-weight: 900;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 3px 8px rgba(0,0,0,0.6), 0 0 15px var(--gold-sparkle);
+    }
 
-        .btn-festive:hover {
-            background-color: #a93226;
-            color: white;
-            box-shadow: 0 0 15px rgba(192, 57, 43, 0.6);
-        }
+    /* CARD INTERNE GLOSSY 3D ULTRA HD */
+    .card-glossy-light {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.95));
+      border-radius: 22px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 1);
+      backdrop-filter: blur(12px);
+    }
 
-        .sub-caption {
-            font-size: 0.9rem;
-            color: #cbd5e1;
-            margin-top: 10px;
-            font-style: italic;
-        }
+    /* STILI CALENDARIO 3D CON RILIEVO */
+    .day-box {
+      width: 68px;
+      min-height: 68px;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 0.82rem;
+      text-align: center;
+      padding: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      color: #0f172a;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 1px #ffffff;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+    }
 
-        /* Web Audio Control */
-        .audio-control {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-            background: rgba(0,0,0,0.7);
-            border: 1px solid var(--accent-gold);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            color: var(--accent-gold);
-        }
+    .day-box:hover:not(.closed):not(.holiday),
+    .day-box:focus-visible:not(.closed):not(.holiday) {
+      transform: translateY(-4px) scale(1.06);
+      box-shadow: 0 10px 22px rgba(0, 245, 212, 0.4), inset 0 1px 2px #ffffff;
+      border-color: #00f5d4;
+    }
 
-        /* Calendar Styling */
-        .day-card {
-            border-radius: 8px;
-            padding: 10px;
-            text-align: center;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .day-card.selected {
-            background: var(--primary-red);
-            border-color: var(--accent-gold);
-        }
-        .day-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            background: rgba(0,0,0,0.2);
-        }
-    </style>
+    .day-box .day-sub { font-size: 0.65rem; font-weight: 600; margin-top: 2px; }
+
+    .day-box.selected {
+      background: linear-gradient(145deg, #00b894, #009475) !important;
+      border-color: #00f5d4 !important;
+      color: white !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
+      box-shadow: 0 8px 20px rgba(0, 184, 148, 0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+    }
+
+    .day-box.closed {
+      background: linear-gradient(145deg, #d80032, #990022) !important;
+      border-color: #ff4d6d !important;
+      color: white !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.3) !important;
+      cursor: not-allowed;
+    }
+
+    .day-box.holiday {
+      background: linear-gradient(145deg, #ff7675, #e17055) !important;
+      border-color: #fab1a0 !important;
+      color: white !important;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+      cursor: not-allowed;
+    }
+
+    /* BOX CONSIGLIO HQ IN RILIEVO LUXURY */
+    .hq-recommend-box {
+      background: linear-gradient(145deg, #fffde7 0%, #fff59d 100%);
+      border: 2px solid #fbc02d;
+      color: #5d4037;
+      font-weight: 800;
+      padding: 10px 18px;
+      border-radius: 14px;
+      display: inline-block;
+      box-shadow: 0 6px 16px rgba(251, 192, 45, 0.3), inset 0 1px 2px #ffffff;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.2px;
+    }
+
+    /* TABELLA ADMIN ELEGANTE CON DESIGN 3D E CARATTERI IN RILIEVO */
+    .admin-table-custom {
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      background: transparent !important;
+    }
+
+    .admin-table-custom thead tr {
+      background: linear-gradient(145deg, #d80032 0%, #800f2f 100%) !important;
+      color: white !important;
+      box-shadow: 0 6px 18px rgba(216, 0, 50, 0.35);
+    }
+
+    .admin-table-custom thead th {
+      border: none !important;
+      padding: 14px 12px !important;
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .admin-table-custom thead th:first-child { border-radius: 14px 0 0 14px; }
+    .admin-table-custom thead th:last-child { border-radius: 0 14px 14px 0; }
+
+    .admin-table-custom tbody tr {
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+      border-radius: 14px;
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .admin-table-custom tbody tr:hover {
+      transform: translateY(-3px) scale(1.002);
+      box-shadow: 0 10px 25px rgba(0, 245, 212, 0.3), inset 0 1px 0 #ffffff;
+      background: #ffffff;
+    }
+
+    .admin-table-custom tbody td {
+      border: none !important;
+      padding: 14px 12px !important;
+      vertical-align: middle;
+      font-size: 0.85rem;
+    }
+
+    .admin-table-custom tbody td:first-child { border-radius: 14px 0 0 14px; border-left: 3px solid #d80032 !important; }
+    .admin-table-custom tbody td:last-child { border-radius: 0 14px 14px 0; }
+
+    /* PULSANTI GLOSSY */
+    .btn-santa {
+      background: linear-gradient(145deg, #ff1e56 0%, #d80032 100%);
+      color: white;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 18px rgba(255, 30, 86, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      transition: all 0.2s;
+    }
+
+    .btn-santa:hover {
+      background: linear-gradient(145deg, #ff4d6d 0%, #ff1e56 100%);
+      color: white;
+      box-shadow: 0 8px 24px rgba(255, 30, 86, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-green-holly {
+      background: linear-gradient(145deg, #00b894 0%, #009475 100%);
+      color: white;
+      font-weight: 800;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 6px 18px rgba(0, 184, 148, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .btn-green-holly:hover {
+      background: linear-gradient(145deg, #55efc4 0%, #00b894 100%);
+      color: white;
+      box-shadow: 0 8px 24px rgba(0, 184, 148, 0.65);
+    }
+
+    .badge-da-inserire { background: #fff3cd; color: #856404; font-weight: 800; border: 1px solid #ffeba2; box-shadow: inset 0 1px 0 #fff; }
+    .badge-inserito { background: #d4edda; color: #155724; font-weight: 800; border: 1px solid #c3e6cb; box-shadow: inset 0 1px 0 #fff; }
+    .extra-small { font-size: 0.72rem; }
+  </style>
 </head>
 <body>
 
-    <!-- Canvas Fiocchi di Neve -->
-    <canvas id="snow-canvas"></canvas>
+  <!-- SFONDO ANIME -->
+  <div class="hero-bg-wrapper" aria-hidden="true"></div>
+  <div id="snowflakeContainer" aria-hidden="true"></div>
 
-    <!-- 1. PRIMA SCHERMATA: WELCOME SCREEN (Rosso, Babbo Natale Anime, Cliccami) -->
-    <div id="welcome-screen">
-        <div class="welcome-title">Buon Natale</div>
-        <div class="welcome-content">
-            <!-- Immagine Babbo Natale Vettoriale Anime ad Alta Qualità -->
-            <img src="https://cdn.pixabay.com/photo/2023/11/22/20/12/santa-claus-8406730_1280.png" alt="Babbo Natale Anime" class="santa-anime-img">
-            
-            <div class="click-me-container" onclick="enterApp()">
-                <i class="fa-solid fa-arrow-left click-me-arrow"></i>
-                <span class="click-me-text">Cliccami</span>
-            </div>
-        </div>
-    </div>
+  <!-- BABBO NATALE HD AD ALTA DEFINIZIONE AL CENTRO SCHERMO -->
+  <div class="santa-flying-container" aria-hidden="true">
+    <svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="santaSuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff2e63"/>
+          <stop offset="50%" stop-color="#d80032"/>
+          <stop offset="100%" stop-color="#70001a"/>
+        </linearGradient>
 
-    <!-- Controlli Audio integrati -->
-    <div class="audio-control" onclick="toggleAudio()" title="Attiva/Disattiva Musica">
-        <i class="fa-solid fa-music" id="audio-icon"></i>
-    </div>
+        <linearGradient id="goldSleighGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff176"/>
+          <stop offset="50%" stop-color="#ffd700"/>
+          <stop offset="100%" stop-color="#b7950b"/>
+        </linearGradient>
 
-    <!-- 2. SCHERMATA PRINCIPALE DELL'APPLICAZIONE -->
-    <div class="container main-container mt-4" id="main-app" style="display: none;">
+        <linearGradient id="sackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#a0522d"/>
+          <stop offset="40%" stop-color="#8b4513"/>
+          <stop offset="100%" stop-color="#4a2306"/>
+        </linearGradient>
+
+        <linearGradient id="beardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#e2e8f0"/>
+        </linearGradient>
+
+        <filter id="dropShadow3D" x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="3" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+        </filter>
+        <filter id="goldGlow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- Scintille luminose HD -->
+      <g filter="url(#goldGlow)">
+        <circle cx="20" cy="100" r="3" fill="#ffee32"/>
+        <circle cx="45" cy="85" r="4" fill="#ffffff"/>
+        <circle cx="75" cy="115" r="3.5" fill="#00f5d4"/>
+        <circle cx="110" cy="95" r="4.5" fill="#ffee32"/>
+      </g>
+
+      <!-- Renna Guida HD -->
+      <g id="reindeerHD" filter="url(#dropShadow3D)">
+        <path d="M 400 90 Q 430 55 450 72 Q 462 88 438 108 L 405 115 Z" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+        <circle cx="456" cy="76" r="5" fill="#ff1e56" filter="url(#goldGlow)"/>
+        <path d="M 428 58 L 420 40 M 430 52 L 438 38 M 424 46 L 416 34" stroke="#4e342e" stroke-width="3" stroke-linecap="round"/>
+      </g>
+
+      <!-- Redini Lucenti -->
+      <path d="M 270 112 Q 340 100 405 95" stroke="url(#goldSleighGrad)" stroke-width="3" stroke-dasharray="6 2" filter="url(#goldGlow)"/>
+
+      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA -->
+      <g id="giantSackHD" filter="url(#dropShadow3D)">
+        <path d="M 110 65 Q 75 130 135 160 Q 210 160 190 95 Q 170 50 135 50 Z" fill="url(#sackGrad)" stroke="#2d1503" stroke-width="2.5"/>
+        <path d="M 130 50 Q 145 60 135 70 Q 120 60 130 50 Z" fill="#6d3811"/>
+        <path d="M 120 68 Q 138 75 152 66" stroke="#ffee32" stroke-width="4" stroke-linecap="round"/>
+
+        <!-- Toppa Cucita OLIVAMI -->
+        <path d="M 112 92 L 180 88 Q 185 118 178 126 L 110 128 Q 106 105 112 92 Z" fill="#2d4a22" stroke="#1b3013" stroke-width="2"/>
+        <path d="M 114 94 L 178 90 Q 183 116 176 124 L 112 126 Q 108 107 114 94 Z" fill="none" stroke="#ffee32" stroke-width="1.8" stroke-dasharray="4 3"/>
+        <text x="117" y="113" font-family="'Cinzel', 'Segoe UI', serif" font-weight="900" font-size="13" fill="#ffffff" stroke="#ffd700" stroke-width="0.8" letter-spacing="2" filter="url(#goldGlow)">OLIVAMI</text>
+      </g>
+
+      <!-- Slitta 3D Lucida -->
+      <g id="sleighHD" filter="url(#dropShadow3D)">
+        <path d="M 175 130 Q 155 85 225 85 L 290 85 Q 315 130 255 142 Z" fill="url(#santaSuitGrad)" stroke="#ffffff" stroke-width="2"/>
+        <path d="M 170 128 Q 230 138 295 125" fill="none" stroke="url(#goldSleighGrad)" stroke-width="4"/>
+        <path d="M 155 152 L 305 152 Q 320 152 325 138" stroke="url(#goldSleighGrad)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#goldGlow)"/>
+        <line x1="195" y1="144" x2="195" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+        <line x1="270" y1="138" x2="270" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+      </g>
+
+      <!-- BABBO NATALE GROSSO & DEFINITO -->
+      <g id="bigSantaHD">
+        <path d="M 215 80 C 195 92 195 128 245 128 C 275 128 275 92 255 80 Z" fill="url(#santaSuitGrad)" stroke="#800f2f" stroke-width="1.5"/>
+        <path d="M 232 80 L 232 128" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+        <rect x="208" y="102" width="50" height="9" rx="2" fill="#111111"/>
+        <rect x="227" y="98" width="12" height="17" rx="2" fill="url(#goldSleighGrad)" stroke="#111111" stroke-width="1.5"/>
+        <path d="M 248 92 Q 270 95 278 110" stroke="url(#santaSuitGrad)" stroke-width="12" stroke-linecap="round"/>
+        <circle cx="280" cy="112" r="6" fill="#111111"/>
+
+        <circle cx="234" cy="62" r="15" fill="#ffcc80"/>
+        <circle cx="240" cy="60" r="2" fill="#2d1503"/>
+        <path d="M 242 64 Q 248 66 244 68" stroke="#d80032" stroke-width="1.5" fill="none"/>
         
-        <div class="festive-header">
-            <h1 class="festive-title"><i class="fa-solid fa-sleigh me-2"></i>SANTA Holidays</h1>
-            <p class="lead text-light">Le Vacanze Che Vuoi Tu</p>
+        <path d="M 218 64 Q 234 94 252 64 Q 244 98 226 92 Z" fill="url(#beardGrad)" filter="url(#dropShadow3D)"/>
+        <path d="M 234 67 Q 224 72 218 68 M 234 67 Q 244 72 250 68" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+        <path d="M 220 54 Q 234 30 258 50 Z" fill="url(#santaSuitGrad)"/>
+        <rect x="217" y="52" width="30" height="7" rx="3.5" fill="#ffffff" filter="url(#dropShadow3D)"/>
+        <circle cx="260" cy="51" r="5" fill="#ffffff"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- SCENOGRAFIA VETTORIALE -->
+  <svg class="tech-landscape" viewBox="0 0 1200 250" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,205 Q150,185 300,210 T600,195 T900,205 T1200,190 L1200,250 L0,250 Z" fill="#ffffff" opacity="0.96"/>
+    
+    <g transform="translate(120, 105)">
+      <rect x="0" y="30" width="38" height="75" rx="8" fill="#1e293b"/>
+      <rect x="6" y="40" width="26" height="22" rx="4" fill="#00f5d4"/>
+      <circle cx="19" cy="80" r="6" fill="#ffee32"/>
+      <path d="M -3 32 Q 19 2 41 32 Z" fill="#d80032"/>
+      <circle cx="19" cy="2" r="5" fill="#ffffff"/>
+      <rect x="-5" y="28" width="48" height="8" rx="4" fill="#ffffff"/>
+    </g>
+
+    <g transform="translate(290, 35)">
+      <line x1="20" y1="175" x2="35" y2="20" stroke="#94a3b8" stroke-width="3"/>
+      <line x1="50" y1="175" x2="35" y2="20" stroke="#94a3b8" stroke-width="3"/>
+      <rect x="12" y="30" width="7" height="28" rx="2" fill="#00f5d4"/>
+      <rect x="51" y="30" width="7" height="28" rx="2" fill="#00f5d4"/>
+      <path d="M 21 22 Q 35 -6 49 22 Z" fill="#d80032"/>
+      <circle cx="35" cy="-6" r="5.5" fill="#ffffff"/>
+      <rect x="18" y="20" width="34" height="7" rx="3" fill="#ffffff"/>
+    </g>
+
+    <g transform="translate(880, 95)">
+      <rect x="0" y="30" width="42" height="85" rx="9" fill="#0f172a"/>
+      <rect x="7" y="44" width="28" height="24" rx="4" fill="#ff1e56"/>
+      <path d="M -4 32 Q 21 0 46 32 Z" fill="#d80032"/>
+      <circle cx="21" cy="0" r="6" fill="#ffffff"/>
+      <rect x="-6" y="28" width="54" height="9" rx="4" fill="#ffffff"/>
+    </g>
+
+    <g transform="translate(1030, 45)">
+      <line x1="20" y1="165" x2="35" y2="30" stroke="#94a3b8" stroke-width="3"/>
+      <line x1="50" y1="165" x2="35" y2="30" stroke="#94a3b8" stroke-width="3"/>
+      <path d="M 21 32 Q 35 5 49 32 Z" fill="#d80032"/>
+      <circle cx="35" cy="5" r="5" fill="#ffffff"/>
+      <rect x="18" y="30" width="34" height="7" rx="3" fill="#ffffff"/>
+    </g>
+  </svg>
+
+  <!-- HEADER APPLICAZIONE -->
+  <header class="header-bar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div class="d-flex align-items-center gap-3">
+        <span class="fs-1" aria-hidden="true">🎄</span>
+        <div>
+          <h1 class="h3 m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h1>
+          <div class="header-subtitle">
+            LE VACANZE CHE VUOI TU 
+            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
+              <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
+              <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+              <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
+              <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
+              <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
+              <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
+              <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
+              <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
+              <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
+            </svg>
+          </div>
         </div>
-
-        <!-- Sezione Login Email -->
-        <div class="row justify-content-center" id="login-section">
-            <div class="col-md-6 col-lg-5">
-                <div class="glass-card text-center">
-                    <h4 class="mb-3"><i class="fa-solid fa-envelope me-2 text-warning"></i>Accedi al Servizio</h4>
-                    <div class="mb-3">
-                        <input type="email" id="user-email" class="form-control form-control-lg text-center" placeholder="inserisci la tua email aziendale">
-                    </div>
-                    <div class="mb-3 d-none" id="admin-pass-container">
-                        <input type="password" id="admin-password" class="form-control text-center" placeholder="Password Amministratore">
-                    </div>
-                    <button class="btn btn-festive w-100 btn-lg mb-2" onclick="handleLogin()">Accedi</button>
-                    
-                    <!-- Messaggio Fornitori -->
-                    <div class="sub-caption">
-                        "Anche i nostri fornitori vanno in vacanza"
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIVA -->
+        <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()" aria-label="Attiva o disattiva musica di sottofondo">🎵 Musica: OFF</button>
+        
+        <div id="userInfo" class="d-none text-end">
+          <span id="userNameDisplay" class="fw-bold me-2 text-white"></span>
+          <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold shadow-sm"></span>
+          <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()" aria-label="Effettua il logout dal portale">Logout</button>
         </div>
-
-        <!-- Sezione Dashboard / Calendario (Caricata dinamicamente dopo il Login) -->
-        <div id="dashboard-section" style="display: none;">
-            <div class="glass-card mb-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <div>
-                        <h3 id="welcome-user-name" class="mb-1 text-warning"></h3>
-                        <p id="user-role-badge" class="mb-0 text-light"></p>
-                    </div>
-                    <button class="btn btn-outline-light btn-sm mt-2 mt-md-0" onclick="logout()"><i class="fa-solid fa-sign-out-alt me-1"></i> Esci</button>
-                </div>
-            </div>
-
-            <!-- Contenitore Principale Calendario e Dettagli -->
-            <div class="row" id="user-calendar-view">
-                <div class="col-lg-8 mb-4">
-                    <div class="glass-card">
-                        <h5 class="mb-3"><i class="fa-regular fa-calendar-days me-2 text-warning"></i>Seleziona i Giorni</h5>
-                        <p id="selection-instructions" class="small text-light mb-3"></p>
-                        <div class="row g-2" id="days-grid">
-                            <!-- Popolato via JS -->
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4">
-                    <div class="glass-card">
-                        <h5 class="mb-3"><i class="fa-solid fa-clipboard-check me-2 text-warning"></i>Riepilogo</h5>
-                        <div id="summary-info">
-                            <p class="mb-2">Tipologia: <strong id="summary-type"></strong></p>
-                            <p class="mb-2" id="summary-limit-container">Giorni Selezionati: <span id="selected-count">0</span> / <span id="max-allowed">-</span></p>
-                            <div class="alert alert-info py-2 small" id="advice-box">
-                                <i class="fa-solid fa-lightbulb me-1"></i> Suggerimento: Le giornate 28, 29 e 30 Dicembre sono quelle consigliate.
-                            </div>
-                            <button class="btn btn-festive w-100 mt-3" onclick="savePreferences()">
-                                <i class="fa-solid fa-floppy-disk me-1"></i> Salva Selezione
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pannello Amministrativo (Solo Admin) -->
-            <div id="admin-panel" style="display: none;">
-                <div class="glass-card mt-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5><i class="fa-solid fa-user-gear me-2 text-warning"></i>Pannello di Amministrazione</h5>
-                        <button class="btn btn-success btn-sm" onclick="exportToExcel()"><i class="fa-solid fa-file-excel me-1"></i> Esporta Excel</button>
-                    </div>
-                    <p class="small text-light">Gestisci i collaboratori, visualizza l'inquadramento e modifica le configurazioni.</p>
-                    <div class="table-responsive">
-                        <table class="table table-dark table-hover small align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Nome</th>
-                                    <th>Email</th>
-                                    <th>Inquadramento</th>
-                                    <th>Max Giorni</th>
-                                    <th>Stato Selezione</th>
-                                    <th>Azioni</th>
-                                </tr>
-                            </thead>
-                            <tbody id="admin-users-table">
-                                <!-- Popolato via JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-
+      </div>
     </div>
+  </header>
 
-    <!-- LOGICA JAVASCRIPT -->
-    <script>
-        // Transizione dalla prima schermata
-        function enterApp() {
-            const welcomeScreen = document.getElementById('welcome-screen');
-            welcomeScreen.style.opacity = '0';
-            setTimeout(() => {
-                welcomeScreen.style.display = 'none';
-                document.getElementById('main-app').style.display = 'block';
-            }, 500);
-        }
+  <main class="container mb-5">
 
-        // Stato utente corrente
-        let currentUser = null;
-
-        // Amministratori
-        const adminEmails = [
-            'chiara.pizzorno@azienda.it',
-            'rebecca.antenozio@azienda.it',
-            'admin@azienda.it'
-        ];
-
-        // Database Simulato Collaboratori / Dipendenti
-        let usersData = [
-            { email: 'mario.rossi@azienda.it', name: 'Mario Rossi', type: 'Dipendente', maxDays: 4, selectedDays: [] },
-            { email: 'giuseppe.verdi@azienda.it', name: 'Giuseppe Verdi', type: 'P.IVA', maxDays: null, selectedDays: [] },
-            { email: 'laura.bianchi@azienda.it', name: 'Laura Bianchi', type: 'COCOCO', maxDays: null, selectedDays: [] }
-        ];
-
-        function handleLogin() {
-            const email = document.getElementById('user-email').value.trim().toLowerCase();
-            if (!email) {
-                alert('Inserisci un indirizzo email valido.');
-                return;
-            }
-
-            const isAdmin = adminEmails.includes(email);
-            let user = usersData.find(u => u.email.toLowerCase() === email);
-
-            if (!user) {
-                // Generazione utente standard di test se non presente in anagrafica
-                user = {
-                    email: email,
-                    name: email.split('@')[0].replace('.', ' '),
-                    type: 'Dipendente',
-                    maxDays: 4,
-                    selectedDays: []
-                };
-                usersData.push(user);
-            }
-
-            currentUser = { ...user, isAdmin: isAdmin };
-            loadDashboard();
-        }
-
-        function loadDashboard() {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('dashboard-section').style.display = 'block';
-
-            document.getElementById('welcome-user-name').innerText = `Benvenuto, ${currentUser.name}`;
+    <!-- RIQUADRO DI ACCESSO CON GHIRLANDA NATALIZIA DORATA -->
+    <section id="loginCard" class="mx-auto mt-4" style="max-width: 460px;">
+      <div class="garland-box-wrapper">
+        <div class="card glossy-login-card p-2">
+          <div class="card-body text-center p-4">
+            <div class="fs-1 mb-2" aria-hidden="true">🎅 ✨ 🧁</div>
+            <h2 class="login-title h3 mb-1">SANTA - HQ</h2>
+            <p class="small text-white-75 mb-4">Inserisci la tua email aziendale per accedere al portale.</p>
             
-            // Impostazione adattativa del termine "Ferie" o "Vanze" in base al contratto
-            const isEmployee = currentUser.type === 'Dipendente';
-            const term = isEmployee ? 'Ferie' : 'Vacanze';
+            <form id="loginForm" class="needs-validation" novalidate onsubmit="handleLogin(event)">
+              <div class="mb-3 text-start">
+                <label for="loginEmail" class="form-label small fw-bold text-white">Email Aziendale</label>
+                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@hqe.it" required aria-required="true">
+                <div class="invalid-feedback text-warning fw-bold small mt-1">Inserisci un'email aziendale valida (es. nome@hqe.it)</div>
+              </div>
+              <div id="adminPasswordField" class="mb-3 text-start d-none">
+                <label for="loginPassword" class="form-label small fw-bold text-white">Password Amministratore</label>
+                <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="Password admin">
+                <div class="invalid-feedback text-warning fw-bold small mt-1">La password amministratore è obbligatoria.</div>
+              </div>
+              <div id="loginError" class="alert alert-warning text-dark small py-2 d-none rounded-3 fw-bold" role="alert" aria-live="assertive"></div>
+              <button type="submit" id="loginSubmitBtn" class="btn btn-santa w-100 py-2.5 rounded-3 mt-2 fs-6">
+                <span class="btn-text">Scegli il tuo Natale ✨</span>
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
 
-            document.getElementById('user-role-badge').innerText = `Profilo: ${currentUser.type} ${currentUser.isAdmin ? '| Amministratore' : ''}`;
-            
-            document.getElementById('summary-type').innerText = currentUser.type;
-            document.getElementById('selection-instructions').innerText = isEmployee 
-                ? `In base al tuo contratto puoi selezionare un massimo di ${currentUser.maxDays} giorni di ferie.`
-                : `Seleziona i giorni di vacanza desiderati per il periodo natalizio.`;
+    <!-- CALENDARIO PERSONALE PER UTENTI -->
+    <section id="calendarSection" class="d-none mb-4" aria-labelledby="calendarTitle">
+      <div class="card card-glossy-light">
+        <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
+          <h2 id="calendarTitle" class="h5 m-0 text-danger fw-black">📅 Selezione Giornate</h2>
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm d-none" id="maxDaysInfo">Max 4 Giorni</span>
+        </div>
+        <div class="card-body">
+          <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold" role="region" aria-live="polite"></div>
 
-            if (isEmployee) {
-                document.getElementById('summary-limit-container').innerHTML = `Giorni di ferie selezionati: <span id="selected-count">0</span> / <span id="max-allowed">${currentUser.maxDays}</span>`;
-            } else {
-                document.getElementById('summary-limit-container').innerHTML = `Giorni di vacanza selezionati: <span id="selected-count">0</span> (Nessun limite)`;
+          <!-- LEGENDA COLORI & BOX CONSIGLIO / VACANZE HQ -->
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+            <div id="legendContainer" class="d-flex flex-wrap gap-3 small fw-bold"></div>
+            <!-- BOX CONSIGLIO HQ DINAMICO -->
+            <div id="hqSuggestBox" class="hq-recommend-box" role="note">
+              💡 HQ consiglia di scegliere i giorni 28-29-30
+            </div>
+          </div>
+          
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4 justify-content-start" role="group" aria-label="Calendario selezione ferie"></div>
+
+          <div class="mb-3">
+            <label for="employeeNotes" class="form-label fw-bold small text-secondary">Note operative o comunicazioni:</label>
+            <textarea id="employeeNotes" class="form-control form-control-sm rounded-3 shadow-sm" rows="2" placeholder="Inserisci eventuali note..."></textarea>
+          </div>
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+            <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6 shadow-sm" id="selectedCountBadge" aria-live="polite">Giorni scelti: 0</span>
+            <button id="saveRequestBtn" class="btn btn-green-holly rounded-3 px-4 py-2" onclick="saveEmployeeRequest()">
+              <span class="btn-text">💾 Salva Preferenze</span>
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PANNELLO AMMINISTRATORE (ADMIN) -->
+    <section id="adminSection" class="d-none" aria-label="Pannello Amministratore">
+
+      <!-- RIQUADRO AGGIUNTA MANUALE -->
+      <div class="card card-glossy-light mb-4">
+        <div class="card-body p-4">
+          <h2 class="h6 fw-black text-danger mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h2>
+          <form id="addUserForm" class="needs-validation" novalidate onsubmit="handleAddUser(event)">
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label for="addCognome" class="form-label extra-small fw-bold text-muted m-0">COGNOME *</label>
+                <input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required aria-required="true">
+                <div class="invalid-feedback extra-small">Cognome obbligatorio.</div>
+              </div>
+              <div class="col-md-6">
+                <label for="addNome" class="form-label extra-small fw-bold text-muted m-0">NOME *</label>
+                <input type="text" id="addNome" class="form-control form-control-sm" placeholder="Nome *" required aria-required="true">
+                <div class="invalid-feedback extra-small">Nome obbligatorio.</div>
+              </div>
+            </div>
+            <div class="row g-2 mb-2">
+              <div class="col-md-6">
+                <label for="addEmail" class="form-label extra-small fw-bold text-muted m-0">EMAIL AZIENDALE *</label>
+                <input type="email" id="addEmail" class="form-control form-control-sm" placeholder="Email aziendale *" required aria-required="true">
+                <div class="invalid-feedback extra-small">Inserisci una mail aziendale valida.</div>
+              </div>
+              <div class="col-md-6">
+                <label for="addAzienda" class="form-label extra-small fw-bold text-muted m-0">AZIENDA</label>
+                <input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-4">
+                <label for="addBu" class="form-label extra-small fw-bold text-muted m-0">BU</label>
+                <input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU">
+              </div>
+              <div class="col-md-4">
+                <label for="addTeam" class="form-label extra-small fw-bold text-muted m-0">TEAM</label>
+                <input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team">
+              </div>
+              <div class="col-md-4">
+                <label for="addReferente" class="form-label extra-small fw-bold text-muted m-0">REFERENTE</label>
+                <input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente">
+              </div>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-md-6">
+                <label for="addInquadramento" class="form-label extra-small fw-bold text-muted m-0">INQUADRAMENTO</label>
+                <select id="addInquadramento" class="form-select form-select-sm" aria-label="Seleziona Inquadramento">
+                  <option value="Dipendente">Dipendente</option>
+                  <option value="PartitaIVA">PartitaIVA</option>
+                  <option value="CoCoCo">CoCoCo</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="addMaxDays" class="form-label extra-small fw-bold text-muted m-0">MAX GIORNI</label>
+                <input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15">
+              </div>
+            </div>
+            <button type="submit" id="addUserBtn" class="btn btn-santa w-100 py-2 rounded-3">
+              <span class="btn-text">Salva Collaboratore in Anagrafica</span>
+              <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- TABELLA RISORSE ADMIN ELEGANTE E AD ALTA QUALITÀ -->
+      <div class="card card-glossy-light mb-4">
+        <div class="card-body p-4">
+          <h2 class="h5 fw-black text-danger mb-3">Anagrafica Risorse & Azioni Admin</h2>
+
+          <!-- FILTRI -->
+          <div class="row g-2 mb-3">
+            <div class="col-md-3">
+              <label for="filterBu" class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER BU</label>
+              <select id="filterBu" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutte le BU --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filterTeam" class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER TEAM</label>
+              <select id="filterTeam" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutti i Team --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filterReferente" class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER REFERENTE</label>
+              <select id="filterReferente" class="form-select form-select-sm" onchange="applyFilters()">
+                <option value="">-- Tutti i Referenti --</option>
+              </select>
+            </div>
+            <div class="col-md-3">
+              <label for="filterSearch" class="form-label extra-small fw-bold text-muted m-0">🔍 CERCA TESTO LIBERO</label>
+              <input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Nome, cognome, email..." oninput="applyFilters()">
+            </div>
+          </div>
+
+          <!-- TABELLA BORDATA AD ALTA DEFINIZIONE -->
+          <div class="table-responsive">
+            <table class="table admin-table-custom align-middle mb-3" aria-label="Anagrafica Collaboratori">
+              <thead>
+                <tr>
+                  <th scope="col">AZIENDA</th>
+                  <th scope="col">BU</th>
+                  <th scope="col">TEAM</th>
+                  <th scope="col">REFERENTE</th>
+                  <th scope="col">COGNOME E NOME</th>
+                  <th scope="col">INQUADRAMENTO</th>
+                  <th scope="col">MAX GIORNI</th>
+                  <th scope="col">GIORNI SCELTI</th>
+                  <th scope="col">STATO</th>
+                  <th scope="col">DATE SELEZIONATE</th>
+                  <th scope="col" style="min-width: 140px;">AZIONI ADMIN</th>
+                </tr>
+              </thead>
+              <tbody id="usersTableBody">
+                <!-- Generato da JS -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- EXCEL EXPORT -->
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <span class="small text-muted fw-semibold">Scarica il file master delle presenze/assenze nel formato aziendale HQE.</span>
+            <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()" aria-label="Scarica il report Excel con la pianificazione ferie">📊 Scarica Report Excel (.xlsx)</button>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // HELPER PER LOADING NEI PULSANTI
+    function setButtonLoading(btn, isLoading) {
+      if (!btn) return;
+      const textEl = btn.querySelector('.btn-text');
+      const spinnerEl = btn.querySelector('.spinner-border');
+      btn.disabled = isLoading;
+      if (isLoading) {
+        if (textEl) textEl.classList.add('opacity-50');
+        if (spinnerEl) spinnerEl.classList.remove('d-none');
+      } else {
+        if (textEl) textEl.classList.remove('opacity-50');
+        if (spinnerEl) spinnerEl.classList.add('d-none');
+      }
+    }
+
+    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API
+    let audioCtx = null;
+    let isPlaying = false;
+    let audioInterval = null;
+
+    // Note musicali per Jingle Bells
+    const jingleBellsNotes = [
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+      { note: 659.25, duration: 250 }, { note: 783.99, duration: 250 }, { note: 523.25, duration: 375 }, { note: 587.33, duration: 125 },
+      { note: 659.25, duration: 1000 },
+      { note: 698.46, duration: 250 }, { note: 698.46, duration: 250 }, { note: 698.46, duration: 375 }, { note: 698.46, duration: 125 },
+      { note: 698.46, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 125 }, { note: 659.25, duration: 125 },
+      { note: 659.25, duration: 250 }, { note: 587.33, duration: 250 }, { note: 587.33, duration: 250 }, { note: 659.25, duration: 250 },
+      { note: 587.33, duration: 500 }, { note: 783.99, duration: 500 }
+    ];
+
+    function playTone(freq, duration) {
+      if (!audioCtx || !isPlaying) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (duration / 1000));
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + (duration / 1000));
+      } catch (e) { console.error(e); }
+    }
+
+    function startMelodyLoop() {
+      let step = 0;
+      function nextNote() {
+        if (!isPlaying) return;
+        const noteObj = jingleBellsNotes[step];
+        playTone(noteObj.note, noteObj.duration);
+        step = (step + 1) % jingleBellsNotes.length;
+        audioInterval = setTimeout(nextNote, noteObj.duration + 50);
+      }
+      nextNote();
+    }
+
+    function toggleAudio() {
+      const btn = document.getElementById('musicToggleBtn');
+      if (!isPlaying) {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        isPlaying = true;
+        btn.innerText = '🎶 Musica: ON ✨';
+        btn.style.background = 'linear-gradient(145deg, #00b894, #009475)';
+        btn.style.borderColor = '#00f5d4';
+        startMelodyLoop();
+      } else {
+        isPlaying = false;
+        if (audioInterval) clearTimeout(audioInterval);
+        btn.innerText = '🎵 Musica: OFF';
+        btn.style.background = 'rgba(255, 255, 255, 0.15)';
+        btn.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+      }
+    }
+
+    // GENERAZIONE EFFETTO NEVE
+    const snowContainer = document.getElementById('snowflakeContainer');
+    for (let i = 0; i < 35; i++) {
+      const flake = document.createElement('div');
+      flake.className = 'snowflake';
+      flake.innerHTML = '❄';
+      flake.style.left = Math.random() * 100 + 'vw';
+      flake.style.animationDuration = (Math.random() * 3 + 4) + 's';
+      flake.style.animationDelay = Math.random() * 5 + 's';
+      flake.style.fontSize = (Math.random() * 10 + 12) + 'px';
+      snowContainer.appendChild(flake);
+    }
+
+    const RANGE_START = new Date("2026-12-21");
+    const RANGE_END = new Date("2027-01-10");
+    const ALL_RANGE_DATES = [];
+
+    let curr = new Date(RANGE_START);
+    while (curr <= RANGE_END) {
+      const yyyy = curr.getFullYear();
+      const mm = String(curr.getMonth() + 1).padStart(2, '0');
+      const dd = String(curr.getDate()).padStart(2, '0');
+      ALL_RANGE_DATES.push(`${yyyy}-${mm}-${dd}`);
+      curr.setDate(curr.getDate() + 1);
+    }
+
+    const CLOSED_DATES = ["2026-12-24", "2026-12-31", "2027-01-04", "2027-01-05"];
+    const HOLIDAY_DATES = ["2026-12-25", "2026-12-26", "2027-01-01", "2027-01-06"];
+
+    let currentUser = null;
+    let isAdmin = false;
+    let allUsers = [];
+    let allRequests = {};
+    let employeeSelectedDates = [];
+
+    // ELENCO EMAIL ADMIN AUTORIZZATE (INCLUSA REBECCA ANTENOZIO)
+    const ADMIN_EMAILS = [
+      'chiara.pizzorno@hqe.it', 
+      'pietro.malcotti@hqe.it', 
+      'gianluca.luccini@hqe.it', 
+      'rebecca.antenozio@hqe.it'
+    ];
+
+    document.getElementById('loginEmail').addEventListener('input', function(e) {
+      const email = e.target.value.trim().toLowerCase();
+      const passwordField = document.getElementById('adminPasswordField');
+      const passwordInput = document.getElementById('loginPassword');
+      if (ADMIN_EMAILS.includes(email)) {
+        passwordField.classList.remove('d-none');
+        passwordInput.setAttribute('required', 'required');
+      } else {
+        passwordField.classList.add('d-none');
+        passwordInput.removeAttribute('required');
+        passwordInput.value = '';
+      }
+    });
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const form = document.getElementById('loginForm');
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      const errDiv = document.getElementById('loginError');
+      errDiv.classList.add('d-none');
+
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+      }
+
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value.trim();
+
+      setButtonLoading(submitBtn, true);
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email, password })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Errore durante l\'accesso. Verificare le credenziali.');
+
+        currentUser = data.user;
+        isAdmin = data.isAdmin;
+
+        document.getElementById('loginCard').classList.add('d-none');
+        document.getElementById('userInfo').classList.remove('d-none');
+        document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
+
+        const badgeEl = document.getElementById('userInquadramentoBadge');
+        if (isAdmin) {
+          badgeEl.innerText = currentUser.inquadramento || 'Dipendente';
+          badgeEl.classList.remove('d-none');
+        } else {
+          badgeEl.classList.add('d-none');
+        }
+
+        setupInquadramentoView();
+
+        document.getElementById('calendarSection').classList.remove('d-none');
+        await loadEmployeeData();
+
+        if (isAdmin) {
+          document.getElementById('adminSection').classList.remove('d-none');
+          await loadAdminData();
+        }
+      } catch (err) {
+        errDiv.innerText = err.message || 'Connessione al server fallita.';
+        errDiv.classList.remove('d-none');
+      } finally {
+        setButtonLoading(submitBtn, false);
+      }
+    }
+
+    function setupInquadramentoView() {
+      const titleEl = document.getElementById('calendarTitle');
+      const textEl = document.getElementById('guidanceText');
+      const maxEl = document.getElementById('maxDaysInfo');
+      const legendEl = document.getElementById('legendContainer');
+      const hqBox = document.getElementById('hqSuggestBox');
+
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
+
+      titleEl.innerText = "📅 Calendario Selezione Giornate";
+
+      if (isFreelance) {
+        maxEl.classList.add('d-none');
+        textEl.innerHTML = "💡 Dicci quali giorni hai intenzione di andare in vacanza";
+        hqBox.innerText = "💡 Che ne dici di scegliere i giorni 28-29-30?";
+      } else {
+        maxEl.innerText = `Max ${maxDays} Giorni Totali`;
+        maxEl.classList.remove('d-none');
+        textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
+        hqBox.innerText = "💡 HQ consiglia di scegliere i giorni 28-29-30";
+      }
+
+      legendEl.innerHTML = `
+        <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#d80032; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);" aria-hidden="true"></span> Chiusura Aziendale</div>
+        <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ff7675; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);" aria-hidden="true"></span> Festività / Weekend</div>
+        <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#00b894; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);" aria-hidden="true"></span> Selezionato da Te</div>
+        <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#ffffff; border:1px solid #ccc; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.1);" aria-hidden="true"></span> Selezionabile</div>
+      `;
+    }
+
+    function logout() {
+      location.reload();
+    }
+
+    async function loadEmployeeData() {
+      try {
+        const res = await fetch('/api/requests');
+        if (!res.ok) throw new Error();
+        allRequests = await res.json();
+        const userReq = allRequests[currentUser.email] || {};
+        employeeSelectedDates = userReq.dates || [];
+        document.getElementById('employeeNotes').value = userReq.notes || '';
+        renderCalendar();
+      } catch (e) {
+        alert('Impossibile recuperare i dati dell\'utente.');
+      }
+    }
+
+    function renderCalendar() {
+      const container = document.getElementById('calendarContainer');
+      container.innerHTML = '';
+
+      ALL_RANGE_DATES.forEach(dateStr => {
+        const d = new Date(dateStr);
+        const dayNum = d.getDate();
+        const monthShort = d.toLocaleString('it-IT', { month: 'short' });
+        const dayOfWeek = d.getDay();
+
+        const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
+        const isClosed = CLOSED_DATES.includes(dateStr);
+        const isHoliday = HOLIDAY_DATES.includes(dateStr) || isWeekend;
+
+        const box = document.createElement('div');
+        box.className = 'day-box';
+        
+        // ACCESSIBILITÀ TASTIERA & SCREEN READER
+        box.setAttribute('role', 'button');
+
+        if (isClosed) {
+          box.classList.add('closed');
+          box.setAttribute('aria-disabled', 'true');
+          box.setAttribute('aria-label', `${dayNum} ${monthShort}, Chiusura Aziendale`);
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Chiusura</div>`;
+        } else if (isHoliday) {
+          box.classList.add('holiday');
+          box.setAttribute('aria-disabled', 'true');
+          box.setAttribute('aria-label', `${dayNum} ${monthShort}, Festività o Weekend`);
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Festa</div>`;
+        } else {
+          box.setAttribute('tabindex', '0');
+          const isSelected = employeeSelectedDates.includes(dateStr);
+          if (isSelected) {
+            box.classList.add('selected');
+          }
+          box.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+          box.setAttribute('aria-label', `${dayNum} ${monthShort}, Feriale. ${isSelected ? 'Selezionato' : 'Non selezionato'}`);
+          box.innerHTML = `<div>${dayNum} ${monthShort}</div><div class="day-sub">Feriale</div>`;
+          
+          box.onclick = () => toggleDateSelection(dateStr);
+          box.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              toggleDateSelection(dateStr);
             }
-
-            if (currentUser.isAdmin) {
-                document.getElementById('admin-panel').style.display = 'block';
-                renderAdminTable();
-            } else {
-                document.getElementById('admin-panel').style.display = 'none';
-            }
-
-            renderCalendar();
+          };
         }
 
-        function renderCalendar() {
-            const grid = document.getElementById('days-grid');
-            grid.innerHTML = '';
-            
-            // Periodo 21 Dicembre 2026 -> 10 Gennaio 2027
-            const totalDays = 21; 
-            
-            for(let i = 1; i <= totalDays; i++) {
-                const dayCard = document.createElement('div');
-                dayCard.className = 'col-3 col-md-2';
-                dayCard.innerHTML = `
-                    <div class="day-card" onclick="toggleDay(${i})">
-                        <small>Dic/Gen</small>
-                        <h6>Giorno ${i}</h6>
-                    </div>
-                `;
-                grid.appendChild(dayCard);
-            }
+        container.appendChild(box);
+      });
+
+      const countBadge = document.getElementById('selectedCountBadge');
+      countBadge.innerText = `Giorni scelti: ${employeeSelectedDates.length}`;
+    }
+
+    function toggleDateSelection(dateStr) {
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
+
+      if (employeeSelectedDates.includes(dateStr)) {
+        employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
+      } else {
+        if (!isFreelance) {
+          const closedCount = CLOSED_DATES.length; 
+          const maxSelectable = maxDays - closedCount;
+
+          if (maxSelectable <= 0) {
+            alert(`Hai un limite totale di ${maxDays} giorni e vi sono già ${closedCount} giorni di chiusura aziendale compresi. Non puoi selezionare ulteriori giorni.`);
+            return;
+          }
+
+          if (employeeSelectedDates.length >= maxSelectable) {
+            alert(`Hai raggiunto il limite massimo di ${maxSelectable} giorni selezionabili (${maxDays} totali meno ${closedCount} di chiusura aziendale).`);
+            return;
+          }
         }
+        employeeSelectedDates.push(dateStr);
+      }
+      renderCalendar();
+    }
 
-        function toggleDay(dayNum) {
-            // Logica di selezione dei giorni
-            const countElem = document.getElementById('selected-count');
-            let count = parseInt(countElem.innerText);
-            countElem.innerText = count + 1;
+    async function saveEmployeeRequest() {
+      const btn = document.getElementById('saveRequestBtn');
+      setButtonLoading(btn, true);
+
+      try {
+        const notes = document.getElementById('employeeNotes').value;
+        const res = await fetch('/api/requests', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            email: currentUser.email,
+            dates: employeeSelectedDates,
+            notes: notes,
+            isValidated: false
+          })
+        });
+        
+        if (!res.ok) throw new Error();
+        alert('Preferenze salvate con successo!');
+        if (isAdmin) {
+          await loadAdminData();
         }
+      } catch (err) {
+        alert('Errore durante il salvataggio delle preferenze.');
+      } finally {
+        setButtonLoading(btn, false);
+      }
+    }
 
-        function savePreferences() {
-            const isEmployee = currentUser.type === 'Dipendente';
-            const term = isEmployee ? 'ferie' : 'vacanze';
-            alert(`Le tue preferenze per le ${term} sono state salvate con successo!`);
-        }
+    async function loadAdminData() {
+      try {
+        const [uRes, rRes] = await Promise.all([
+          fetch('/api/users'),
+          fetch('/api/requests')
+        ]);
+        if (!uRes.ok || !rRes.ok) throw new Error();
+        allUsers = await uRes.json();
+        allRequests = await rRes.json();
 
-        function logout() {
-            currentUser = null;
-            document.getElementById('dashboard-section').style.display = 'none';
-            document.getElementById('login-section').style.display = 'block';
-            document.getElementById('user-email').value = '';
-        }
+        populateFilterOptions();
+        renderUsersTable(allUsers);
+      } catch (e) {
+        alert('Errore nel caricamento del pannello amministratore.');
+      }
+    }
 
-        function renderAdminTable() {
-            const tbody = document.getElementById('admin-users-table');
-            tbody.innerHTML = '';
-            usersData.forEach(u => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${u.name}</td>
-                    <td>${u.email}</td>
-                    <td><span class="badge bg-secondary">${u.type}</span></td>
-                    <td>${u.maxDays || 'Illimitati'}</td>
-                    <td><span class="badge bg-info">In corso</span></td>
-                    <td><button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button></td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
+    function populateFilterOptions() {
+      const bus = [...new Set(allUsers.map(u => u.bu).filter(Boolean))].sort();
+      const teams = [...new Set(allUsers.map(u => u.team).filter(Boolean))].sort();
+      const refs = [...new Set(allUsers.map(u => u.referente).filter(Boolean))].sort();
 
-        function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(usersData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Vacanze_Natalizie");
-            XLSX.writeFile(wb, "SANTA_Holidays_Report.xlsx");
-        }
+      document.getElementById('filterBu').innerHTML = '<option value="">-- Tutte le BU --</option>' + bus.map(b => `<option value="${b}">${b}</option>`).join('');
+      document.getElementById('filterTeam').innerHTML = '<option value="">-- Tutti i Team --</option>' + teams.map(t => `<option value="${t}">${t}</option>`).join('');
+      document.getElementById('filterReferente').innerHTML = '<option value="">-- Tutti i Referenti --</option>' + refs.map(r => `<option value="${r}">${r}</option>`).join('');
+    }
 
-        // Web Audio Synthesizer (Jingle Bells Audio Loop)
-        let audioCtx = null;
-        let isPlaying = false;
+    function applyFilters() {
+      const bu = document.getElementById('filterBu').value;
+      const team = document.getElementById('filterTeam').value;
+      const ref = document.getElementById('filterReferente').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase().trim();
 
-        function toggleAudio() {
-            const icon = document.getElementById('audio-icon');
-            if(!isPlaying) {
-                if(!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                isPlaying = true;
-                icon.className = 'fa-solid fa-volume-high';
-            } else {
-                isPlaying = false;
-                icon.className = 'fa-solid fa-music';
-            }
-        }
+      const filtered = allUsers.filter(u => {
+        const matchesBu = !bu || u.bu === bu;
+        const matchesTeam = !team || u.team === team;
+        const matchesRef = !ref || u.referente === ref;
+        const fullText = `${u.cognome} ${u.nome} ${u.email}`.toLowerCase();
+        const matchesSearch = !search || fullText.includes(search);
+        return matchesBu && matchesTeam && matchesRef && matchesSearch;
+      });
 
-        // Animazione della neve sul Canvas
-        const canvas = document.getElementById('snow-canvas');
-        const ctx = canvas.getContext('2d');
-        let width = canvas.width = window.innerWidth;
-        let height = canvas.height = window.innerHeight;
+      renderUsersTable(filtered);
+    }
 
-        window.addEventListener('resize', () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+    function renderUsersTable(users) {
+      const tbody = document.getElementById('usersTableBody');
+      tbody.innerHTML = '';
+
+      users.forEach(u => {
+        const req = allRequests[u.email] || {};
+        const dates = req.dates || [];
+        const datesCount = dates.length;
+        const maxD = (u.maxDays !== undefined) ? u.maxDays : 4;
+        
+        const statusBadge = datesCount > 0 
+          ? '<span class="badge badge-inserito rounded-pill px-2.5 py-1">Confermato</span>' 
+          : '<span class="badge badge-da-inserire rounded-pill px-2.5 py-1">Da Inserire</span>';
+
+        const formattedDates = dates.map(d => {
+          const parts = d.split('-');
+          return `${parts[2]}/${parts[1]}`;
+        }).join(', ') || '-';
+
+        const tr = document.createElement('tr');
+        tr.id = `user-row-${u.email.replace(/[@.]/g, '_')}`;
+        tr.innerHTML = `
+          <td><span class="view-mode fw-bold text-dark">${u.azienda || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-azienda" value="${u.azienda || ''}" aria-label="Modifica Azienda"></td>
+          <td><span class="view-mode badge bg-light text-danger border fw-bold shadow-sm">${u.bu || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-bu" value="${u.bu || ''}" aria-label="Modifica BU"></td>
+          <td><span class="view-mode badge bg-light text-dark border shadow-sm">${u.team || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-team" value="${u.team || ''}" aria-label="Modifica Team"></td>
+          <td><span class="view-mode fw-semibold text-secondary">${u.referente || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-referente" value="${u.referente || ''}" aria-label="Modifica Referente"></td>
+          <td>
+            <div class="fw-extrabold text-dark" style="font-weight: 800;">${u.cognome} ${u.nome}</div>
+            <div class="extra-small text-muted">${u.email}</div>
+          </td>
+          <td><span class="view-mode badge bg-secondary shadow-sm">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}" aria-label="Modifica Inquadramento"></td>
+          <td><span class="view-mode fw-bold text-primary">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0" aria-label="Modifica Max Giorni"></td>
+          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount} / ${maxD}</td>
+          <td class="text-center">${statusBadge}</td>
+          <td class="small fw-semibold text-secondary">${formattedDates}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-sm btn-success btn-confirm d-none shadow-sm" onclick="saveUserEdit('${u.email}')" aria-label="Conferma modifiche per ${u.cognome} ${u.nome}">
+                <span class="btn-text">✓</span>
+                <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+              </button>
+              <button class="btn btn-sm btn-outline-danger btn-edit rounded-2 fw-bold" onclick="enableUserEdit('${u.email}')" aria-label="Modifica collaboratore ${u.cognome} ${u.nome}">✏️</button>
+              <button class="btn btn-sm btn-outline-secondary rounded-2" onclick="deleteUser('${u.email}')" aria-label="Elimina collaboratore ${u.cognome} ${u.nome}">🗑️</button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function enableUserEdit(email) {
+      const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
+      tr.querySelectorAll('.view-mode').forEach(el => el.classList.add('d-none'));
+      tr.querySelectorAll('.edit-mode').forEach(el => el.classList.remove('d-none'));
+      tr.querySelector('.btn-edit').classList.add('d-none');
+      tr.querySelector('.btn-confirm').classList.remove('d-none');
+    }
+
+    async function saveUserEdit(email) {
+      const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
+      const confirmBtn = tr.querySelector('.btn-confirm');
+      const valMax = tr.querySelector('.val-maxdays').value;
+      
+      const uData = {
+        email: email,
+        azienda: tr.querySelector('.val-azienda').value,
+        bu: tr.querySelector('.val-bu').value,
+        team: tr.querySelector('.val-team').value,
+        referente: tr.querySelector('.val-referente').value,
+        inquadramento: tr.querySelector('.val-inquadramento').value,
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
+      };
+
+      setButtonLoading(confirmBtn, true);
+
+      try {
+        const res = await fetch('/api/users/update', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(uData)
         });
 
-        const numFlakes = 80;
-        const flakes = Array.from({ length: numFlakes }, () => ({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            r: Math.random() * 3 + 1,
-            d: Math.random() * 1 + 0.5
-        }));
+        if (!res.ok) throw new Error();
+        await loadAdminData();
+      } catch (err) {
+        alert('Errore nell\'aggiornamento del collaboratore.');
+        setButtonLoading(confirmBtn, false);
+      }
+    }
 
-        function drawSnow() {
-            ctx.clearRect(0, 0, width, height);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.beginPath();
-            for (let f of flakes) {
-                ctx.moveTo(f.x, f.y);
-                ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-            }
-            ctx.fill();
-            moveSnow();
-            requestAnimationFrame(drawSnow);
-        }
+    async function handleAddUser(e) {
+      e.preventDefault();
+      const form = document.getElementById('addUserForm');
+      const addBtn = document.getElementById('addUserBtn');
 
-        function moveSnow() {
-            for (let f of flakes) {
-                f.y += f.d;
-                if (f.y > height) {
-                    f.y = 0;
-                    f.x = Math.random() * width;
-                }
-            }
-        }
+      if (!form.checkValidity()) {
+        form.classList.add('was-validated');
+        return;
+      }
 
-        drawSnow();
-    </script>
+      const valMax = document.getElementById('addMaxDays').value;
+      const newUser = {
+        cognome: document.getElementById('addCognome').value,
+        nome: document.getElementById('addNome').value,
+        email: document.getElementById('addEmail').value,
+        azienda: document.getElementById('addAzienda').value,
+        bu: document.getElementById('addBu').value,
+        team: document.getElementById('addTeam').value,
+        referente: document.getElementById('addReferente').value,
+        inquadramento: document.getElementById('addInquadramento').value,
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
+      };
+
+      setButtonLoading(addBtn, true);
+
+      try {
+        const res = await fetch('/api/users/add', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(newUser)
+        });
+
+        if (!res.ok) throw new Error();
+
+        alert('Collaboratore aggiunto con successo!');
+        form.reset();
+        form.classList.remove('was-validated');
+        await loadAdminData();
+      } catch (err) {
+        alert('Errore durante l\'aggiunta del collaboratore.');
+      } finally {
+        setButtonLoading(addBtn, false);
+      }
+    }
+
+    async function deleteUser(email) {
+      if (!confirm(`Confermi di voler eliminare ${email}?`)) return;
+
+      try {
+        const res = await fetch('/api/users/delete', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ email })
+        });
+
+        if (!res.ok) throw new Error();
+
+        alert('Collaboratore eliminato!');
+        await loadAdminData();
+      } catch (err) {
+        alert('Errore durante l\'eliminazione del collaboratore.');
+      }
+    }
+
+    function exportToExcel() {
+      const data = allUsers.map(u => {
+        const req = allRequests[u.email] || {};
+        return {
+          'AZIENDA': u.azienda || '',
+          'BU': u.bu || '',
+          'TEAM': u.team || '',
+          'REFERENTE': u.referente || '',
+          'COGNOME E NOME': `${u.cognome} ${u.nome}`,
+          'INQUADRAMENTO': u.inquadramento || '',
+          'MAX GIORNI': u.maxDays !== undefined ? u.maxDays : 4,
+          'GIORNI SCELTI': (req.dates || []).length,
+          'STATO': (req.dates || []).length > 0 ? 'Confermato' : 'Da Inserire',
+          'DATE SELEZIONATE': (req.dates || []).join(', '),
+          'NOTE': req.notes || ''
+        };
+      });
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Pianificazione Natalizia");
+      XLSX.writeFile(wb, "Report_Pianificazione_SANTA_HQ.xlsx");
+    }
+  </script>
 </body>
 </html>
