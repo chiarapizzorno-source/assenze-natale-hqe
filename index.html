@@ -1,461 +1,1463 @@
 <!DOCTYPE html>
+
 <html lang="it">
+
 <head>
+
   <meta charset="UTF-8">
+
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HQ - Piano Festività Natalizie 2024</title>
-  
-  <!-- Google Fonts & Bootstrap 5.3 -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <!-- SheetJS per Export Excel -->
+
+  <title>SANTA - HQ | Le Vacanze Che Vuoi Tu</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <style>
+
     :root {
-      --xmas-red: #d42426;
-      --xmas-deep-red: #8b0000;
-      --xmas-gold: #f1c40f;
-      --xmas-green: #1e4620;
-      --glass-bg: rgba(20, 20, 35, 0.65);
-      --glass-border: rgba(255, 255, 255, 0.15);
+
+      --santa-red-glow: linear-gradient(135deg, #ff0f7b 0%, #d80032 100%);
+
+      --santa-red-dark: #800f2f;
+
+      --holly-green: #00f5d4;
+
+      --gold-sparkle: #ffee32;
+
+      --gold-garland: #ffd700;
+
+      --white-gloss: rgba(255, 255, 255, 0.96);
+
+      --font-primary: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
     }
+
+
 
     body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #0f0c1b;
-      color: #f8f9fa;
+
+      font-family: var(--font-primary);
+
       min-height: 100vh;
+
+      background: #060713;
+
+      color: #1e293b;
+
       overflow-x: hidden;
+
       position: relative;
+
     }
 
-    /* Sfondo Anime/Christmas Dynamic Layer */
-    .bg-anime {
+
+
+    /* SFONDO DINAMICO STILE ANIME PREMIUM */
+
+    .hero-bg-wrapper {
+
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle at 50% 30%, #1a1c38 0%, #0a0a12 100%);
-      z-index: -2;
+
+      top: 0;
+
+      left: 0;
+
+      width: 100%;
+
+      height: 100%;
+
+      z-index: -3;
+
+      background: radial-gradient(circle at 50% 25%, #1c1e52 0%, #0c0d24 60%, #020208 100%);
+
     }
 
-    /* Canvas Neve */
-    #snowCanvas {
+
+
+    /* FIOCCHI DI NEVE ANIMATI */
+
+    .snowflake {
+
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      pointer-events: none;
+
+      top: -10px;
+
+      color: #ffffff;
+
+      font-size: 1.2rem;
+
+      opacity: 0.9;
+
+      user-select: none;
+
       z-index: -1;
-    }
 
-    /* SVG Babbo Natale Volante */
-    .santa-container {
-      position: fixed;
-      top: 10%;
-      left: -200px;
-      width: 180px;
-      z-index: 0;
       pointer-events: none;
-      animation: flySanta 25s linear infinite;
-      opacity: 0.85;
+
+      filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+
+      animation: fall linear infinite;
+
     }
 
-    @keyframes flySanta {
-      0% { transform: translateX(0) translateY(0) rotate(2deg); left: -200px; }
-      25% { transform: translateX(35vw) translateY(15px) rotate(-1deg); }
-      50% { transform: translateX(70vw) translateY(-10px) rotate(3deg); }
-      75% { transform: translateX(105vw) translateY(20px) rotate(-2deg); }
-      100% { transform: translateX(120vw) translateY(0) rotate(0deg); left: -200px; }
+
+
+    @keyframes fall {
+
+      to {
+
+        transform: translateY(105vh) rotate(360deg);
+
+      }
+
     }
 
-    /* Font Titoli Natalizi */
-    .font-cinzel {
-      font-family: 'Cinzel', serif;
-    }
 
-    /* Card Vetro 3D Glossy */
-    .glass-card {
-      background: var(--glass-bg);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-border);
-      border-radius: 20px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
 
-    .glass-card:hover {
-      box-shadow: 0 12px 40px 0 rgba(212, 36, 38, 0.25);
-    }
+    /* BABBO NATALE HD MOLTO PIÙ DINAMICO AL CENTRO SCHERMO */
 
-    .btn-xmas {
-      background: linear-gradient(135deg, var(--xmas-red) 0%, var(--xmas-deep-red) 100%);
-      color: #fff;
-      border: 1px solid var(--xmas-gold);
-      font-weight: 600;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(212, 36, 38, 0.4);
-      transition: all 0.3s ease;
-    }
+    .santa-flying-container {
 
-    .btn-xmas:hover {
-      background: linear-gradient(135deg, #e62e31 0%, #a00000 100%);
-      color: #fff;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(212, 36, 38, 0.6);
-    }
-
-    .form-control, .form-select {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      color: #fff !important;
-      border-radius: 10px;
-    }
-
-    .form-control:focus, .form-select:focus {
-      background: rgba(255, 255, 255, 0.15);
-      border-color: var(--xmas-gold);
-      box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
-    }
-
-    .form-select option {
-      background: #1a1c38;
-      color: #fff;
-    }
-
-    /* Tasti Audio e Toggle */
-    .audio-btn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-      border-radius: 50px;
-      padding: 10px 20px;
+
+      top: 18%; /* Posizionato visivamente verso il centro dello schermo */
+
+      z-index: -1;
+
+      pointer-events: none;
+
+      animation: santaCenterDynamic 18s ease-in-out infinite alternate;
+
     }
 
-    .table-dark-glass {
-      --bs-table-bg: transparent;
-      --bs-table-color: #fff;
-      border-color: rgba(255, 255, 255, 0.1);
+
+
+    @keyframes santaCenterDynamic {
+
+      0% { 
+
+        left: -480px; 
+
+        transform: translateY(-20px) rotate(-3deg) scale(0.95); 
+
+      }
+
+      25% { 
+
+        transform: translateY(35px) rotate(2deg) scale(1.05); 
+
+      }
+
+      50% { 
+
+        left: 38vw; /* Arriva e danza nel centro schermo */
+
+        transform: translateY(-40px) rotate(-4deg) scale(1.15); 
+
+      }
+
+      75% { 
+
+        transform: translateY(25px) rotate(3deg) scale(1.05); 
+
+      }
+
+      100% { 
+
+        left: 105vw; 
+
+        transform: translateY(-15px) rotate(-2deg) scale(0.95); 
+
+      }
+
     }
+
+
+
+    /* SCENOGRAFIA VETTORIALE HD */
+
+    .tech-landscape {
+
+      position: fixed;
+
+      bottom: 0;
+
+      width: 100%;
+
+      height: 310px;
+
+      z-index: -2;
+
+      pointer-events: none;
+
+    }
+
+
+
+    /* HEADER LUCIDO PREMIUM CON EFFETTO RILIEVO */
+
+    .header-bar {
+
+      background: linear-gradient(135deg, rgba(216, 0, 50, 0.95), rgba(167, 0, 30, 0.95));
+
+      backdrop-filter: blur(16px);
+
+      color: white;
+
+      padding: 18px 0;
+
+      margin-bottom: 25px;
+
+      border-bottom: 4px solid #00f5d4;
+
+      box-shadow: 0 8px 32px rgba(0, 245, 212, 0.35), 0 0 20px rgba(216, 0, 50, 0.7);
+
+    }
+
+
+
+    .header-subtitle {
+
+      font-weight: 800;
+
+      letter-spacing: 2px;
+
+      text-transform: uppercase;
+
+      font-size: 0.85rem;
+
+      color: #00f5d4;
+
+      text-shadow: 0 0 10px rgba(0, 245, 212, 0.8), 0 1px 2px rgba(0,0,0,0.8);
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 6px;
+
+    }
+
+
+
+    /* MUSIC TOGGLE BUTTON */
+
+    .audio-control-btn {
+
+      background: rgba(255, 255, 255, 0.15);
+
+      border: 1px solid rgba(255, 255, 255, 0.4);
+
+      color: white;
+
+      border-radius: 50px;
+
+      padding: 6px 14px;
+
+      font-size: 0.8rem;
+
+      font-weight: 700;
+
+      backdrop-filter: blur(5px);
+
+      transition: all 0.3s;
+
+      cursor: pointer;
+
+    }
+
+
+
+    .audio-control-btn:hover {
+
+      background: rgba(255, 255, 255, 0.3);
+
+      transform: scale(1.05);
+
+    }
+
+
+
+    /* GHIRLANDA NATALIZIA DORATA E BRILLANTE */
+
+    .garland-box-wrapper {
+
+      position: relative;
+
+      padding: 14px;
+
+      border-radius: 32px;
+
+      background: radial-gradient(circle, rgba(255,215,0,0.35) 0%, rgba(218,165,32,0.12) 70%, transparent 100%);
+
+      border: 3px dashed #ffd700;
+
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 215, 0, 0.5);
+
+      animation: garlandGlow 3s ease-in-out infinite alternate;
+
+    }
+
+
+
+    @keyframes garlandGlow {
+
+      0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5), inset 0 0 10px rgba(255, 215, 0, 0.3); border-color: #ffd700; }
+
+      100% { box-shadow: 0 0 40px rgba(255, 238, 50, 1), inset 0 0 25px rgba(255, 238, 50, 0.7); border-color: #fff3a0; }
+
+    }
+
+
+
+    .garland-box-wrapper::before, .garland-box-wrapper::after {
+
+      content: '🎀';
+
+      position: absolute;
+
+      font-size: 2rem;
+
+      z-index: 2;
+
+    }
+
+    .garland-box-wrapper::before { top: -14px; left: -10px; }
+
+    .garland-box-wrapper::after { top: -14px; right: -10px; }
+
+
+
+    /* RIQUADRO LOGIN GLOSSY 3D */
+
+    .glossy-login-card {
+
+      background: linear-gradient(145deg, #ff1e56, #800f2f);
+
+      border: 1px solid rgba(255, 255, 255, 0.3);
+
+      border-radius: 24px;
+
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.4), 0 15px 35px rgba(0, 0, 0, 0.6);
+
+      color: white;
+
+      backdrop-filter: blur(12px);
+
+    }
+
+
+
+    .login-title {
+
+      font-weight: 900;
+
+      letter-spacing: 2px;
+
+      color: #ffffff;
+
+      text-shadow: 0 3px 8px rgba(0,0,0,0.6), 0 0 15px var(--gold-sparkle);
+
+    }
+
+
+
+    /* CARD INTERNE GLOSSY 3D ULTRA HD */
+
+    .card-glossy-light {
+
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 250, 0.95));
+
+      border-radius: 22px;
+
+      border: 2px solid rgba(255, 255, 255, 0.8);
+
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(255, 255, 255, 1);
+
+      backdrop-filter: blur(12px);
+
+    }
+
+
+
+    /* STILI CALENDARIO 3D CON RILIEVO */
+
+    .day-box {
+
+      width: 68px;
+
+      min-height: 68px;
+
+      border-radius: 16px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+      user-select: none;
+
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+      font-size: 0.82rem;
+
+      text-align: center;
+
+      padding: 5px;
+
+      border: 1px solid rgba(0, 0, 0, 0.08);
+
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+
+      color: #0f172a;
+
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08), inset 0 1px 1px #ffffff;
+
+      text-shadow: 0 1px 0 rgba(255,255,255,0.8);
+
+    }
+
+
+
+    .day-box:hover:not(.closed):not(.holiday) {
+
+      transform: translateY(-4px) scale(1.06);
+
+      box-shadow: 0 10px 22px rgba(0, 245, 212, 0.4), inset 0 1px 2px #ffffff;
+
+      border-color: #00f5d4;
+
+    }
+
+
+
+    .day-box .day-sub { font-size: 0.65rem; font-weight: 600; margin-top: 2px; }
+
+
+
+    .day-box.selected {
+
+      background: linear-gradient(145deg, #00b894, #009475) !important;
+
+      border-color: #00f5d4 !important;
+
+      color: white !important;
+
+      text-shadow: 0 1px 2px rgba(0,0,0,0.4) !important;
+
+      box-shadow: 0 8px 20px rgba(0, 184, 148, 0.5), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+
+    }
+
+
+
+    .day-box.closed {
+
+      background: linear-gradient(145deg, #d80032, #990022) !important;
+
+      border-color: #ff4d6d !important;
+
+      color: white !important;
+
+      text-shadow: 0 1px 2px rgba(0,0,0,0.5) !important;
+
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.3) !important;
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    .day-box.holiday {
+
+      background: linear-gradient(145deg, #ff7675, #e17055) !important;
+
+      border-color: #fab1a0 !important;
+
+      color: white !important;
+
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+
+      cursor: not-allowed;
+
+    }
+
+
+
+    /* BOX CONSIGLIO HQ IN RILIEVO LUXURY */
+
+    .hq-recommend-box {
+
+      background: linear-gradient(145deg, #fffde7 0%, #fff59d 100%);
+
+      border: 2px solid #fbc02d;
+
+      color: #5d4037;
+
+      font-weight: 800;
+
+      padding: 10px 18px;
+
+      border-radius: 14px;
+
+      display: inline-block;
+
+      box-shadow: 0 6px 16px rgba(251, 192, 45, 0.3), inset 0 1px 2px #ffffff;
+
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+
+      letter-spacing: 0.2px;
+
+    }
+
+
+
+    /* TABELLA ADMIN ELEGANTE CON DESIGN 3D E CARATTERI IN RILIEVO */
+
+    .admin-table-custom {
+
+      border-collapse: separate;
+
+      border-spacing: 0 10px;
+
+      background: transparent !important;
+
+    }
+
+
+
+    .admin-table-custom thead tr {
+
+      background: linear-gradient(145deg, #d80032 0%, #800f2f 100%) !important;
+
+      color: white !important;
+
+      box-shadow: 0 6px 18px rgba(216, 0, 50, 0.35);
+
+    }
+
+
+
+    .admin-table-custom thead th {
+
+      border: none !important;
+
+      padding: 14px 12px !important;
+
+      font-size: 0.78rem;
+
+      font-weight: 800;
+
+      letter-spacing: 1px;
+
+      text-transform: uppercase;
+
+      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+
+    }
+
+
+
+    .admin-table-custom thead th:first-child { border-radius: 14px 0 0 14px; }
+
+    .admin-table-custom thead th:last-child { border-radius: 0 14px 14px 0; }
+
+
+
+    .admin-table-custom tbody tr {
+
+      background: linear-gradient(145deg, #ffffff, #f8fafc);
+
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 1);
+
+      border-radius: 14px;
+
+      transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    }
+
+
+
+    .admin-table-custom tbody tr:hover {
+
+      transform: translateY(-3px) scale(1.002);
+
+      box-shadow: 0 10px 25px rgba(0, 245, 212, 0.3), inset 0 1px 0 #ffffff;
+
+      background: #ffffff;
+
+    }
+
+
+
+    .admin-table-custom tbody td {
+
+      border: none !important;
+
+      padding: 14px 12px !important;
+
+      vertical-align: middle;
+
+      font-size: 0.85rem;
+
+    }
+
+
+
+    .admin-table-custom tbody td:first-child { border-radius: 14px 0 0 14px; border-left: 3px solid #d80032 !important; }
+
+    .admin-table-custom tbody td:last-child { border-radius: 0 14px 14px 0; }
+
+
+
+    /* PULSANTI GLOSSY */
+
+    .btn-santa {
+
+      background: linear-gradient(145deg, #ff1e56 0%, #d80032 100%);
+
+      color: white;
+
+      font-weight: 800;
+
+      border: 1px solid rgba(255, 255, 255, 0.3);
+
+      box-shadow: 0 6px 18px rgba(255, 30, 86, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+
+      transition: all 0.2s;
+
+    }
+
+
+
+    .btn-santa:hover {
+
+      background: linear-gradient(145deg, #ff4d6d 0%, #ff1e56 100%);
+
+      color: white;
+
+      box-shadow: 0 8px 24px rgba(255, 30, 86, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.6);
+
+      transform: translateY(-2px);
+
+    }
+
+
+
+    .btn-green-holly {
+
+      background: linear-gradient(145deg, #00b894 0%, #009475 100%);
+
+      color: white;
+
+      font-weight: 800;
+
+      border: 1px solid rgba(255, 255, 255, 0.3);
+
+      box-shadow: 0 6px 18px rgba(0, 184, 148, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+
+    }
+
+
+
+    .btn-green-holly:hover {
+
+      background: linear-gradient(145deg, #55efc4 0%, #00b894 100%);
+
+      color: white;
+
+      box-shadow: 0 8px 24px rgba(0, 184, 148, 0.65);
+
+    }
+
+
+
+    .badge-da-inserire { background: #fff3cd; color: #856404; font-weight: 800; border: 1px solid #ffeba2; box-shadow: inset 0 1px 0 #fff; }
+
+    .badge-inserito { background: #d4edda; color: #155724; font-weight: 800; border: 1px solid #c3e6cb; box-shadow: inset 0 1px 0 #fff; }
+
+    .extra-small { font-size: 0.72rem; }
+
   </style>
+
 </head>
+
 <body>
 
-  <div class="bg-anime"></div>
-  <canvas id="snowCanvas"></canvas>
 
-  <!-- Babbo Natale Volante -->
-  <div class="santa-container">
-    <svg viewBox="0 0 200 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M20 50 Q 50 20, 80 50 T 140 50" stroke="#f1c40f" stroke-width="2" fill="none"/>
-      <circle cx="150" cy="45" r="12" fill="#d42426"/>
-      <circle cx="160" cy="42" r="5" fill="#fff"/>
-      <path d="M140 55 C140 65, 160 65, 160 55 Z" fill="#8b0000"/>
+
+  <!-- SFONDO ANIME -->
+
+  <div class="hero-bg-wrapper"></div>
+
+  <div id="snowflakeContainer"></div>
+
+
+
+  <!-- BABBO NATALE HD AD ALTA DEFINIZIONE AL CENTRO SCHERMO -->
+
+  <div class="santa-flying-container">
+
+    <svg width="480" height="200" viewBox="0 0 480 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+
+        <linearGradient id="santaSuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+          <stop offset="0%" stop-color="#ff2e63"/>
+
+          <stop offset="50%" stop-color="#d80032"/>
+
+          <stop offset="100%" stop-color="#70001a"/>
+
+        </linearGradient>
+
+
+
+        <linearGradient id="goldSleighGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+          <stop offset="0%" stop-color="#fff176"/>
+
+          <stop offset="50%" stop-color="#ffd700"/>
+
+          <stop offset="100%" stop-color="#b7950b"/>
+
+        </linearGradient>
+
+
+
+        <linearGradient id="sackGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+
+          <stop offset="0%" stop-color="#a0522d"/>
+
+          <stop offset="40%" stop-color="#8b4513"/>
+
+          <stop offset="100%" stop-color="#4a2306"/>
+
+        </linearGradient>
+
+
+
+        <linearGradient id="beardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+
+          <stop offset="0%" stop-color="#ffffff"/>
+
+          <stop offset="100%" stop-color="#e2e8f0"/>
+
+        </linearGradient>
+
+
+
+        <filter id="dropShadow3D" x="-10%" y="-10%" width="130%" height="130%">
+
+          <feDropShadow dx="3" dy="6" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"/>
+
+        </filter>
+
+        <filter id="goldGlow">
+
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+
+          <feMerge>
+
+            <feMergeNode in="coloredBlur"/>
+
+            <feMergeNode in="SourceGraphic"/>
+
+          </feMerge>
+
+        </filter>
+
+      </defs>
+
+
+
+      <!-- Scintille luminose HD -->
+
+      <g filter="url(#goldGlow)">
+
+        <circle cx="20" cy="100" r="3" fill="#ffee32"/>
+
+        <circle cx="45" cy="85" r="4" fill="#ffffff"/>
+
+        <circle cx="75" cy="115" r="3.5" fill="#00f5d4"/>
+
+        <circle cx="110" cy="95" r="4.5" fill="#ffee32"/>
+
+      </g>
+
+
+
+      <!-- Renna Guida HD -->
+
+      <g id="reindeerHD" filter="url(#dropShadow3D)">
+
+        <path d="M 400 90 Q 430 55 450 72 Q 462 88 438 108 L 405 115 Z" fill="#8d6e63" stroke="#4e342e" stroke-width="2"/>
+
+        <circle cx="456" cy="76" r="5" fill="#ff1e56" filter="url(#goldGlow)"/>
+
+        <path d="M 428 58 L 420 40 M 430 52 L 438 38 M 424 46 L 416 34" stroke="#4e342e" stroke-width="3" stroke-linecap="round"/>
+
+      </g>
+
+
+
+      <!-- Redini Lucenti -->
+
+      <path d="M 270 112 Q 340 100 405 95" stroke="url(#goldSleighGrad)" stroke-width="3" stroke-dasharray="6 2" filter="url(#goldGlow)"/>
+
+
+
+      <!-- SACCO DI REGALI GROSSO CON SCRITTA "OLIVAMI" CUCITA -->
+
+      <g id="giantSackHD" filter="url(#dropShadow3D)">
+
+        <path d="M 110 65 Q 75 130 135 160 Q 210 160 190 95 Q 170 50 135 50 Z" fill="url(#sackGrad)" stroke="#2d1503" stroke-width="2.5"/>
+
+        <path d="M 130 50 Q 145 60 135 70 Q 120 60 130 50 Z" fill="#6d3811"/>
+
+        <path d="M 120 68 Q 138 75 152 66" stroke="#ffee32" stroke-width="4" stroke-linecap="round"/>
+
+
+
+        <!-- Toppa Cucita OLIVAMI -->
+
+        <path d="M 112 92 L 180 88 Q 185 118 178 126 L 110 128 Q 106 105 112 92 Z" fill="#2d4a22" stroke="#1b3013" stroke-width="2"/>
+
+        <path d="M 114 94 L 178 90 Q 183 116 176 124 L 112 126 Q 108 107 114 94 Z" fill="none" stroke="#ffee32" stroke-width="1.8" stroke-dasharray="4 3"/>
+
+        <text x="117" y="113" font-family="'Cinzel', 'Segoe UI', serif" font-weight="900" font-size="13" fill="#ffffff" stroke="#ffd700" stroke-width="0.8" letter-spacing="2" filter="url(#goldGlow)">OLIVAMI</text>
+
+      </g>
+
+
+
+      <!-- Slitta 3D Lucida -->
+
+      <g id="sleighHD" filter="url(#dropShadow3D)">
+
+        <path d="M 175 130 Q 155 85 225 85 L 290 85 Q 315 130 255 142 Z" fill="url(#santaSuitGrad)" stroke="#ffffff" stroke-width="2"/>
+
+        <path d="M 170 128 Q 230 138 295 125" fill="none" stroke="url(#goldSleighGrad)" stroke-width="4"/>
+
+        <path d="M 155 152 L 305 152 Q 320 152 325 138" stroke="url(#goldSleighGrad)" stroke-width="5" stroke-linecap="round" fill="none" filter="url(#goldGlow)"/>
+
+        <line x1="195" y1="144" x2="195" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+
+        <line x1="270" y1="138" x2="270" y2="152" stroke="url(#goldSleighGrad)" stroke-width="3.5"/>
+
+      </g>
+
+
+
+      <!-- BABBO NATALE GROSSO & DEFINITO -->
+
+      <g id="bigSantaHD">
+
+        <path d="M 215 80 C 195 92 195 128 245 128 C 275 128 275 92 255 80 Z" fill="url(#santaSuitGrad)" stroke="#800f2f" stroke-width="1.5"/>
+
+        <path d="M 232 80 L 232 128" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+
+        <rect x="208" y="102" width="50" height="9" rx="2" fill="#111111"/>
+
+        <rect x="227" y="98" width="12" height="17" rx="2" fill="url(#goldSleighGrad)" stroke="#111111" stroke-width="1.5"/>
+
+        <path d="M 248 92 Q 270 95 278 110" stroke="url(#santaSuitGrad)" stroke-width="12" stroke-linecap="round"/>
+
+        <circle cx="280" cy="112" r="6" fill="#111111"/>
+
+
+
+        <circle cx="234" cy="62" r="15" fill="#ffcc80"/>
+
+        <circle cx="240" cy="60" r="2" fill="#2d1503"/>
+
+        <path d="M 242 64 Q 248 66 244 68" stroke="#d80032" stroke-width="1.5" fill="none"/>
+
+        
+
+        <path d="M 218 64 Q 234 94 252 64 Q 244 98 226 92 Z" fill="url(#beardGrad)" filter="url(#dropShadow3D)"/>
+
+        <path d="M 234 67 Q 224 72 218 68 M 234 67 Q 244 72 250 68" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+
+
+
+        <path d="M 220 54 Q 234 30 258 50 Z" fill="url(#santaSuitGrad)"/>
+
+        <rect x="217" y="52" width="30" height="7" rx="3.5" fill="#ffffff" filter="url(#dropShadow3D)"/>
+
+        <circle cx="260" cy="51" r="5" fill="#ffffff"/>
+
+      </g>
+
     </svg>
+
   </div>
 
-  <div class="container py-5">
-    <!-- Header -->
-    <header class="text-center mb-5">
-      <h1 class="display-4 font-cinzel text-warning fw-bold mb-2">HQ - Piano Festività Natalizie</h1>
-      <p class="text-light opacity-75">Pianificazione Presenze & Ferie HQ</p>
-    </header>
 
-    <!-- Sezione Auth / Login -->
-    <div id="authSection" class="row justify-content-center">
-      <div class="col-md-6 col-lg-5">
-        <div class="glass-card p-4 p-md-5">
-          <h3 class="font-cinzel text-center text-white mb-4">Accesso Portale</h3>
-          <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="mb-3">
-              <label for="emailInput" class="form-label text-light">Email Aziendale</label>
-              <input type="email" class="form-control" id="emailInput" placeholder="nome.cognome@azienda.it" required>
+
+  <!-- SCENOGRAFIA VETTORIALE -->
+
+  <svg class="tech-landscape" viewBox="0 0 1200 250" preserveAspectRatio="none">
+
+    <path d="M0,205 Q150,185 300,210 T600,195 T900,205 T1200,190 L1200,250 L0,250 Z" fill="#ffffff" opacity="0.96"/>
+
+    
+
+    <g transform="translate(120, 105)">
+
+      <rect x="0" y="30" width="38" height="75" rx="8" fill="#1e293b"/>
+
+      <rect x="6" y="40" width="26" height="22" rx="4" fill="#00f5d4"/>
+
+      <circle cx="19" cy="80" r="6" fill="#ffee32"/>
+
+      <path d="M -3 32 Q 19 2 41 32 Z" fill="#d80032"/>
+
+      <circle cx="19" cy="2" r="5" fill="#ffffff"/>
+
+      <rect x="-5" y="28" width="48" height="8" rx="4" fill="#ffffff"/>
+
+    </g>
+
+
+
+    <g transform="translate(290, 35)">
+
+      <line x1="20" y1="175" x2="35" y2="20" stroke="#94a3b8" stroke-width="3"/>
+
+      <line x1="50" y1="175" x2="35" y2="20" stroke="#94a3b8" stroke-width="3"/>
+
+      <rect x="12" y="30" width="7" height="28" rx="2" fill="#00f5d4"/>
+
+      <rect x="51" y="30" width="7" height="28" rx="2" fill="#00f5d4"/>
+
+      <path d="M 21 22 Q 35 -6 49 22 Z" fill="#d80032"/>
+
+      <circle cx="35" cy="-6" r="5.5" fill="#ffffff"/>
+
+      <rect x="18" y="20" width="34" height="7" rx="3" fill="#ffffff"/>
+
+    </g>
+
+
+
+    <g transform="translate(880, 95)">
+
+      <rect x="0" y="30" width="42" height="85" rx="9" fill="#0f172a"/>
+
+      <rect x="7" y="44" width="28" height="24" rx="4" fill="#ff1e56"/>
+
+      <path d="M -4 32 Q 21 0 46 32 Z" fill="#d80032"/>
+
+      <circle cx="21" cy="0" r="6" fill="#ffffff"/>
+
+      <rect x="-6" y="28" width="54" height="9" rx="4" fill="#ffffff"/>
+
+    </g>
+
+
+
+    <g transform="translate(1030, 45)">
+
+      <line x1="20" y1="165" x2="35" y2="30" stroke="#94a3b8" stroke-width="3"/>
+
+      <line x1="50" y1="165" x2="35" y2="30" stroke="#94a3b8" stroke-width="3"/>
+
+      <path d="M 21 32 Q 35 5 49 32 Z" fill="#d80032"/>
+
+      <circle cx="35" cy="5" r="5" fill="#ffffff"/>
+
+      <rect x="18" y="30" width="34" height="7" rx="3" fill="#ffffff"/>
+
+    </g>
+
+  </svg>
+
+
+
+  <!-- HEADER APPLICAZIONE -->
+
+  <div class="header-bar">
+
+    <div class="container d-flex justify-content-between align-items-center">
+
+      <div class="d-flex align-items-center gap-3">
+
+        <span class="fs-1">🎄</span>
+
+        <div>
+
+          <h3 class="m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">SANTA - HQ</h3>
+
+          <div class="header-subtitle">
+
+            LE VACANZE CHE VUOI TU 
+
+            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));">
+
+              <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
+
+              <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+
+              <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
+
+              <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+
+              <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
+
+              <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
+
+              <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
+
+              <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
+
+              <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
+
+              <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
+
+              <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
+
+            </svg>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIBA -->
+
+        <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
+
+        
+
+        <div id="userInfo" class="d-none text-end">
+
+          <span id="userNameDisplay" class="fw-bold me-2 text-white"></span>
+
+          <span id="userInquadramentoBadge" class="badge bg-light text-danger me-2 d-none fw-bold shadow-sm"></span>
+
+          <button class="btn btn-sm btn-outline-light rounded-pill px-3 fw-bold" onclick="logout()">Logout</button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <div class="container mb-5">
+
+
+
+    <!-- RIQUADRO DI ACCESSO CON GHIRLANDA NATALIZIA DORATA -->
+
+    <div id="loginCard" class="mx-auto mt-4" style="max-width: 460px;">
+
+      <div class="garland-box-wrapper">
+
+        <div class="card glossy-login-card p-2">
+
+          <div class="card-body text-center p-4">
+
+            <div class="fs-1 mb-2">🎅 ✨ 🧁</div>
+
+            <h3 class="login-title mb-1">SANTA - HQ</h3>
+
+            <p class="small text-white-75 mb-4">Inserisci la tua email aziendale per accedere al portale.</p>
+
+            
+
+            <form onsubmit="handleLogin(event)">
+
+              <div class="mb-3 text-start">
+
+                <label class="form-label small fw-bold text-white">Email Aziendale</label>
+
+                <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@hqe.it" required>
+
+              </div>
+
+              <div id="adminPasswordField" class="mb-3 text-start d-none">
+
+                <label class="form-label small fw-bold text-white">Password Amministratore</label>
+
+                <input type="password" id="loginPassword" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="Password admin">
+
+              </div>
+
+              <div id="loginError" class="alert alert-warning text-dark small py-2 d-none rounded-3 fw-bold"></div>
+
+              <button type="submit" class="btn btn-santa w-100 py-2.5 rounded-3 mt-2 fs-6">
+
+                Scegli il tuo Natale ✨
+
+              </button>
+
+            </form>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- CALENDARIO PERSONALE PER UTENTI -->
+
+    <div id="calendarSection" class="d-none mb-4">
+
+      <div class="card card-glossy-light">
+
+        <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
+
+          <span id="calendarTitle" class="fs-5 text-danger fw-black">📅 Selezione Giornate</span>
+
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm" id="maxDaysInfo">Max 4 Giorni</span>
+
+        </div>
+
+        <div class="card-body">
+
+          <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold"></div>
+
+
+
+          <!-- LEGENDA COLORI & BOX CONSIGLIATO / VACANZE HQ -->
+
+          <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+
+            <div id="legendContainer" class="d-flex flex-wrap gap-3 small fw-bold"></div>
+
+            <!-- BOX CONSIGLIO HQ DINAMICO -->
+
+            <div id="hqSuggestBox" class="hq-recommend-box">
+
+              💡 HQ consiglia di scegliere i giorni 28-29-30
+
             </div>
-            <div class="mb-3 d-none" id="passwordGroup">
-              <label for="passwordInput" class="form-label text-light">Password Admin</label>
-              <input type="password" class="form-control" id="passwordInput" placeholder="******">
+
+          </div>
+
+          
+
+          <div id="calendarContainer" class="d-flex flex-wrap gap-2 mb-4 justify-content-start"></div>
+
+
+
+          <div class="mb-3">
+
+            <label class="form-label fw-bold small text-secondary">Note operative o comunicazioni:</label>
+
+            <textarea id="employeeNotes" class="form-control form-control-sm rounded-3 shadow-sm" rows="2" placeholder="Inserisci eventuali note..."></textarea>
+
+          </div>
+
+
+
+          <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+
+            <span class="badge bg-secondary rounded-pill px-3 py-2 fs-6 shadow-sm" id="selectedCountBadge">Giorni scelti: 0</span>
+
+            <button class="btn btn-green-holly rounded-3 px-4 py-2" onclick="saveEmployeeRequest()">💾 Salva Preferenze</button>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- PANNELLO AMMINISTRATORE (ADMIN) -->
+
+    <div id="adminSection" class="d-none">
+
+
+
+      <!-- RIQUADRO AGGIUNTA MANUALE -->
+
+      <div class="card card-glossy-light mb-4">
+
+        <div class="card-body p-4">
+
+          <h6 class="fw-black text-danger mb-3">+ AGGIUNGI SINGOLO COLLABORATORE MANUALE</h6>
+
+          <form onsubmit="handleAddUser(event)">
+
+            <div class="row g-2 mb-2">
+
+              <div class="col-md-6"><input type="text" id="addCognome" class="form-control form-control-sm" placeholder="Cognome *" required></div>
+
+              <div class="col-md-6"><input type="text" id="addNome" class="form-control form-control-sm" placeholder="Nome *" required></div>
+
             </div>
-            <button type="submit" class="btn btn-xmas w-100 py-2 mt-3">Accedi</button>
+
+            <div class="row g-2 mb-2">
+
+              <div class="col-md-6"><input type="email" id="addEmail" class="form-control form-control-sm" placeholder="Email aziendale *" required></div>
+
+              <div class="col-md-6"><input type="text" id="addAzienda" class="form-control form-control-sm" placeholder="Azienda (es. HQE)"></div>
+
+            </div>
+
+            <div class="row g-2 mb-3">
+
+              <div class="col-md-4"><input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU"></div>
+
+              <div class="col-md-4"><input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team"></div>
+
+              <div class="col-md-4"><input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente"></div>
+
+            </div>
+
+            <div class="row g-2 mb-3">
+
+              <div class="col-md-6">
+
+                <select id="addInquadramento" class="form-select form-select-sm">
+
+                  <option value="Dipendente">Dipendente</option>
+
+                  <option value="PartitaIVA">PartitaIVA</option>
+
+                  <option value="CoCoCo">CoCoCo</option>
+
+                </select>
+
+              </div>
+
+              <div class="col-md-6"><input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15"></div>
+
+            </div>
+
+            <button type="submit" class="btn btn-santa w-100 py-2 rounded-3">Salva Collaboratore in Anagrafica</button>
+
           </form>
-        </div>
-      </div>
-    </div>
 
-    <!-- Sezione User Dashboard (Nascosta di default) -->
-    <div id="userDashboard" class="d-none">
-      <div class="glass-card p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <h4 class="font-cinzel text-warning m-0">Inserimento Piano Ferie</h4>
-          <span class="badge bg-danger fs-6" id="userNameBadge">Utente</span>
         </div>
-        <form id="holidayForm" onsubmit="handleHolidaySubmit(event)">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="form-label text-light">Seleziona Giorni (Max consigliati: 4)</label>
-              <div class="form-check text-light">
-                <input class="form-check-input" type="checkbox" value="2024-12-24" id="d24">
-                <label class="form-check-label" for="d24">24 Dicembre (Vigilia)</label>
-              </div>
-              <div class="form-check text-light">
-                <input class="form-check-input" type="checkbox" value="2024-12-28" id="d28">
-                <label class="form-check-label" for="d28">28 Dicembre</label>
-              </div>
-              <div class="form-check text-light">
-                <input class="form-check-input" type="checkbox" value="2024-12-29" id="d29">
-                <label class="form-check-label" for="d29">29 Dicembre</label>
-              </div>
-              <div class="form-check text-light">
-                <input class="form-check-input" type="checkbox" value="2024-12-30" id="d30">
-                <label class="form-check-label" for="d30">30 Dicembre</label>
-              </div>
-              <div class="form-check text-light">
-                <input class="form-check-input" type="checkbox" value="2024-12-31" id="d31">
-                <label class="form-check-label" for="d31">31 Dicembre</label>
-              </div>
+
+      </div>
+
+
+
+      <!-- TABELLA RISORSE ADMIN ELEGANTE E AD ALTA QUALITÀ -->
+
+      <div class="card card-glossy-light mb-4">
+
+        <div class="card-body p-4">
+
+          <h5 class="fw-black text-danger mb-3">Anagrafica Risorse & Azioni Admin</h5>
+
+
+
+          <!-- FILTRI -->
+
+          <div class="row g-2 mb-3">
+
+            <div class="col-md-3">
+
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER BU</label>
+
+              <select id="filterBu" class="form-select form-select-sm" onchange="applyFilters()">
+
+                <option value="">-- Tutte le BU --</option>
+
+              </select>
+
             </div>
-            <div class="col-md-6">
-              <label for="userNotes" class="form-label text-light">Note Operative</label>
-              <textarea class="form-control" id="userNotes" rows="4" placeholder="Eventuali note sul reperibilità o passaggi di consegne..."></textarea>
+
+            <div class="col-md-3">
+
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER TEAM</label>
+
+              <select id="filterTeam" class="form-select form-select-sm" onchange="applyFilters()">
+
+                <option value="">-- Tutti i Team --</option>
+
+              </select>
+
             </div>
-          </div>
-          <button type="submit" class="btn btn-xmas mt-4">Invia Selezione</button>
-        </form>
-      </div>
-    </div>
 
-    <!-- Sezione Admin Dashboard (Nascosta di default) -->
-    <div id="adminDashboard" class="d-none">
-      <div class="glass-card p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h3 class="font-cinzel text-warning m-0">Pannello Amministrazione</h3>
-          <button class="btn btn-outline-light btn-sm" onclick="exportToExcel()">📊 Esporta Excel</button>
+            <div class="col-md-3">
+
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 FILTRA PER REFERENTE</label>
+
+              <select id="filterReferente" class="form-select form-select-sm" onchange="applyFilters()">
+
+                <option value="">-- Tutti i Referenti --</option>
+
+              </select>
+
+            </div>
+
+            <div class="col-md-3">
+
+              <label class="form-label extra-small fw-bold text-muted m-0">🔍 CERCA TESTO LIBERO</label>
+
+              <input type="text" id="filterSearch" class="form-control form-control-sm" placeholder="Nome, cognome, email..." oninput="applyFilters()">
+
+            </div>
+
+          </div>
+
+
+
+          <!-- TABELLA BORDATA AD ALTA DEFINIZIONE -->
+
+          <div class="table-responsive">
+
+            <table class="table admin-table-custom align-middle mb-3">
+
+              <thead>
+
+                <tr>
+
+                  <th>AZIENDA</th>
+
+                  <th>BU</th>
+
+                  <th>TEAM</th>
+
+                  <th>REFERENTE</th>
+
+                  <th>COGNOME E NOME</th>
+
+                  <th>INQUADRAMENTO</th>
+
+                  <th>MAX GIORNI</th>
+
+                  <th>GIORNI SCELTI</th>
+
+                  <th>STATO</th>
+
+                  <th>DATE SELEZIONATE</th>
+
+                  <th style="min-width: 140px;">AZIONI ADMIN</th>
+
+                </tr>
+
+              </thead>
+
+              <tbody id="usersTableBody">
+
+                <!-- Generato da JS -->
+
+              </tbody>
+
+            </table>
+
+          </div>
+
+
+
+          <!-- EXCEL EXPORT -->
+
+          <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+
+            <span class="small text-muted fw-semibold">Scarica il file master delle presenze/assenze nel formato aziendale HQE.</span>
+
+            <button class="btn btn-green-holly rounded-3 px-3 py-2" onclick="exportToExcel()">📊 Scarica Report Excel (.xlsx)</button>
+
+          </div>
+
+
+
         </div>
 
-        <!-- Form Aggiunta Collaboratore -->
-        <form id="addWorkerForm" onsubmit="handleAddWorker(event)" class="row g-3 mb-4 p-3 style-glass-sub">
-          <div class="col-md-3">
-            <input type="text" class="form-control" id="newWorkerName" placeholder="Nome Cognome" required>
-          </div>
-          <div class="col-md-3">
-            <input type="email" class="form-control" id="newWorkerEmail" placeholder="Email" required>
-          </div>
-          <div class="col-md-2">
-            <input type="text" class="form-control" id="newWorkerBU" placeholder="BU / Team" required>
-          </div>
-          <div class="col-md-2">
-            <input type="number" class="form-control" id="newWorkerMax" placeholder="Max Giorni" value="4" required>
-          </div>
-          <div class="col-md-2">
-            <button type="submit" class="btn btn-xmas w-100">+ Aggiungi</button>
-          </div>
-        </form>
-
-        <!-- Tabella Risultati -->
-        <div class="table-responsive">
-          <table class="table table-dark-glass align-middle" id="adminTable">
-            <thead>
-              <tr>
-                <th>Collaboratore</th>
-                <th>BU / Team</th>
-                <th>Giorni Richiesti</th>
-                <th>Note</th>
-                <th>Stato</th>
-              </tr>
-            </thead>
-            <tbody id="adminTableBody">
-              <!-- Popolato dinamicamente via JS -->
-            </tbody>
-          </table>
-        </div>
       </div>
+
+
+
     </div>
+
+
+
   </div>
 
-  <!-- Pulsante Toggle Musica Natalizia -->
-  <button id="musicToggleBtn" class="btn btn-xmas audio-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
+
 
   <script>
-    // --- ANIMAZIONE NEVE ---
-    const canvas = document.getElementById('snowCanvas');
-    const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
 
-    window.addEventListener('resize', () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
-    });
+    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API (GARANTISCE IL FUNZIONAMENTO SU TUTTI I BROWSER)
 
-    const numFlakes = 80;
-    const flakes = Array.from({ length: numFlakes }, () => ({
-      x: Math.random() * width,
-      y: Math.random() * height,
-      r: Math.random() * 3 + 1,
-      d: Math.random() * 1 + 0.5
-    }));
-
-    function drawSnow() {
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-      ctx.beginPath();
-      for (let f of flakes) {
-        ctx.moveTo(f.x, f.y);
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-      }
-      ctx.fill();
-      moveSnow();
-      requestAnimationFrame(drawSnow);
-    }
-
-    function moveSnow() {
-      for (let f of flakes) {
-        f.y += Math.pow(f.r, 0.8) * 0.5;
-        f.x += Math.sin(f.y / 30);
-        if (f.y > height) {
-          f.y = -10;
-          f.x = Math.random() * width;
-        }
-      }
-    }
-    drawSnow();
-
-    // --- GESTIONE AUTH & INTERFACCIA ---
-    const emailInput = document.getElementById('emailInput');
-    const passwordGroup = document.getElementById('passwordGroup');
-
-    emailInput.addEventListener('input', (e) => {
-      if (e.target.value.toLowerCase() === 'admin@azienda.it') {
-        passwordGroup.classList.remove('d-none');
-      } else {
-        passwordGroup.classList.add('d-none');
-      }
-    });
-
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = emailInput.value.toLowerCase();
-      document.getElementById('authSection').classList.add('d-none');
-
-      if (email === 'admin@azienda.it') {
-        document.getElementById('adminDashboard').classList.remove('d-none');
-        renderAdminTable();
-      } else {
-        document.getElementById('userDashboard').classList.remove('d-none');
-        document.getElementById('userNameBadge').innerText = email.split('@')[0];
-      }
-    }
-
-    // --- MOCK DATA ADMIN & EXCEL ---
-    const mockWorkers = [
-      { name: "Mario Rossi", bu: "IT HQ", days: "24, 28, 29, 30", notes: "Passaggio consegne ok", status: "Inviato" },
-      { name: "Laura Bianchi", bu: "HR", days: "28, 29, 30", notes: "-", status: "Inviato" }
-    ];
-
-    function renderAdminTable() {
-      const tbody = document.getElementById('adminTableBody');
-      tbody.innerHTML = mockWorkers.map(w => `
-        <tr>
-          <td>${w.name}</td>
-          <td>${w.bu}</td>
-          <td>${w.days}</td>
-          <td>${w.notes}</td>
-          <td><span class="badge bg-success">${w.status}</span></td>
-        </tr>
-      `).join('');
-    }
-
-    function handleAddWorker(e) {
-      e.preventDefault();
-      const name = document.getElementById('newWorkerName').value;
-      const bu = document.getElementById('newWorkerBU').value;
-      mockWorkers.push({ name, bu, days: "Da selezionare", notes: "-", status: "In Attesa" });
-      renderAdminTable();
-      e.target.reset();
-    }
-
-    function handleHolidaySubmit(e) {
-      e.preventDefault();
-      alert("Richiesta salvata con successo!");
-    }
-
-    function exportToExcel() {
-      const ws = XLSX.utils.json_to_sheet(mockWorkers);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Piano Ferie");
-      XLSX.writeFile(wb, "Piano_Ferie_Natalizie_HQ.xlsx");
-    }
-
-    // --- MODULO AUDIO (WEB AUDIO API - JINGLE BELLS) ---
     let audioCtx = null;
+
     let isPlaying = false;
+
     let audioInterval = null;
 
+
+
+    // Note musicali per Jingle Bells
+
     const jingleBellsNotes = [
-      { note: 329.63, duration: 250 }, { note: 329.63, duration: 250 }, { note: 329.63, duration: 500 },
-      { note: 329.63, duration: 250 }, { note: 329.63, duration: 250 }, { note: 329.63, duration: 500 },
-      { note: 329.63, duration: 250 }, { note: 392.00, duration: 250 }, { note: 261.63, duration: 250 }, { note: 293.66, duration: 250 },
-      { note: 329.63, duration: 1000 }
+
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+
+      { note: 659.25, duration: 250 }, { note: 783.99, duration: 250 }, { note: 523.25, duration: 375 }, { note: 587.33, duration: 125 },
+
+      { note: 659.25, duration: 1000 },
+
+      { note: 698.46, duration: 250 }, { note: 698.46, duration: 250 }, { note: 698.46, duration: 375 }, { note: 698.46, duration: 125 },
+
+      { note: 698.46, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 125 }, { note: 659.25, duration: 125 },
+
+      { note: 659.25, duration: 250 }, { note: 587.33, duration: 250 }, { note: 587.33, duration: 250 }, { note: 659.25, duration: 250 },
+
+      { note: 587.33, duration: 500 }, { note: 783.99, duration: 500 }
+
     ];
 
+
+
     function playTone(freq, duration) {
-      if (!audioCtx) return;
+
+      if (!audioCtx || !isPlaying) return;
+
       try {
+
         const osc = audioCtx.createOscillator();
+
         const gain = audioCtx.createGain();
+
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+
+        osc.frequency.value = freq;
+
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+
         gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (duration / 1000));
+
         osc.connect(gain);
+
         gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + (duration / 1000));
-      } catch (e) {
-        console.error("Errore durante la riproduzione del tono:", e);
-      }
-    }
-
-    function startMusic() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      
-      let noteIndex = 0;
-      isPlaying = true;
-
-      function playNextNote() {
-        if (!isPlaying) return;
-        const current = jingleBellsNotes[noteIndex];
-        playTone(current.note, current.duration);
-        
-        noteIndex = (noteIndex + 1) % jingleBellsNotes.length;
-        audioInterval = setTimeout(playNextNote, current.duration);
-      }
-
-      playNextNote();
-    }
-
-    function stopMusic() {
-      isPlaying = false;
-      if (audioInterval) clearTimeout(audioInterval);
-    }
-
-    function toggleAudio() {
-      const btn = document.getElementById('musicToggleBtn');
-      if (isPlaying) {
-        stopMusic();
-        btn.innerText = '🎵 Musica: OFF';
-      } else {
-        startMusic();
-        btn.innerText = '🔊 Musica: ON';
-      }
-    }
-  </script>
-</body>
-</html>
