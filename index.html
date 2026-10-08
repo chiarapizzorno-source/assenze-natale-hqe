@@ -521,7 +521,7 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIBA -->
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIVA -->
         <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
         
         <div id="userInfo" class="d-none text-end">
@@ -568,12 +568,12 @@
       <div class="card card-glossy-light">
         <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
           <span id="calendarTitle" class="fs-5 text-danger fw-black">📅 Selezione Giornate</span>
-          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm" id="maxDaysInfo">Max 4 Giorni</span>
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm d-none" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
           <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold"></div>
 
-          <!-- LEGENDA COLORI & BOX CONSIGLIATO / VACANZE HQ -->
+          <!-- LEGENDA COLORI & BOX CONSIGLIO / VACANZE HQ -->
           <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
             <div id="legendContainer" class="d-flex flex-wrap gap-3 small fw-bold"></div>
             <!-- BOX CONSIGLIO HQ DINAMICO -->
@@ -702,7 +702,7 @@
   </div>
 
   <script>
-    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API (GARANTISCE IL FUNZIONAMENTO SU TUTTI I BROWSER)
+    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API
     let audioCtx = null;
     let isPlaying = false;
     let audioInterval = null;
@@ -878,13 +878,31 @@
       const hqBox = document.getElementById('hqSuggestBox');
 
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
 
-      // INTERFACCIA UNIFORMATA SENZA MOSTRARE/DISTINGUERE L'INQUADRAMENTO
-      maxEl.innerText = `Max ${maxDays} Giorni Totali`;
-      maxEl.classList.remove('d-none');
       titleEl.innerText = "📅 Calendario Selezione Giornate";
-      textEl.innerHTML = "💡 Seleziona le giornate feriali per le quali intendi pianificare le tue assenze/vacanze.";
-      hqBox.innerText = "💡 HQ consiglia di scegliere i giorni 28-29-30";
+
+      if (isFreelance) {
+        // NESSUN BOX MAX GIORNI IN ALTO A DESTRA PER P.IVA E COCOCO
+        maxEl.classList.add('d-none');
+        
+        // TESTO BOX ROSSO PER P.IVA E COCOCO
+        textEl.innerHTML = "💡 Dicci quali giorni hai intenzione di andare in vacanza";
+
+        // TESTO BOX CONSIGLIO PER P.IVA E COCOCO
+        hqBox.innerText = "💡 Che ne dici di scegliere i giorni 28-29-30?";
+      } else {
+        // PER I DIPENDENTI MOSTRA IL BADGE MAX GIORNI
+        maxEl.innerText = `Max ${maxDays} Giorni Totali`;
+        maxEl.classList.remove('d-none');
+
+        // FRASE PER I DIPENDENTI AGGIORNATA
+        textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
+
+        // TESTO CONSIGLIO STANDARD
+        hqBox.innerText = "💡 HQ consiglia di scegliere i giorni 28-29-30";
+      }
 
       legendEl.innerHTML = `
         <div class="d-flex align-items-center gap-1.5"><span style="width:16px; height:16px; background:#d80032; display:inline-block; border-radius:4px; box-shadow:0 2px 4px rgba(0,0,0,0.2);"></span> Chiusura Aziendale</div>
@@ -947,13 +965,27 @@
 
     function toggleDateSelection(dateStr) {
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
 
       if (employeeSelectedDates.includes(dateStr)) {
         employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
       } else {
-        if (maxDays > 0 && employeeSelectedDates.length >= maxDays) {
-          alert(`Hai raggiunto il limite massimo di ${maxDays} giorni selezionabili.`);
-          return;
+        // I CONTROLLI SUL LIMITE MASSIMO VALGONO SOLO SE NON È FREELANCE
+        if (!isFreelance) {
+          // I giorni di chiusura aziendale (CLOSED_DATES = 4) sono inclusi nel conteggio dei giorni autorizzati dall'Admin
+          const closedCount = CLOSED_DATES.length; 
+          const maxSelectable = maxDays - closedCount;
+
+          if (maxSelectable <= 0) {
+            alert(`Hai un limite totale di ${maxDays} giorni e vi sono già ${closedCount} giorni di chiusura aziendale compresi. Non puoi selezionare ulteriori giorni.`);
+            return;
+          }
+
+          if (employeeSelectedDates.length >= maxSelectable) {
+            alert(`Hai raggiunto il limite massimo di ${maxSelectable} giorni selezionabili (${maxDays} totali meno ${closedCount} di chiusura aziendale).`);
+            return;
+          }
         }
         employeeSelectedDates.push(dateStr);
       }
