@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Santa Holidays | Le Vacanze Che Vuoi Tu</title>
+  <title>Santa Holidays</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&family=Cinzel:wght@700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -206,6 +206,11 @@
       background: linear-gradient(135deg, #00f5d4 0%, #00b894 50%, #007958 100%) !important;
       border-bottom: 4px solid #ffee32 !important;
       box-shadow: 0 8px 32px rgba(0, 245, 212, 0.6), 0 0 30px rgba(0, 245, 212, 0.8) !important;
+      color: #002b20 !important;
+    }
+
+    .header-bar.header-piva .h3 {
+      color: #002b20 !important;
     }
 
     /* VARIANTE INTESTAZIONE ORO BRILLANTE (CoCoCo) */
@@ -222,7 +227,7 @@
 
     .header-subtitle {
       font-weight: 800;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       text-transform: uppercase;
       font-size: 0.85rem;
       color: #00f5d4;
@@ -230,6 +235,11 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .header-bar.header-piva .header-subtitle {
+      color: #003d2d !important;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(255,255,255,0.8) !important;
     }
 
     .header-bar.header-cococo .header-subtitle {
@@ -687,21 +697,7 @@
         <span class="fs-1" aria-hidden="true">🎄</span>
         <div>
           <h1 class="h3 m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">Santa Holidays</h1>
-          <div class="header-subtitle" id="headerSubtitleContainer">
-            <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
-              <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
-              <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
-              <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
-              <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
-              <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
-              <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
-              <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
-              <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
-              <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
-              <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
-              <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
-            </svg>
-          </div>
+          <div class="header-subtitle" id="headerSubtitleContainer"></div>
         </div>
       </div>
       <div class="d-flex align-items-center gap-3">
@@ -1105,7 +1101,7 @@
 
         document.getElementById('loginCard').classList.add('d-none');
         document.getElementById('userInfo').classList.remove('d-none');
-        document.getElementById('userNameDisplay').innerText = `${currentUser.nome} ${currentUser.cognome}`;
+        document.getElementById('userNameDisplay').innerText = `${currentUser.nome}${currentUser.cognome}`;
 
         const badgeEl = document.getElementById('userInquadramentoBadge');
         if (isAdmin) {
@@ -1159,21 +1155,7 @@
       if (isPIva) {
         headerSubtitleEl.innerHTML = `anche i nostri fornitori vanno in vacanza - è arrivato il momento di prendersi una pausa`;
       } else {
-        headerSubtitleEl.innerHTML = `
-          <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
-            <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
-            <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
-            <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
-            <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
-            <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
-            <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
-            <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
-            <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
-            <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
-            <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
-            <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
-          </svg>
-        `;
+        headerSubtitleEl.innerHTML = ``;
       }
 
       titleEl.innerText = "📅 Selezione Giornate";
