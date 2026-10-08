@@ -198,6 +198,26 @@
       margin-bottom: 25px;
       border-bottom: 4px solid #00f5d4;
       box-shadow: 0 8px 32px rgba(0, 245, 212, 0.35), 0 0 20px rgba(216, 0, 50, 0.7);
+      transition: all 0.5s ease;
+    }
+
+    /* VARIANTE INTESTAZIONE VERDE BRILLANTE (P.IVA) */
+    .header-bar.header-piva {
+      background: linear-gradient(135deg, #00f5d4 0%, #00b894 50%, #007958 100%) !important;
+      border-bottom: 4px solid #ffee32 !important;
+      box-shadow: 0 8px 32px rgba(0, 245, 212, 0.6), 0 0 30px rgba(0, 245, 212, 0.8) !important;
+    }
+
+    /* VARIANTE INTESTAZIONE ORO BRILLANTE (CoCoCo) */
+    .header-bar.header-cococo {
+      background: linear-gradient(135deg, #fff176 0%, #ffd700 50%, #b7950b 100%) !important;
+      border-bottom: 4px solid #ffffff !important;
+      box-shadow: 0 8px 32px rgba(255, 215, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.8) !important;
+      color: #3e2723 !important;
+    }
+
+    .header-bar.header-cococo .h3 {
+      color: #3e2723 !important;
     }
 
     .header-subtitle {
@@ -210,6 +230,11 @@
       display: flex;
       align-items: center;
       gap: 6px;
+    }
+
+    .header-bar.header-cococo .header-subtitle {
+      color: #5d4037 !important;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.8), 0 1px 2px rgba(255,255,255,0.8) !important;
     }
 
     .audio-control-btn {
@@ -656,14 +681,13 @@
   </svg>
 
   <!-- HEADER APPLICAZIONE -->
-  <header class="header-bar">
+  <header id="mainHeader" class="header-bar">
     <div class="container d-flex justify-content-between align-items-center">
       <div class="d-flex align-items-center gap-3">
         <span class="fs-1" aria-hidden="true">🎄</span>
         <div>
           <h1 class="h3 m-0 fw-black tracking-wide" style="font-weight: 900; text-shadow: 0 2px 4px rgba(0,0,0,0.4);">Santa Holidays</h1>
-          <div class="header-subtitle">
-            LE VACANZE CHE VUOI TU 
+          <div class="header-subtitle" id="headerSubtitleContainer">
             <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
               <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
               <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
@@ -710,9 +734,6 @@
                 <input type="email" id="loginEmail" class="form-control form-control-sm border-0 rounded-3 py-2 px-3 shadow" placeholder="nome.cognome@azienda.it" required aria-required="true">
                 <div class="invalid-feedback text-warning fw-bold small mt-1">Inserisci un'email aziendale valida</div>
               </div>
-              
-              <!-- FRASE AGGIUNTA SOTTO IL BOX EMAIL -->
-              <p class="fst-italic small text-white-75 mb-3" style="font-size: 0.85rem;">"Anche i nostri fornitori vanno in vacanza"</p>
 
               <div id="adminPasswordField" class="mb-3 text-start d-none">
                 <label for="loginPassword" class="form-label small fw-bold text-white">Password Amministratore</label>
@@ -735,6 +756,7 @@
       <div class="card card-glossy-light">
         <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
           <h2 id="calendarTitle" class="h5 m-0 text-danger fw-black">📅 Selezione Giornate</h2>
+          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm d-none" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
           <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold" role="region" aria-live="polite"></div>
@@ -812,13 +834,17 @@
               </div>
             </div>
             <div class="row g-2 mb-3">
-              <div class="col-md-12">
+              <div class="col-md-6">
                 <label for="addInquadramento" class="form-label extra-small fw-bold text-muted m-0">INQUADRAMENTO</label>
                 <select id="addInquadramento" class="form-select form-select-sm" aria-label="Seleziona Inquadramento">
                   <option value="Dipendente">Dipendente</option>
                   <option value="PartitaIVA">PartitaIVA</option>
                   <option value="CoCoCo">CoCoCo</option>
                 </select>
+              </div>
+              <div class="col-md-6">
+                <label for="addMaxDays" class="form-label extra-small fw-bold text-muted m-0">MAX GIORNI</label>
+                <input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15">
               </div>
             </div>
             <button type="submit" id="addUserBtn" class="btn btn-santa w-100 py-2 rounded-3">
@@ -871,6 +897,7 @@
                   <th scope="col">REFERENTE</th>
                   <th scope="col">COGNOME E NOME</th>
                   <th scope="col">INQUADRAMENTO</th>
+                  <th scope="col">MAX GIORNI</th>
                   <th scope="col">GIORNI SCELTI</th>
                   <th scope="col">STATO</th>
                   <th scope="col">DATE SELEZIONATE</th>
@@ -1108,19 +1135,57 @@
     function setupInquadramentoView() {
       const titleEl = document.getElementById('calendarTitle');
       const textEl = document.getElementById('guidanceText');
+      const maxEl = document.getElementById('maxDaysInfo');
       const legendEl = document.getElementById('legendContainer');
       const hqBox = document.getElementById('hqSuggestBox');
+      const headerEl = document.getElementById('mainHeader');
+      const headerSubtitleEl = document.getElementById('headerSubtitleContainer');
 
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
-      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
+      const isPIva = inq.includes('p.iva') || inq.includes('partita');
+      const isCoCoCo = inq.includes('cococo');
+      const isFreelance = isPIva || isCoCoCo;
+
+      // STILI HEADER DEDICATI
+      headerEl.classList.remove('header-piva', 'header-cococo');
+      if (isPIva) {
+        headerEl.classList.add('header-piva');
+      } else if (isCoCoCo) {
+        headerEl.classList.add('header-cococo');
+      }
+
+      // FRASE IN ALTO SOTTO SANTA HOLIDAYS
+      if (isPIva) {
+        headerSubtitleEl.innerHTML = `anche i nostri fornitori vanno in vacanza - è arrivato il momento di prendersi una pausa`;
+      } else {
+        headerSubtitleEl.innerHTML = `
+          <svg width="22" height="22" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 0 4px rgba(255,238,50,0.8));" aria-hidden="true">
+            <path d="M8 22 L11 34 L25 34 L28 22 Z" fill="#d7ccc8" stroke="#8d6e63" stroke-width="1.5"/>
+            <line x1="13" y1="22" x2="14.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+            <line x1="18" y1="22" x2="18" y2="34" stroke="#b0bec5" stroke-width="1"/>
+            <line x1="23" y1="22" x2="21.5" y2="34" stroke="#b0bec5" stroke-width="1"/>
+            <path d="M 6 22 C 4 10, 32 10, 30 22 Z" fill="#b78103" stroke="#5d4037" stroke-width="1.5"/>
+            <path d="M 9 19 C 10 12, 26 12, 27 19 Z" fill="#f5b041"/>
+            <circle cx="12" cy="16" r="1.5" fill="#d80032"/>
+            <circle cx="18" cy="14" r="1.5" fill="#00b894"/>
+            <circle cx="23" cy="17" r="1.5" fill="#d80032"/>
+            <circle cx="15" cy="19" r="1.2" fill="#2d1503"/>
+            <circle cx="20" cy="18" r="1.2" fill="#2d1503"/>
+          </svg>
+        `;
+      }
 
       titleEl.innerText = "📅 Selezione Giornate";
 
-      // SEPARAZIONE TERMINI & MODIFICA FRASE P.IVA
+      // SEPARAZIONE TERMINI: FERIE (Dipendenti) vs VACANZE (P.IVA e CoCoCo)
       if (isFreelance) {
-        textEl.innerHTML = "💡 E' arrivato il momento di prendersi una pausa dai nostri progetti";
+        maxEl.classList.add('d-none');
+        textEl.innerHTML = "💡 Indicaci in quali giorni hai intenzione di andare in vacanza";
         hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       } else {
+        maxEl.innerText = `Max ${maxDays} Giorni Totali`;
+        maxEl.classList.remove('d-none');
         textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
         hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       }
@@ -1206,9 +1271,27 @@
     }
 
     function toggleDateSelection(dateStr) {
+      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
+      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
+      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
+
       if (employeeSelectedDates.includes(dateStr)) {
         employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
       } else {
+        if (!isFreelance) {
+          const closedCount = CLOSED_DATES.length; 
+          const maxSelectable = maxDays - closedCount;
+
+          if (maxSelectable <= 0) {
+            alert(`Hai un limite totale di ${maxDays} giorni e vi sono già ${closedCount} giorni di chiusura aziendale compresi. Non puoi selezionare ulteriori giorni.`);
+            return;
+          }
+
+          if (employeeSelectedDates.length >= maxSelectable) {
+            alert(`Hai raggiunto il limite massimo di ${maxSelectable} giorni selezionabili (${maxDays} totali meno ${closedCount} di chiusura aziendale).`);
+            return;
+          }
+        }
         employeeSelectedDates.push(dateStr);
       }
       renderCalendar();
@@ -1296,6 +1379,7 @@
         const req = allRequests[u.email] || {};
         const dates = req.dates || [];
         const datesCount = dates.length;
+        const maxD = (u.maxDays !== undefined) ? u.maxDays : 4;
         
         const statusBadge = datesCount > 0 
           ? '<span class="badge badge-inserito rounded-pill px-2.5 py-1">Confermato</span>' 
@@ -1318,7 +1402,8 @@
             <div class="extra-small text-muted">${u.email}</div>
           </td>
           <td><span class="view-mode badge bg-secondary shadow-sm">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}" aria-label="Modifica Inquadramento"></td>
-          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount}</td>
+          <td><span class="view-mode fw-bold text-primary">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0" aria-label="Modifica Max Giorni"></td>
+          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount} / ${maxD}</td>
           <td class="text-center">${statusBadge}</td>
           <td class="small fw-semibold text-secondary">${formattedDates}</td>
           <td>
@@ -1347,6 +1432,7 @@
     async function saveUserEdit(email) {
       const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
       const confirmBtn = tr.querySelector('.btn-confirm');
+      const valMax = tr.querySelector('.val-maxdays').value;
       
       const uData = {
         email: email,
@@ -1354,7 +1440,8 @@
         bu: tr.querySelector('.val-bu').value,
         team: tr.querySelector('.val-team').value,
         referente: tr.querySelector('.val-referente').value,
-        inquadramento: tr.querySelector('.val-inquadramento').value
+        inquadramento: tr.querySelector('.val-inquadramento').value,
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
       };
 
       setButtonLoading(confirmBtn, true);
@@ -1384,6 +1471,7 @@
         return;
       }
 
+      const valMax = document.getElementById('addMaxDays').value;
       const newUser = {
         cognome: document.getElementById('addCognome').value,
         nome: document.getElementById('addNome').value,
@@ -1392,7 +1480,8 @@
         bu: document.getElementById('addBu').value,
         team: document.getElementById('addTeam').value,
         referente: document.getElementById('addReferente').value,
-        inquadramento: document.getElementById('addInquadramento').value
+        inquadramento: document.getElementById('addInquadramento').value,
+        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
       };
 
       setButtonLoading(addBtn, true);
@@ -1446,6 +1535,7 @@
           'REFERENTE': u.referente || '',
           'COGNOME E NOME': `${u.cognome} ${u.nome}`,
           'INQUADRAMENTO': u.inquadramento || '',
+          'MAX GIORNI': u.maxDays !== undefined ? u.maxDays : 4,
           'GIORNI SCELTI': (req.dates || []).length,
           'STATO': (req.dates || []).length > 0 ? 'Confermato' : 'Da Inserire',
           'DATE SELEZIONATE': (req.dates || []).join(', '),
