@@ -350,12 +350,6 @@
 </head>
 <body>
 
-  <!-- AUDIO NATALIZIO CON FONTE SICURA E GARANTITA -->
-  <audio id="xmasAudio" loop preload="auto" crossorigin="anonymous">
-    <source src="https://cdn.pixabay.com/download/audio/2022/11/22/audio_feb3c332d5.mp3?filename=jingle-bells-126565.mp3" type="audio/mpeg">
-    <source src="https://assets.mixkit.co/music/preview/mixkit-jingle-bells-classic-716.mp3" type="audio/mpeg">
-  </audio>
-
   <!-- SFONDO ANIME -->
   <div class="hero-bg-wrapper"></div>
   <div id="snowflakeContainer"></div>
@@ -527,7 +521,7 @@
         </div>
       </div>
       <div class="d-flex align-items-center gap-3">
-        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA COMPLETAMENTE FUNZIONANTE -->
+        <!-- PULSANTE CONTROLLO MUSICA NATALIZIA CON WEB AUDIO API NATIBA -->
         <button id="musicToggleBtn" class="audio-control-btn" onclick="toggleAudio()">🎵 Musica: OFF</button>
         
         <div id="userInfo" class="d-none text-end">
@@ -708,28 +702,68 @@
   </div>
 
   <script>
-    // GESTIONE ROBUSTA DEL PULSANTE MUSICA NATALIZIA
+    // GENERATORE AUDIO NATALIZIO NATIVO CON WEB AUDIO API (GARANTISCE IL FUNZIONAMENTO SU TUTTI I BROWSER)
+    let audioCtx = null;
     let isPlaying = false;
-    const audio = document.getElementById('xmasAudio');
-    audio.volume = 0.30; // Volume calibrato
+    let audioInterval = null;
 
-    async function toggleAudio() {
+    // Note musicali per Jingle Bells
+    const jingleBellsNotes = [
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+      { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 500 },
+      { note: 659.25, duration: 250 }, { note: 783.99, duration: 250 }, { note: 523.25, duration: 375 }, { note: 587.33, duration: 125 },
+      { note: 659.25, duration: 1000 },
+      { note: 698.46, duration: 250 }, { note: 698.46, duration: 250 }, { note: 698.46, duration: 375 }, { note: 698.46, duration: 125 },
+      { note: 698.46, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 250 }, { note: 659.25, duration: 125 }, { note: 659.25, duration: 125 },
+      { note: 659.25, duration: 250 }, { note: 587.33, duration: 250 }, { note: 587.33, duration: 250 }, { note: 659.25, duration: 250 },
+      { note: 587.33, duration: 500 }, { note: 783.99, duration: 500 }
+    ];
+
+    function playTone(freq, duration) {
+      if (!audioCtx || !isPlaying) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + (duration / 1000));
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + (duration / 1000));
+      } catch (e) { console.error(e); }
+    }
+
+    function startMelodyLoop() {
+      let step = 0;
+      function nextNote() {
+        if (!isPlaying) return;
+        const noteObj = jingleBellsNotes[step];
+        playTone(noteObj.note, noteObj.duration);
+        step = (step + 1) % jingleBellsNotes.length;
+        audioInterval = setTimeout(nextNote, noteObj.duration + 50);
+      }
+      nextNote();
+    }
+
+    function toggleAudio() {
       const btn = document.getElementById('musicToggleBtn');
-      
       if (!isPlaying) {
-        try {
-          await audio.play();
-          isPlaying = true;
-          btn.innerText = '🎶 Musica: ON ✨';
-          btn.style.background = 'linear-gradient(145deg, #00b894, #009475)';
-          btn.style.borderColor = '#00f5d4';
-        } catch (err) {
-          console.error("Errore durante la riproduzione audio:", err);
-          alert("Impossibile avviare l'audio. Assicurati che il tuo browser permetta la riproduzione dei suoni.");
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        isPlaying = true;
+        btn.innerText = '🎶 Musica: ON ✨';
+        btn.style.background = 'linear-gradient(145deg, #00b894, #009475)';
+        btn.style.borderColor = '#00f5d4';
+        startMelodyLoop();
       } else {
-        audio.pause();
         isPlaying = false;
+        if (audioInterval) clearTimeout(audioInterval);
         btn.innerText = '🎵 Musica: OFF';
         btn.style.background = 'rgba(255, 255, 255, 0.15)';
         btn.style.borderColor = 'rgba(255, 255, 255, 0.4)';
@@ -771,11 +805,18 @@
     let allRequests = {};
     let employeeSelectedDates = [];
 
+    // ELENCO EMAIL ADMIN AUTORIZZATE (INCLUSA REBECCA ANTENOZIO)
+    const ADMIN_EMAILS = [
+      'chiara.pizzorno@hqe.it', 
+      'pietro.malcotti@hqe.it', 
+      'gianluca.luccini@hqe.it', 
+      'rebecca.antenozio@hqe.it'
+    ];
+
     document.getElementById('loginEmail').addEventListener('input', function(e) {
       const email = e.target.value.trim().toLowerCase();
-      const adminEmails = ['chiara.pizzorno@hqe.it', 'pietro.malcotti@hqe.it', 'gianluca.luccini@hqe.it'];
       const passwordField = document.getElementById('adminPasswordField');
-      if (adminEmails.includes(email)) {
+      if (ADMIN_EMAILS.includes(email)) {
         passwordField.classList.remove('d-none');
       } else {
         passwordField.classList.add('d-none');
@@ -832,8 +873,8 @@
       const legendEl = document.getElementById('legendContainer');
       const hqBox = document.getElementById('hqSuggestBox');
 
-      const isDipendente = inq.includes('dipendente') || isAdmin;
-      const isPiva = inq.includes('piva') || inq.includes('partitaiva') || inq.includes('cococo');
+      // VERIFICA L'INQUADRAMENTO EFFETTIVO SENZA FORZARE LA VISTA DIPENDENTE SE È ADMIN
+      const isDipendente = inq.includes('dipendente');
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       if (isDipendente) {
@@ -883,7 +924,7 @@
       container.innerHTML = '';
 
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
-      const isDipendente = inq.includes('dipendente') || isAdmin;
+      const isDipendente = inq.includes('dipendente');
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       ALL_RANGE_DATES.forEach(dateStr => {
@@ -927,7 +968,7 @@
 
     function toggleDateSelection(dateStr) {
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
-      const isDipendente = inq.includes('dipendente') || isAdmin;
+      const isDipendente = inq.includes('dipendente');
       const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
 
       if (employeeSelectedDates.includes(dateStr)) {
@@ -940,7 +981,7 @@
             return;
           }
         } else {
-          if (maxDays === 0 || employeeSelectedDates.length >= maxDays) {
+          if (maxDays > 0 && employeeSelectedDates.length >= maxDays) {
             alert("Per esigenze differenti fare riferimento a risorseumane@hqe.it");
             return;
           }
