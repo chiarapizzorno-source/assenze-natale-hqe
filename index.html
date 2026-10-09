@@ -1131,7 +1131,6 @@
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
       const isPIva = inq.includes('p.iva') || inq.includes('partita');
       const isCoCoCo = inq.includes('cococo');
-      const isFreelance = isPIva || isCoCoCo;
 
       // STILI HEADER DEDICATI
       headerEl.classList.remove('header-piva', 'header-cococo');
@@ -1150,9 +1149,12 @@
 
       titleEl.innerText = "📅 Selezione Giornate";
 
-      // SEPARAZIONE TERMINI: FERIE (Dipendenti) vs VACANZE (P.IVA e CoCoCo)
-      if (isFreelance) {
-        textEl.innerHTML = "💡 Indicaci in quali giorni hai intenzione di andare in vacanza";
+      // MESSAGGI PERSONALIZZATI IN BASE ALL'INQUADRAMENTO
+      if (isPIva) {
+        textEl.innerHTML = "💡 Indicaci in quali giorni hai intenzione di andare in vacanza, così da coordinare al meglio le commesse in tua gestione";
+        hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
+      } else if (isCoCoCo) {
+        textEl.innerHTML = "💡 indicaci in quali giorni hai intenzione di andare in vacanza, così da gestire al meglio i progetti a cui collabori";
         hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       } else {
         textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
