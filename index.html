@@ -752,7 +752,6 @@
       <div class="card card-glossy-light">
         <div class="card-header bg-transparent fw-bold py-3 d-flex justify-content-between align-items-center border-0 rounded-top-4">
           <h2 id="calendarTitle" class="h5 m-0 text-danger fw-black">📅 Selezione Giornate</h2>
-          <span class="badge bg-danger rounded-pill px-3 py-2 fs-6 shadow-sm d-none" id="maxDaysInfo">Max 4 Giorni</span>
         </div>
         <div class="card-body">
           <div id="guidanceText" class="alert alert-danger bg-danger bg-opacity-10 border-danger border-opacity-25 text-danger small mb-3 rounded-3 fw-semibold" role="region" aria-live="polite"></div>
@@ -816,31 +815,25 @@
               </div>
             </div>
             <div class="row g-2 mb-3">
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label for="addBu" class="form-label extra-small fw-bold text-muted m-0">BU</label>
                 <input type="text" id="addBu" class="form-control form-control-sm" placeholder="BU">
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label for="addTeam" class="form-label extra-small fw-bold text-muted m-0">TEAM</label>
                 <input type="text" id="addTeam" class="form-control form-control-sm" placeholder="Team">
               </div>
-              <div class="col-md-4">
+              <div class="col-md-3">
                 <label for="addReferente" class="form-label extra-small fw-bold text-muted m-0">REFERENTE</label>
                 <input type="text" id="addReferente" class="form-control form-control-sm" placeholder="Referente">
               </div>
-            </div>
-            <div class="row g-2 mb-3">
-              <div class="col-md-6">
+              <div class="col-md-3">
                 <label for="addInquadramento" class="form-label extra-small fw-bold text-muted m-0">INQUADRAMENTO</label>
                 <select id="addInquadramento" class="form-select form-select-sm" aria-label="Seleziona Inquadramento">
                   <option value="Dipendente">Dipendente</option>
                   <option value="PartitaIVA">PartitaIVA</option>
                   <option value="CoCoCo">CoCoCo</option>
                 </select>
-              </div>
-              <div class="col-md-6">
-                <label for="addMaxDays" class="form-label extra-small fw-bold text-muted m-0">MAX GIORNI</label>
-                <input type="number" id="addMaxDays" class="form-control form-control-sm" value="4" min="0" max="15">
               </div>
             </div>
             <button type="submit" id="addUserBtn" class="btn btn-santa w-100 py-2 rounded-3">
@@ -893,7 +886,6 @@
                   <th scope="col">REFERENTE</th>
                   <th scope="col">COGNOME E NOME</th>
                   <th scope="col">INQUADRAMENTO</th>
-                  <th scope="col">MAX GIORNI</th>
                   <th scope="col">GIORNI SCELTI</th>
                   <th scope="col">STATO</th>
                   <th scope="col">DATE SELEZIONATE</th>
@@ -1131,13 +1123,11 @@
     function setupInquadramentoView() {
       const titleEl = document.getElementById('calendarTitle');
       const textEl = document.getElementById('guidanceText');
-      const maxEl = document.getElementById('maxDaysInfo');
       const legendEl = document.getElementById('legendContainer');
       const hqBox = document.getElementById('hqSuggestBox');
       const headerEl = document.getElementById('mainHeader');
       const headerSubtitleEl = document.getElementById('headerSubtitleContainer');
 
-      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
       const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
       const isPIva = inq.includes('p.iva') || inq.includes('partita');
       const isCoCoCo = inq.includes('cococo');
@@ -1162,12 +1152,9 @@
 
       // SEPARAZIONE TERMINI: FERIE (Dipendenti) vs VACANZE (P.IVA e CoCoCo)
       if (isFreelance) {
-        maxEl.classList.add('d-none');
         textEl.innerHTML = "💡 Indicaci in quali giorni hai intenzione di andare in vacanza";
         hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       } else {
-        maxEl.innerText = `Max ${maxDays} Giorni Totali`;
-        maxEl.classList.remove('d-none');
         textEl.innerHTML = "💡 Scegli i tuoi giorni di Ferie Natalizie";
         hqBox.innerText = "💡 Consiglio Santa Holidays: scegli i giorni 28-29-30";
       }
@@ -1253,27 +1240,9 @@
     }
 
     function toggleDateSelection(dateStr) {
-      const maxDays = (currentUser.maxDays !== undefined) ? currentUser.maxDays : 4;
-      const inq = (currentUser.inquadramento || 'Dipendente').toLowerCase();
-      const isFreelance = inq.includes('p.iva') || inq.includes('partita') || inq.includes('cococo');
-
       if (employeeSelectedDates.includes(dateStr)) {
         employeeSelectedDates = employeeSelectedDates.filter(d => d !== dateStr);
       } else {
-        if (!isFreelance) {
-          const closedCount = CLOSED_DATES.length; 
-          const maxSelectable = maxDays - closedCount;
-
-          if (maxSelectable <= 0) {
-            alert(`Hai un limite totale di ${maxDays} giorni e vi sono già ${closedCount} giorni di chiusura aziendale compresi. Non puoi selezionare ulteriori giorni.`);
-            return;
-          }
-
-          if (employeeSelectedDates.length >= maxSelectable) {
-            alert(`Hai raggiunto il limite massimo di ${maxSelectable} giorni selezionabili (${maxDays} totali meno ${closedCount} di chiusura aziendale).`);
-            return;
-          }
-        }
         employeeSelectedDates.push(dateStr);
       }
       renderCalendar();
@@ -1361,7 +1330,6 @@
         const req = allRequests[u.email] || {};
         const dates = req.dates || [];
         const datesCount = dates.length;
-        const maxD = (u.maxDays !== undefined) ? u.maxDays : 4;
         
         const statusBadge = datesCount > 0 
           ? '<span class="badge badge-inserito rounded-pill px-2.5 py-1">Confermato</span>' 
@@ -1384,8 +1352,7 @@
             <div class="extra-small text-muted">${u.email}</div>
           </td>
           <td><span class="view-mode badge bg-secondary shadow-sm">${u.inquadramento || ''}</span><input type="text" class="form-control form-control-sm edit-mode d-none val-inquadramento" value="${u.inquadramento || ''}" aria-label="Modifica Inquadramento"></td>
-          <td><span class="view-mode fw-bold text-primary">${maxD}</span><input type="number" class="form-control form-control-sm edit-mode d-none val-maxdays" value="${maxD}" style="width:55px;" min="0" aria-label="Modifica Max Giorni"></td>
-          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount} / ${maxD}</td>
+          <td class="text-center fw-extrabold text-success" style="font-weight: 800;">${datesCount}</td>
           <td class="text-center">${statusBadge}</td>
           <td class="small fw-semibold text-secondary">${formattedDates}</td>
           <td>
@@ -1414,7 +1381,6 @@
     async function saveUserEdit(email) {
       const tr = document.getElementById(`user-row-${email.replace(/[@.]/g, '_')}`);
       const confirmBtn = tr.querySelector('.btn-confirm');
-      const valMax = tr.querySelector('.val-maxdays').value;
       
       const uData = {
         email: email,
@@ -1422,8 +1388,7 @@
         bu: tr.querySelector('.val-bu').value,
         team: tr.querySelector('.val-team').value,
         referente: tr.querySelector('.val-referente').value,
-        inquadramento: tr.querySelector('.val-inquadramento').value,
-        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
+        inquadramento: tr.querySelector('.val-inquadramento').value
       };
 
       setButtonLoading(confirmBtn, true);
@@ -1453,7 +1418,6 @@
         return;
       }
 
-      const valMax = document.getElementById('addMaxDays').value;
       const newUser = {
         cognome: document.getElementById('addCognome').value,
         nome: document.getElementById('addNome').value,
@@ -1462,8 +1426,7 @@
         bu: document.getElementById('addBu').value,
         team: document.getElementById('addTeam').value,
         referente: document.getElementById('addReferente').value,
-        inquadramento: document.getElementById('addInquadramento').value,
-        maxDays: valMax === '0' ? 0 : (parseInt(valMax) || 4)
+        inquadramento: document.getElementById('addInquadramento').value
       };
 
       setButtonLoading(addBtn, true);
@@ -1517,7 +1480,6 @@
           'REFERENTE': u.referente || '',
           'COGNOME E NOME': `${u.cognome} ${u.nome}`,
           'INQUADRAMENTO': u.inquadramento || '',
-          'MAX GIORNI': u.maxDays !== undefined ? u.maxDays : 4,
           'GIORNI SCELTI': (req.dates || []).length,
           'STATO': (req.dates || []).length > 0 ? 'Confermato' : 'Da Inserire',
           'DATE SELEZIONATE': (req.dates || []).join(', '),
